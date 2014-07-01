@@ -1,10 +1,11 @@
-*.[oa]¬                                                                                        
-*~¬
-*.pyc¬
-*.swp¬
-*.swn¬
-*.swo¬
-*.bin¬
-.DS_Store¬
-node_modules/
-bower_components/
+# 忽略此文件
+deps-mr.js
+*.sw[onp]
+node_modules
+bower_components
+testReports
+yui
+api
+npm-debug.log
+testReports/
+.sass-cache

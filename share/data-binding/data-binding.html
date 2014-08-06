@@ -97,7 +97,7 @@
       }
       .referrence {
         text-align: left;
-        margin-left: 5em;
+        margin-left: 2em;
         font-size: 26px;
       }
 
@@ -199,7 +199,7 @@ Rivets.Util.bindEvent(el, 'change', function () {
 ```
 ]
 
-keydown/click/paste/cut/input
+keydown / click / paste / cut / input
 
 ---
 # ViewModel -> View
@@ -218,10 +218,9 @@ keydown/click/paste/cut/input
 ---
 ## Accessors
 
-### Object.defineProperty
-
 .code-block[
 ```js
+// Rivets
 var value = obj[keypath];
 Object.defineProperty(obj, keypath, {
     enumerable: true
@@ -230,7 +229,7 @@ Object.defineProperty(obj, keypath, {
     },
     set: function (newValue) {
         if (newValue !== value) {
-            value = newValue
+            value = newValue;
             callback();
         }
     }
@@ -239,12 +238,45 @@ Object.defineProperty(obj, keypath, {
 ]
 
 --
+.code-block[
+```js
+// Ember
+var todo = this.store.createRecord('todo', {
+    title: title,
+    isCompleted: false
+});
 
-EmberJS / BackboneJS / Rivets
+this.set('newTitle', '');
+```
+]
+
+--
+
+Ember / Knockout / Rivets / Vue
 
 --
 
 实现简单、高性能 / 语法复杂、兼容性差
+
+---
+# YUI & Backbone
+
+.code-block[
+```js
+o.on('attrChange', function (e) {
+    console.log(
+        e.newVal,
+        e.prevVal,
+        e.attrName
+    );
+});
+o.set("attr", "Hello World!");
+```
+]
+
+--
+
+需要手动完成双向绑定。。。
 
 ---
 ## Object.observe
@@ -336,7 +368,7 @@ AngularJS
 ]
 
 ---
-# Angular Event Loop
+# $digest loop
 
 ![event-loop](angular-event-loop.png)
 
@@ -365,6 +397,8 @@ AngularJS
 - [Angular Scope](https://docs.angularjs.org/guide/scope)
 
 - [Make Your Own AngularJS, Part 1: Scopes And Digest](http://teropa.info/blog/2013/11/03/make-your-own-angular-part-1-scopes-and-digest.html)
+
+- [Databinding in angularjs](http://stackoverflow.com/questions/9682092/databinding-in-angularjs#answer-9693933)
 
 - [Data-binding Revolutions with Object.observe()](http://www.html5rocks.com/en/tutorials/es7/observe)
 

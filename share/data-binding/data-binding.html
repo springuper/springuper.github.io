@@ -76,6 +76,13 @@
         color: #cecece;
         line-height: 1.2em;
       }
+      /*
+      .cover {
+        background-image: url(./watch-gear.jpg);
+        background-size: cover !important;
+        background-color:rgba(0, 0, 0, 0.5);
+      }
+      */
       .engineering-productivity {
         margin-left: 9em;
         font-size: 26px;
@@ -112,7 +119,7 @@
     <textarea id="source">
 name: inverse
 layout: true
-class: center, middle, inverse
+class: center, middle, inverse, cover
 ---
 # Data Binding 基本原理
 shangchun@meituan
@@ -241,12 +248,14 @@ Object.defineProperty(obj, keypath, {
 .code-block[
 ```js
 // Ember
-var todo = this.store.createRecord('todo', {
-    title: title,
-    isCompleted: false
+Todos.TodoController = Ember.ObjectController.extend({
+    isCompleted: function(key, value){
+        var model = this.get('model');
+        model.set('isCompleted', value);
+        model.save();
+        return value;
+    }.property('model.isCompleted')
 });
-
-this.set('newTitle', '');
 ```
 ]
 
@@ -319,25 +328,25 @@ new / updated / deleted / reconfigured
 .code-block[
 ```js
 Scope.prototype.$$digestOnce = function() {
-  var self  = this;
-  var dirty;
-  _.forEach(this.$$watchers, function(watch) {
-    var newValue = watch.watchFn(self);
-    var oldValue = watch.last;
-    if (newValue !== oldValue) {
-      watch.listenerFn(newValue, oldValue, self);
-      dirty = true;
-      watch.last = newValue;
-    }
-  });
-  return dirty;
+    var self  = this;
+    var dirty;
+    _.forEach(this.$$watchers, function(watch) {
+        var newValue = watch.watchFn(self);
+        var oldValue = watch.last;
+        if (newValue !== oldValue) {
+            watch.listenerFn(newValue, oldValue, self);
+            dirty = true;
+            watch.last = newValue;
+        }
+    });
+    return dirty;
 };
 
 Scope.prototype.$digest = function() {
-  var dirty;
-  do {
-    dirty = this.$$digestOnce();
-  } while (dirty);
+    var dirty;
+    do {
+        dirty = this.$$digestOnce();
+    } while (dirty);
 };
 ```
 ]

@@ -117,6 +117,9 @@
       .trigger-time--4em {
         margin-left: 4em;
       }
+      .trigger-time--2em {
+        margin-left: 2em;
+      }
       .trigger-time li {
         margin-bottom: 8px;
       }
@@ -137,6 +140,11 @@
       #slide-inverse .footnote {
         bottom: 12px;
         left: 20px;
+      }
+
+      small {
+        font-size: 0.6em;
+        color: #999;
       }
     </style>
   </head>
@@ -176,6 +184,7 @@ Not Found
 
 ---
 # 一个栗子
+
 商家后台-所有项目消费明细
 
 ---
@@ -254,7 +263,7 @@ levenshtein distance
 ---
 # ObservableMap / Scope
 
-### 观察对象属性的变化
+### 观察对象属性值的变化
 
 .code-block[
 ```js
@@ -325,7 +334,70 @@ document.body.appendChild(vivid.render(tpl, scope));
 实现绑定核心逻辑
 
 ---
-# Binder Mechanism
+# 基本流程
+
+.code-block[
+```html
+Hello, {{name}}.
+```
+]
+
+--
+模板解析：创建 binding 保留参数，返回占位符
+.code-block[
+```html
+Hello, <script
+    type="text/x-placeholder"
+    data-vivid-1></script>.
+```
+]
+.code-block[
+```js
+binding = {
+    id: 1,
+    property: 'name',
+    scope: scope,
+    ...
+};
+```
+]
+
+---
+# 基本流程
+
+模板渲染：生成 DOM，填充内容，实现绑定
+
+.code-block[
+```js
+var value = scope.get(property),
+    update = function (newValue) {
+        dom.insertAfter(elPlaceholder, newValue);
+    };
+scope.sub(property, function (newValue) {
+    update(newValue);
+});
+update(value);
+```
+]
+
+---
+# 基本流程
+
+解除绑定：解除所有 DOM、Observable 绑定
+
+.code-block[
+```js
+while (observableHandles.length) {
+    observableHandles.pop().detach();
+}
+each(el.childNodes, function (child) {
+    unbind(child);
+});
+```
+]
+
+---
+# Normalized Binder Interface
 
 .trigger-time[
 - hook: 返回模板占位符
@@ -334,23 +406,6 @@ document.body.appendChild(vivid.render(tpl, scope));
 - publish: 更新数据
 - unbind: 解除绑定
 ]
-
----
-# 大致流程
-
-.trigger-time.trigger-time--4em[
-- 模板解析
-
-    创建 binding 保留参数，返回占位符
-- 模板渲染
-
-    找到占位符对应 binding，实现元素和数据的绑定
-- 解除绑定
-
-    解除所有 DOM、Observable 绑定
-]
-
-render / unbind
 
 ---
 # Binder Module
@@ -421,12 +476,12 @@ Vivid 小分队：@shangchun, @liuxijin, @yaoshiping
 ---
 # RoadMap
 
-.trigger-time.trigger-time--4em[
-- 0.0.1 Vivid was born
-- 0.0.2 ObservableArray & Test
-- 0.0.3 Computed Property & Normalize Binder
-- 0.0.4 Docs & Demos
-- 0.0.5 Mustache Binding & Filter
+.trigger-time.trigger-time--2em[
+- 0.0.1 Vivid was born <small>9.30</small>
+- 0.0.2 ObservableArray / Test <small>10.17</small>
+- 0.0.3 Computed Property / Binder Interface <small>11.4</small>
+- 0.0.4 Docs / Demos
+- 0.0.5 Mustache Binding / Filter / Keypath
 - TBD
 ]
 
@@ -434,11 +489,14 @@ Vivid 小分队：@shangchun, @liuxijin, @yaoshiping
 # Keep Simple, Keep Focused
 
 ---
+# Welcome Contribute!
+## [@fe.vivid](http://git.sankuai.com/projects/FE/repos/fe.vivid/browse)
+
+---
 name: last-page
 
 # Thanks
 
-Welcome contribute [@fe.vivid](http://git.sankuai.com/projects/FE/repos/fe.vivid/browse)
     </textarea>
     <script src="http://gnab.github.com/remark/downloads/remark-0.6.5.min.js" type="text/javascript"></script>
     <script type="text/javascript">

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Separation of Ends</title>
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Helvetica';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin: 0.3em auto;
+      }
+      .remark-slide-content {
+        padding-left: 3em;
+        padding-right: 3em;
+        text-align: center;
+        vertical-align: middle;
+        background: #212121;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .remark-slide-content h1 { font-size: 3.2em; }
+      .remark-slide-content h2 { font-size: 2.4em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; margin:8px 0; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        -moz-border-radius: 5px;
+        -web-border-radius: 5px;
+        border-radius: 5px;
+      }
+      .hljs-monokai .hljs {
+        background: #3D3D3D;
+      }
+      .remark-code, .remark-inline-code {
+        font-size: 20px;
+        font-family: 'Monaco';
+      }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .remark-slide-content ul {
+        color: #cecece;
+      }
+      .remark-slide-content h1, .remark-slide-content h2 {
+        color: #f3f3f3;
+        line-height: 1.2em;
+      }
+      .remark-slide-content h3 {
+        color: #cecece;
+        line-height: 1.2em;
+      }
+      .cover {
+        background-image: url(./road.jpg);
+        background-size: cover !important;
+        background-color:rgba(255, 0, 0, 0.1);
+        text-shadow: 0 0 5px #000;
+      }
+      .cover h1 {
+        margin: 0.5em 0 0;
+        font-size: 4em;
+      }
+      .cover p {
+        color: #333;
+        text-shadow: 0 0 3px #FFF;
+      }
+      .nobg {
+        background-image: none;
+      }
+      .engineering-productivity {
+        margin-left: 9em;
+        font-size: 26px;
+        color: #cecece;
+      }
+      .swe-duty {
+        text-align: left;
+        margin: 2em 0 0 11em;
+        font-size: 26px;
+      }
+      .swe-duty li {
+        margin-bottom: 8px;
+      }
+      .swe-duty em {
+        font-size: 22px;
+        font-style: normal;
+        color: #999;
+      }
+      .trigger-time {
+        text-align: left;
+        margin: 0 0 0 7em;
+        font-size: 32px;
+      }
+      .trigger-time--7em {
+        margin-left: 7em;
+      }
+      .trigger-time--5em {
+        margin-left: 5em;
+      }
+      .trigger-time--4em {
+        margin-left: 4em;
+      }
+      .trigger-time--2em {
+        margin-left: 2em;
+      }
+      .trigger-time li {
+        margin-bottom: 8px;
+      }
+      .code-block {
+        text-align: left;
+        margin: 0 3em;
+      }
+      .code-block--small .remark-code-line {
+        font-size: 18px;
+      }
+      .referrence {
+        text-align: left;
+        margin-left: 2em;
+        font-size: 26px;
+      }
+      .traffic-jam {
+        background-image: url(./traffic-jam.jpg);
+        background-size: cover !important;
+        background-color:rgba(0, 0, 0, 0.5);
+      }
+      .traffic-flyover {
+        background-image: url(./traffic-flyover.jpg);
+        background-size: cover !important;
+        background-color:rgba(0, 0, 0, 0.5);
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+
+      small {
+        font-size: 0.6em;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: cover
+
+# 主站前后端分离
+
+shangchun
+
+---
+# Why?
+
+--
+## &nbsp;
+## 关注点分离
+Separation of Concerns
+
+---
+# Reality
+
+![reality arch](arch-reality.png)
+
+---
+# 主要矛盾
+
+### 灵活的框架和复杂的业务、庞大的团队之间的矛盾
+
+---
+class: traffic-jam
+
+---
+# Dream
+
+![dream arch](arch-dream.png)
+
+---
+class: traffic-flyover
+
+---
+# 前后端协作流程
+
+.swe-duty.trigger-time--5em[
+- 确定需求
+
+    *与 PM 一起，就业务需求进行讨论和定稿*
+- 确定技术方案
+
+    *BE 和 FE 一起，就技术实现方案进行讨论和定稿*
+- 确定前后端接口数据
+
+    *根据业务需求和技术方案，确定后端提供给前端的数据*
+    
+- 并行开发
+
+    *BE 根据最终产出的数据做相关开发*
+
+    *FE 根据数据约定生成 Mock 数据，进行展现层开发*
+- 联调上线
+
+    *前后端在测试环境合并代码，根据需求进行调试和改进*
+
+    *分别进行 Review，最终上线，并确认线上效果*
+]
+
+---
+# How?
+
+.swe-duty[
+- 制定接口规范
+
+    *确定前后端边界*
+- 接入 Mock 服务
+
+    *支持前后端并行开发*
+- 使用模板引擎
+
+    *提高模板可维护性*
+]
+
+---
+# 接口规范
+
+.swe-duty.trigger-time--7em[
+- 纯数据
+
+    *避免暴露 Model 等业务抽象*
+- 不需对数据进行业务处理 
+
+    *前端专注在展现逻辑*
+- 按照功能模块组织数据
+
+    *方便前后端复用数据的生成和使用逻辑*
+]
+
+---
+# 纯数据
+
+.code-block.code-block--small[
+```php
+// action
+public function actBuy($slug)
+{
+    $deal = DealModel::getFromService($slug);
+    $this->setValue('deal', $deal);
+}
+
+// template
+$commitments = [];
+$commitments[] = $deal->isSupportSevenRefund() ?
+                 'anytime' : 'notAnytime';
+$text = [
+    'anytime' => '随时退',
+    'notAnytime' => '不支持随时退',
+];
+echo '<div class="commitments">', $text[$commitments[0]], '</div>';
+```
+]
+
+bad
+
+---
+.code-block.code-block--small[
+```php
+// controller
+public static function getDealCommitments($deal)
+{
+    $commitments = [];
+    $commitments[] = $deal->isSupportSevenRefund() ?
+                    'anytime' : 'notAnytime';
+    return $commitments;
+}
+ 
+// action
+public function actBuy($slug)
+{
+    $deal = DealModel::getFromService($slug);
+    $this->setValue('commitments',
+            DealController::getDealCommitments($deal));
+}
+ 
+// template
+$text = [
+    'anytime' => '随时退',
+    'notAnytime' => '不支持随时退',
+];
+echo '<div class="commitments">', $text[$commitments[0]], '</div>';
+```
+]
+
+Good
+
+---
+# 不需对数据进行业务处理 
+
+## &nbsp;
+## 业务逻辑
+
+.swe-duty.trigger-time--7em[
+- 计算一个 Deal 是否可以购买
+
+    *依赖 Deal 的已售数量是否大于上限、是否在有效时间段、是否仅限新用户购买等等*
+- 计算一个 Order 是否需要付款、退款
+
+    *依赖 Order 目前的状态*
+- 验证提交数据的正确性
+]
+
+---
+
+## 展现逻辑
+
+.swe-duty.trigger-time--7em[
+- 将时间戳转换为日期
+- 截断字符串，以满足布局需要
+- table 的偶数行加上特定的样式
+- 为展现所增加的额外变量，例如如果 $list 为空，则如何展现
+]
+
+---
+.code-block.code-block--small[
+```php
+// action
+public function actList()
+{
+    $orders = OrdersController::getUserOrders($userid);
+    $this->setValue('orders', $orders);
+}
+ 
+// template
+foreach ($orders as $order) {
+    $canDelete = $order['status'] < OrderModel::STATUS_FAILED;
+    $needPay = $order['status'] == OrderModel::STATUS_PAY;
+    echo '<tr>';
+    echo '<td>', $order['dealtitle'], '</td>';
+    echo '<td>';
+    if ($canDelete) {
+        echo '<button class="J-delete">删除</button>';
+    }
+    if ($needPay) {
+        echo '<button class="J-pay">付款</button>';
+    }
+    echo '</td>';
+    echo '</tr>';
+}
+```
+]
+
+Bad
+
+---
+.code-block.code-block--small[
+```php
+// action
+public function actList()
+{
+    $orders = OrdersController::getUserOrders($userid);
+    $this->setValue('orders', $orders);
+}
+ 
+// template
+foreach ($orders as $order) {
+    echo '<tr>';
+    echo '<td>', $order['dealtitle'], '</td>';
+    echo '<td>';
+    if ($order['canDelete']) {
+        echo '<button class="J-delete">删除</button>';
+    }
+    if ($order['needPay']) {
+        echo '<button class="J-pay">付款</button>';
+    }
+    echo '</td>';
+    echo '</tr>';
+}
+```
+]
+
+Good
+
+---
+# 按照功能模块组织数据
+
+.swe-duty.trigger-time--5em[
+- 可复用
+
+    *页面功能模块存在复用*
+
+    *多个用户端（Web、App）使用同一模块数据*
+- 可维护
+
+    *按照功能模块组织会更加清晰、易维护*
+]
+
+---
+.code-block.code-block--small[
+```php
+// action
+public function actDefault($slug)
+{
+    $deal = DealModel::getFromService($slug);
+    $this->setValue('dealtitle', $deal->getShortTitle());
+    $this->setValue('price', $deal->price);
+    $this->setValue('canBuy', DealController::canBuyBy($deal));
+    $this->setValue('tips', DealController::getDetailTips($deal));
+    $this->setValue('terms', DealController::getDetailTerms($deal));
+    $this->setValue('detail', $deal->detail);
+}
+```
+]
+
+
+---
+.code-block.code-block--small[
+```php
+// controller
+public static function getDigest($deal)
+{
+    $digest = [];
+    $digest['dealtitle'] = $deal->getShortTitle();
+    $digest['price'] = $deal->price;
+    $digest['canBuy'] = DealController::canBuyBy($deal);
+    return $digest;
+}
+ 
+// action
+public function actDefault($slug)
+{
+    $deal = DealModel::getFromService($slug);
+    $this->setValue('digest', DealController::getDigest($deal));
+    $this->setValue('poi', DealController::getPOIList($deal));
+    $this->setValue('detail', DealController::getDetail($deal));
+}
+```
+]
+
+
+---
+# Mock 服务
+
+### Demo by @zhongchiyu
+
+---
+# 模板引擎
+
+.swe-duty.trigger-time--5em[
+- 支持 Template、Component 使用 Handlebars
+- 支持 Layout
+- 已迁移 common head/header/footer/foot
+]
+
+---
+# 标杆页面 - 我的收藏
+
+### Demo by @zengyiming
+
+---
+# FullStack
+
+## MTK (Meituan Koa)
+
+![arch fullstack](arch-fullstack.png)
+
+---
+# RoadMap
+
+.swe-duty.trigger-time--5em[
+- 制定接口规范、协作流程和标杆
+- 方案推广
+
+    *用户相关页面*
+
+    *订单相关页面*
+
+    *充值、退款、提现相关页面*
+
+    *购买流程相关页面*
+
+    *酒店、电影、婚庆相关页面*
+
+    *首页、筛选页、Deal 页、Search 页等主要页面*
+
+    *其它页面*
+- FullStack 推广
+]
+
+---
+# TODO
+
+.swe-duty.trigger-time--7em[
+- 确定展现数据处理层方案
+- 迁移 PageNav 等通用模块
+- 推进基于 Mock 的测试建设工作
+- 解决推广过程中的数据接口疑问
+]
+
+### R: @shangchun & @xupeng03
+
+---
+# 分离是为了更好的聚合
+
+--
+### Let's PUSH things FORWARD!
+
+---
+name: last-page
+
+# Thanks
+
+    </textarea>
+    <script src="http://gnab.github.com/remark/downloads/remark-0.6.5.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="remark.language.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+          highlightStyle: 'monokai',
+          highlightLanguage: 'remark'
+        }) ;
+    </script>
+  </body>
+</html>

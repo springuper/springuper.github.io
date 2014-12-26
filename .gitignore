@@ -9,3 +9,4 @@ api
 npm-debug.log
 testReports/
 .sass-cache
+.*

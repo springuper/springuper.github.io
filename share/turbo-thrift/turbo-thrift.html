@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Turbo Thrift</title>
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Helvetica';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin: 0.3em auto;
+      }
+      .remark-slide-content {
+        padding-left: 3em;
+        padding-right: 3em;
+        text-align: center;
+        vertical-align: middle;
+        background: #212121;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .remark-slide-content h1 { font-size: 3.8em; }
+      .remark-slide-content h2 { font-size: 2.4em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; margin:8px 0; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        -moz-border-radius: 5px;
+        -web-border-radius: 5px;
+        border-radius: 5px;
+      }
+      .hljs-monokai .hljs {
+        background: #3D3D3D;
+      }
+      .remark-code, .remark-inline-code {
+        font-size: 20px;
+        font-family: 'Monaco';
+      }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .remark-slide-content ul {
+        color: #cecece;
+      }
+      .remark-slide-content h1, .remark-slide-content h2 {
+        color: #f3f3f3;
+        line-height: 1.2em;
+      }
+      .remark-slide-content h3 {
+        color: #cecece;
+        line-height: 1.2em;
+      }
+      .cover {
+        background-image: url(./cover.jpeg);
+        background-size: cover !important;
+        background-color:rgba(0, 0, 0, 0.5);
+        text-shadow: 0 0 10px #000;
+      }
+      .cover h1 {
+        margin: 0.5em 0 0;
+        font-size: 5em;
+      }
+      .cover p {
+        color: #CCC;
+        text-shadow: 0 0 1px #000;
+      }
+      .nobg {
+        background-image: none;
+      }
+      .engineering-productivity {
+        margin-left: 9em;
+        font-size: 26px;
+        color: #cecece;
+      }
+      .swe-duty {
+        text-align: left;
+        margin: 2em 0 0 11em;
+        font-size: 26px;
+      }
+      .trigger-time {
+        text-align: left;
+        margin: 0 0 0 7em;
+        font-size: 32px;
+      }
+      .trigger-time--6em {
+        margin-left: 5em;
+      }
+      .trigger-time--5em {
+        margin-left: 5em;
+      }
+      .trigger-time--4em {
+        margin-left: 4em;
+      }
+      .trigger-time--2em {
+        margin-left: 2em;
+      }
+      .trigger-time li {
+        margin-bottom: 8px;
+      }
+      .code-block {
+        text-align: left;
+        margin: 0;
+      }
+      .code-block--7em {
+        margin: 0 7em;
+      }
+      .code-block--small .remark-code-line {
+        font-size: 18px;
+      }
+      .referrence {
+        text-align: left;
+        margin-left: 2em;
+        font-size: 26px;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+
+      small {
+        font-size: 0.6em;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: cover
+
+# Turbo Thrift
+A simple way to use thrift
+
+---
+# 问题
+
+### 全栈调用 API 时，经常遇到：
+
+.trigger-time.trigger-time--5em[
+- API 文档很难找
+- API 文档过期
+- API 返回数据变更导致程序挂掉
+]
+
+---
+# Thrift
+
+Scalable Cross-Language Services Implementation
+
+--
+
+RPC，像调用本地方法一样调用远程服务
+
+---
+# 栗子
+
+--
+### Step 1. 和后端确认 IDL
+
+.code-block[
+```
+service Calculator {                                                                                                   
+    i32 add(1:i32 num1, 2:i32 num2),                                                                                     
+}
+```
+]
+
+--
+
+### Step 2. 由 IDL 生成代码
+
+.code-block[
+```base
+$ thrift --gen js:node calculator.thrift
+```
+]
+
+---
+
+### Step 3. 编写客户端代码
+
+.code-block[
+```javascript
+var thrift = require('thrift');
+var Calculator = require('./gen-nodejs/Calculator');
+
+var connection = thrift.createConnection('10.12.123.15', 9090);
+var client = thrift.createClient(Calculator, connection);
+
+client.add(1, 1, function (err, result) {
+    console.log("1 + 1 = " + result); // => 2
+});
+```
+]
+
+---
+# IDL 解决了什么问题
+
+## 契约代码化
+
+.trigger-time.trigger-time-2em[
+- <del>API 文档很难找</del> IDL 就是文档
+- <del>API 文档过期</del> 代码由 IDL 生成
+- <del>API 返回数据变更导致程序挂掉</del> 直接服务端报错
+]
+
+---
+# Thrift 架构
+
+---
+
+<img src="Thrift_architecture.png" alt="thrift architecture" width="40%">
+
+---
+# Turbo Thrift
+
+MtThrift 的 NodeJS 实现
+
+---
+# 客户端调用变成
+
+.code-block[
+```javascript
+var TurboThriftPool = require('@mtfe/turbo-thrift').TurboThriftPool;
+var Calculator = require('./gen-nodejs/Calculator');
+
+var thriftPool = new TurboThriftPool({
+    localAppKey: 'com.meituan.balabala',
+    remoteAppKey: 'com.meituan.calculator'
+});
+
+var sum = yield thriftPool.exec(Calculator, 'add', 1, 1);
+```
+]
+
+---
+# 更复杂的栗子
+
+Maiton Demo
+
+---
+# 依赖层次
+
+![dep layers](layers.png)
+
+---
+# Turbo Thrift 提供的功能
+
+.trigger-time[
+- 自动获取 Service List
+- 负载均衡
+- 失败重试
+- 统计追踪
+]
+
+---
+# 自动获取 Service List
+
+![get service list](getServiceList.png)
+
+---
+# 负载均衡
+
+Weighted Round Robin
+
+---
+# 失败重试
+
+todo
+
+---
+# 统计追踪
+
+![trace](trace.png)
+
+---
+# 统计追踪-性能
+
+![octo-perf](octo-perf.png)
+
+
+---
+## 好处
+
+.trigger-time.trigger-time--6em[
+- IDL 带来的明确约束
+- 传输效率、性能较好
+- RPC 层可透明增加多种功能
+]
+
+## 不足
+
+.trigger-time.trigger-time--6em[
+- 环节增加
+- 代码量增加
+- 对于对外简单服务不如 API
+]
+
+---
+# 未来
+
+.trigger-time.trigger-time--5em[
+- 基于 IDL 生成 Mock 数据
+- 接入 RPC 团队产出的 C++ 版本
+- 和 Mascot RPC 融合
+]
+
+---
+# 妄想
+
+.code-block.code-block--7em[
+```bash
+Android --------+
+                |   thrift
+iOS ------------+------------> Service
+                |
+Web ------------+
+```
+]
+
+---
+# 参考
+
+.trigger-time[
+- [thrift 官网](https://thrift.apache.org/tutorial/nodejs)
+- [thrift 白皮书](http://thrift.apache.org/static/files/thrift-20070401.pdf)
+- [Thrift: The Missing Guide](http://diwakergupta.github.io/thrift-missing-guide)
+- [Quora](http://www.quora.com/What-is-the-advantage-of-using-Thrift-as-opposed-to-exposing-an-HTTP-REST-API)
+- [MtThrift](http://wiki.sankuai.com/pages/viewpage.action?pageId=58234499)
+]
+
+---
+name: last-page
+
+# Thanks
+
+    </textarea>
+    <script src="http://gnab.github.com/remark/downloads/remark-0.6.5.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="remark.language.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+          highlightStyle: 'monokai',
+          highlightLanguage: 'remark'
+        }) ;
+    </script>
+  </body>
+</html>

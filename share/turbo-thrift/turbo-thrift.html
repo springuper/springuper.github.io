@@ -229,7 +229,7 @@ client.add(1, 1, function (err, result) {
 
 ## 契约代码化
 
-.trigger-time.trigger-time-2em[
+.trigger-time.trigger-time--2em[
 - <del>API 文档很难找</del> IDL 就是文档
 - <del>API 文档过期</del> 代码由 IDL 生成
 - <del>API 返回数据变更导致程序挂掉</del> 直接服务端报错
@@ -297,7 +297,25 @@ Weighted Round Robin
 ---
 # 失败重试
 
-todo
+发生网络异常时自动连接下一台 Service 机器
+
+.code-block[
+```javascript
+var i = hashByWeightedRoundRobin(serviceList);
+var operation = retry.operation(retryOptions);
+operation.attempt(function () {
+    var service = serviceList[i++ % serviceList.length];
+    ...
+    }).catch(function (e) {
+        if (e instanceof TurboThriftException &&
+            (e.type === TurboThriftExceptionType.TIMEOUT ||
+            e.type === TurboThriftExceptionType.UNKNOWN)) {
+            return operation.retry(e);
+        }
+    ...
+});
+```
+]
 
 ---
 # 统计追踪

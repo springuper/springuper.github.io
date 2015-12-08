@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CSP</title>
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Helvetica';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin: 0.3em auto;
+      }
+      .remark-slide-content {
+        padding-left: 3em;
+        padding-right: 3em;
+        text-align: center;
+        vertical-align: middle;
+        background: #212121;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .remark-slide-content h1 { font-size: 3.8em; }
+      .remark-slide-content h2 { font-size: 2.4em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; margin:8px 0; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        -moz-border-radius: 5px;
+        -web-border-radius: 5px;
+        border-radius: 5px;
+      }
+      .hljs-monokai .hljs {
+        background: #3D3D3D;
+      }
+      .remark-code, .remark-inline-code {
+        font-size: 20px;
+        font-family: 'Monaco';
+      }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .remark-slide-content ul {
+        color: #cecece;
+      }
+      .remark-slide-content h1, .remark-slide-content h2 {
+        color: #f3f3f3;
+        line-height: 1.2em;
+      }
+      .remark-slide-content h3 {
+        color: #cecece;
+        line-height: 1.2em;
+      }
+      .cover {
+        background-image: url(./guard.jpg);
+        background-size: cover !important;
+        background-color:rgba(0, 0, 0, 0.5);
+        text-shadow: 0 0 10px #000;
+      }
+      .cover h1 {
+        margin: 0.5em 0 0;
+        font-size: 5em;
+      }
+      .cover p {
+        color: #FFF;
+        text-shadow: 0 0 1px #000;
+      }
+      .nobg {
+        background-image: none;
+      }
+      .engineering-productivity {
+        margin-left: 9em;
+        font-size: 26px;
+        color: #cecece;
+      }
+      .swe-duty {
+        text-align: left;
+        margin: 2em 0 0 11em;
+        font-size: 26px;
+      }
+      .trigger-time {
+        text-align: left;
+        margin: 0 0 0 7em;
+        font-size: 32px;
+      }
+      .trigger-time--6em {
+        margin-left: 6em;
+      }
+      .trigger-time--5em {
+        margin-left: 5em;
+      }
+      .trigger-time--4em {
+        margin-left: 4em;
+      }
+      .trigger-time--3em {
+        margin-left: 3em;
+      }
+      .trigger-time--2em {
+        margin-left: 2em;
+      }
+      .trigger-time li {
+        margin-bottom: 8px;
+      }
+      .code-block {
+        text-align: left;
+        margin: 0;
+        word-wrap: break-word;
+      }
+      .code-block--7em {
+        margin: 0 7em;
+      }
+      .code-block--small .remark-code-line {
+        font-size: 18px;
+      }
+      .referrence {
+        text-align: left;
+        margin-left: 2em;
+        font-size: 26px;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+
+      small {
+        font-size: 0.6em;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: cover
+
+# Content Security Policy
+防 XSS 利器
+
+---
+# 讲什么
+
+.trigger-time.trigger-time--5em[
+- 背景
+- 方案
+- 实现：中间件 / Reporter / Sentry
+- 未来
+]
+
+---
+# 背景
+
+.trigger-time.trigger-time--5em[
+- Anti XSS
+- Anti XSS
+- Anti XSS
+]
+
+---
+
+### The core issue exploited by XSS attacks is the browser’s inability to distinguish between script that’s intended to be part of your application, and script that’s been maliciously injected by a third-party
+
+![baibaihe](./baibaihe.png)
+
+---
+
+# 方案
+
+## 资源白名单
+
+--
+.code-block[
+```bash
+Content-Security-Policy: script-src 'self' https://*.google.com
+```
+]
+
+通过 CSP header 让浏览器知道哪些资源是允许访问的
+
+---
+
+<img src="./console.png" alt="console" width="100%" style="margin-top: 3%" />
+
+---
+# 指令集
+
+.trigger-time.trigger-time--2em[
+- default-src
+- script-src, style-src, img-src, connect-src, font-src, object-src, media-src, frame-src
+- reflected-xss / x-xss-protection header
+- report-uri
+]
+
+---
+# 案例
+
+## PC 团购
+
+.code-block[
+```bash
+Content-Security-Policy:default-src *.meituan.com *.meituan.net; script-src *.meituan.com *.meituan.net http://open.map.qq.com/ 'unsafe-inline' 'unsafe-eval'; style-src *.meituan.com *.meituan.net 'unsafe-inline'; img-src *.meituan.com *.meituan.net data: stats.g.doubleclick.net http://open.map.qq.com http://pr.map.qq.com http://*.map.gtimg.com; font-src *.meituan.com *.meituan.net data:; connect-src *.meituan.com https://*.meituan.com; report-uri http://fecsp.sankuai.com/report/www
+
+X-XSS-Protection:1; mode=block
+```
+]
+
+---
+
+# 实现
+
+<img src="./frame.png" alt="frame" width="600" />
+
+
+---
+
+# Server 设置 CSP
+
+.code-block[
+```js
+// config
+module.exports = {
+    csp: {
+        'default-src': ['*.meituan.net'],
+        'script-src': ['*.meituan.net', "'unsafe-inline'"]
+    }
+};
+
+// bootstrap
+var koalition = require('@mtfe/koalition');
+var config = require('config');
+var csp = require('@mtfe/turbo-csp');
+var app = koalition({
+    config: config,
+    port: 8080
+});
+app.use(csp).bootstrap();
+```
+]
+---
+
+### 页面特殊设置
+
+.code-block[
+```js
+// page controller
+function* controller() {
+    // page specific options
+    this.cspOptions = {
+        'script-src': ['*.meituan.net', "'unsafe-inline'", 'map.baidu.com']
+    };
+
+    return {
+        detail: 'something for display'
+    };
+}
+```
+]
+
+[@mtfe/turbo-csp](http://npm.sankuai.com/package/@mtfe/turbo-csp)
+---
+
+# Reporter
+
+接收站点发来的违禁资源报告，并将其做一些转化处理，发送给 Sentry
+
+.code-block[
+```bash
+http://fecsp.sankuai.com/report/:sitename
+```
+]
+
+业务方想使用的话，需要联系 @shangchun 简单注册下
+
+---
+
+# Sentry
+
+<img src="./sentry.png" alt="sentry" width="700" />
+
+---
+
+# 未来
+
+## CSP Level 2
+
+.trigger-time.trigger-time--3em[
+- nonce-script, hash-script
+- 5 个新指令：base-uri, child-src, form-action, frame-ancestors, plugin-types
+- 更多请期待...
+]
+
+
+---
+
+# 参考
+
+.trigger-time.trigger-time--3em[
+- [CSP 1.0](http://www.w3.org/TR/2012/CR-CSP-20121115/)
+- [CSP Level 2](http://www.w3.org/TR/CSP/)
+- [An Introduction to Content Security Policy](http://www.html5rocks.com/en/tutorials/security/content-security-policy/)
+]
+
+---
+name: last-page
+
+# Thanks
+
+    </textarea>
+    <script src="http://gnab.github.com/remark/downloads/remark-0.6.5.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="remark.language.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+          highlightStyle: 'monokai',
+          highlightLanguage: 'remark'
+        }) ;
+    </script>
+  </body>
+</html>

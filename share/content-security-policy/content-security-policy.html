@@ -111,6 +111,9 @@
         margin: 0 0 0 7em;
         font-size: 32px;
       }
+      .trigger-time--9em {
+        margin-left: 9em;
+      }
       .trigger-time--6em {
         margin-left: 6em;
       }
@@ -172,14 +175,14 @@ class: cover
 .trigger-time.trigger-time--5em[
 - 背景
 - 方案
-- 实现：中间件 / Reporter / Sentry
+- 实施：中间件 / Reporter / Sentry
 - 未来
 ]
 
 ---
 # 背景
 
-.trigger-time.trigger-time--5em[
+.trigger-time.trigger-time--9em[
 - Anti XSS
 - Anti XSS
 - Anti XSS
@@ -216,9 +219,29 @@ Content-Security-Policy: script-src 'self' https://*.google.com
 .trigger-time.trigger-time--2em[
 - default-src
 - script-src, style-src, img-src, connect-src, font-src, object-src, media-src, frame-src
-- reflected-xss / x-xss-protection header
+- sandbox
 - report-uri
 ]
+
+---
+# 其它
+
+.trigger-time.trigger-time--3em[
+- Content-Security-Policy-Report-Only
+- Meta
+]
+
+.code-block[
+```bash
+<meta http-equiv="Content-Security-Policy" content="script-src 'self' https://*.google.com"> 
+```
+]
+
+---
+# 兼容性
+
+<img src="./caniuse-csp1.png" alt="caniuse-csp1" width="100%" style="margin-top: 3%" />
+
 
 ---
 # 案例
@@ -228,16 +251,14 @@ Content-Security-Policy: script-src 'self' https://*.google.com
 .code-block[
 ```bash
 Content-Security-Policy:default-src *.meituan.com *.meituan.net; script-src *.meituan.com *.meituan.net http://open.map.qq.com/ 'unsafe-inline' 'unsafe-eval'; style-src *.meituan.com *.meituan.net 'unsafe-inline'; img-src *.meituan.com *.meituan.net data: stats.g.doubleclick.net http://open.map.qq.com http://pr.map.qq.com http://*.map.gtimg.com; font-src *.meituan.com *.meituan.net data:; connect-src *.meituan.com https://*.meituan.com; report-uri http://fecsp.sankuai.com/report/www
-
-X-XSS-Protection:1; mode=block
 ```
 ]
 
 ---
 
-# 实现
+# 实施
 
-<img src="./frame.png" alt="frame" width="600" />
+<img src="./frame.png" alt="frame" width="500" />
 
 
 ---
@@ -246,7 +267,7 @@ X-XSS-Protection:1; mode=block
 
 .code-block[
 ```js
-// config
+// config/default.js
 module.exports = {
     csp: {
         'default-src': ['*.meituan.net'],
@@ -317,7 +338,6 @@ http://fecsp.sankuai.com/report/:sitename
 - 5 个新指令：base-uri, child-src, form-action, frame-ancestors, plugin-types
 - 更多请期待...
 ]
-
 
 ---
 

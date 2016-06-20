@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <style>
+    .container {
+      background: green;
+      padding: 1em; 
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+  <script src="./zepto.js"></script>
+</head>
+<body>
+  <div class="container">Container</div>
+
+<script>
+$(function () {
+  $('.container').on('click', function (e) {
+    console.log('click', e);
+  });
+  $('.container').on('tap', function (e) {
+    console.log('tap', e);
+  });
+  $('.container').on('swipe', function (e) {
+    console.log('swipe', e);
+  });
+  $('.container').on('swipeLeft', function (e) {
+    console.log('swipeLeft', e);
+  });
+  $('.container').on('swipeRight', function (e) {
+    console.log('swipeRight', e);
+  });
+});
+</script>
+</body>
+</html>

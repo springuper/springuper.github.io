@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introduce Tiler</title>
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Helvetica';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin: 0.3em auto;
+      }
+      .remark-slide-content {
+        padding-left: 3em;
+        padding-right: 3em;
+        text-align: center;
+        vertical-align: middle;
+        background: #212121;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .remark-slide-content h1 { font-size: 3.8em; }
+      .remark-slide-content h2 { font-size: 2.4em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; margin:8px 0; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        -moz-border-radius: 5px;
+        -web-border-radius: 5px;
+        border-radius: 5px;
+      }
+      .hljs-monokai .hljs {
+        background: #3D3D3D;
+      }
+      .remark-code, .remark-inline-code {
+        font-size: 20px;
+        font-family: 'Monaco';
+      }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .remark-slide-content ul {
+        color: #cecece;
+      }
+      .remark-slide-content h1, .remark-slide-content h2 {
+        color: #f3f3f3;
+        line-height: 1.2em;
+      }
+      .remark-slide-content h3 {
+        color: #cecece;
+        line-height: 1.2em;
+      }
+      .cover {
+        padding-left: 0;
+        padding-right: 0;
+        background-image: url(./cover.png);
+        background-size: cover !important;
+        text-shadow: 0 0 10px #000;
+      }
+      .cover h1 {
+        margin: 0.2em 0 0;
+        font-size: 5em;
+      }
+      .cover p {
+        color: #CCC;
+        text-shadow: 0 0 3px #000;
+      }
+      .cover-content {
+        padding: 1em;
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .nobg {
+        background-image: none;
+      }
+      .engineering-productivity {
+        margin-left: 9em;
+        font-size: 26px;
+        color: #cecece;
+      }
+      .swe-duty {
+        text-align: left;
+        margin: 2em 0 0 11em;
+        font-size: 26px;
+      }
+      .trigger-time {
+        text-align: left;
+        margin: 0 0 0 7em;
+        font-size: 32px;
+      }
+      .trigger-time--9em {
+        margin-left: 9em;
+      }
+      .trigger-time--5em {
+        margin-left: 5em;
+      }
+      .trigger-time--4em {
+        margin-left: 4em;
+      }
+      .trigger-time--2em {
+        margin-left: 2em;
+      }
+      .trigger-time li {
+        margin-bottom: 8px;
+      }
+      .code-block {
+        text-align: left;
+        margin: 0 3em;
+      }
+      .code-block--small .remark-code-line {
+        font-size: 18px;
+      }
+      .referrence {
+        text-align: left;
+        margin-left: 2em;
+        font-size: 26px;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+
+      small {
+        font-size: 0.6em;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: cover
+
+.cover-content[
+# Tiler
+Pack up static resources.
+]
+
+---
+# Why
+
+--
+<br />
+
+### 我们面临的主要问题：
+
+.trigger-time.trigger-time--2em[
+- Module/Loader 采用 SeaJS，串行加载效率低
+- 模块化、组件化深入推进，请求量较多
+]
+
+---
+
+<div>
+  <img src="waterflow.png" style="height: 34em;" />
+</div>
+
+---
+# What
+
+<br />
+
+### 具体需求：
+
+.trigger-time.trigger-time--2em[
+- 支持按照页面进行 JS、CSS 文件的打包
+- 支持公共包的配置，优化加载速度
+- 支持页面组件打包
+- 支持 CSS 外联资源的处理
+- 与 Gulp 较好集成
+]
+
+---
+# 一个栗子
+
+---
+
+<div style="margin: -2em">
+  <img src="deps-demo.png" style="width: 100%;" />
+</div>
+
+---
+
+<div style="margin: -2em">
+  <img src="bundle-result.png" style="width: 100%;" />
+</div>
+
+---
+
+<div style="margin: -3em">
+  <img src="bundle-result-with-common.png" style="height: 100%;" />
+</div>
+
+---
+# How
+
+<br />
+<br />
+
+.trigger-time.trigger-time--2em[
+- 借鉴 Browserify 思想，基于 Stream
+- 将复杂的逻辑拆分为多个串行的 Transform
+- 处理对象采用和 Gulp 兼容的 Vinyl
+]
+
+---
+# Stream
+
+<div style="margin: 0 -2em -2em">
+  <img src="stream-demo.png" style="width: 26em;" />
+</div>
+
+---
+# 主要流程
+
+<div style="margin: 2em -2em 0">
+  <img src="framework.png" style="width: 100%;" />
+</div>
+
+---
+# 核心代码
+
+.code-block[
+```javascript
+const pipeline = splicer.obj([
+  'record', [this._recorder()],
+  'deps', [this._deps],
+  'sort', [this._sort()],
+  'cut', [this._cut()],
+  'emit', [this._emitDeps()],
+  'pack', [this._pack()],
+  'append', [this._append()],
+  'write', [this._write()],
+]);
+```
+]
+
+
+---
+# Deps
+
+### 分析页面依赖
+
+.code-block[
+```hbs
+{{StyleLink 'order.css'}}
+
+{{Component 'address-selector'}}
+
+<script>
+  seajs.use('jsBasePath/order/immediate');
+</script>
+```
+]
+
+--
+
+.code-block[
+```bash
+# JS
+js/order/immediate-entry.js
+├──component/address-selector/address-selector.js
+└──js/order/immediate.js
+
+# CSS
+css/order/immediate-entry.css
+└──css/order.css
+```
+]
+
+---
+# 配置的公共层
+
+.code-block.code-block--small[
+```bash
+{
+  script: [
+    {
+      path: getClientPath('js/common/seed.js'),
+      includes: resource.COMMON_SCRIPTS.map(script => {
+        return getClientPath('js/' + script);
+      }),
+    },
+    getClientPath('js/common/core-1.1.js'),
+  ],
+  style: [
+    {
+      path: getClientPath('css/seed.css'),
+      includes: resource.COMMON_STYLES.map(style => {
+        return getClientPath('css/' + style);
+      }),
+    },
+  ],
+};
+```
+]
+
+---
+# 递归分析依赖
+
+<img src="deps-tree.png" />
+
+---
+# 小结
+
+<br />
+
+.trigger-time.trigger-time--5em[
+- 输入页面
+- 分析页面资源、页面组件资源
+- 递归分析依赖关系
+- 根据依赖关系进行拓扑排序
+- 输出页面依赖的所有 JS、CSS
+]
+
+---
+# Cut
+
+### 资源分组，为接下来的打包提供依据
+
+<div style="margin: 0 -2em -2em">
+  <img src="cut.png" style="width: 22em;" />
+</div>
+
+---
+# Emit
+
+### 发送依赖和分组信息给外部，方便进行数据记录
+
+.code-block[
+```javascript
+const self = this;
+return new Transform({
+  objectMode: true,
+  transform(row, enc, next) {
+    self.emit('dep', row);
+    this.push(row);
+    next();
+  },
+});
+```
+]
+
+---
+# Pack
+
+### 根据分组信息进行打包
+
+<div style="margin: 0 -2em -2em">
+  <img src="pack.png" style="width: 22em;" />
+</div>
+
+---
+# Append
+
+### 添加 CSS 外联资源
+
+.code-block[
+```css
+.travel-info .true-show span:before {
+    position: absolute;
+    content: '';
+    width: 22px;
+    height: 20px;
+    background: url('../img/usericon.png') -80px 0 no-repeat;
+}
+```
+]
+
+<div style="margin: 0 -2em">
+  <img src="append.png" style="width: 22em;" />
+</div>
+
+---
+# 与 Gulp 整合
+
+.code-block.code-block--small[
+```javascript
+var stream = tiler.bundle()
+  .pipe(addsrc(standaloneFiles, { base: clientDir }))
+  .pipe(dedupe())
+  .pipe(hold())
+  .pipe(gulp.dest(staticDir))
+  // stamp version
+  .pipe(imagemin())
+  .pipe(stampImageVersion)
+  .pipe(hold())
+  .pipe(rewriteStyleUrl)
+  .pipe(stampOtherVersion)
+  .pipe(gulp.dest(staticDir))
+  // compress
+  .pipe(stampMin)
+  .pipe(cssmin())
+  .pipe(filterScript)
+  .pipe(uglify())
+  .pipe(filterScript.restore)
+  .pipe(gulp.dest(staticDir));
+```
+]
+
+---
+# TODO
+
+.trigger-time.trigger-time--4em[
+- 支持按内容去重
+- 支持更加灵活、自动的公共层打包
+- 支持 CommonJS 规范的模块
+- 支持更高性能要求的即时打包
+]
+
+---
+# 参考
+
+.trigger-time.trigger-time--9em[
+- [browserify](http://browserify.org/)
+- [gulp vinyl](https://github.com/gulpjs/vinyl)
+- [depsify](https://github.com/reducejs/depsify)
+]
+
+---
+# Welcome Contribute!
+## [@ucar/tiler](http://10.104.10.68:7002/package/@ucar/tiler)
+
+---
+name: last-page
+
+# Thanks
+
+    </textarea>
+    <script src="http://remarkjs.com/downloads/remark-0.6.5.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="http://remarkjs.com/remark.language.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+          highlightStyle: 'monokai',
+          highlightLanguage: 'remark'
+        }) ;
+    </script>
+  </body>
+</html>

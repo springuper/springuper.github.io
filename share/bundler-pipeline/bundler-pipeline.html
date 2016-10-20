@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bundler Pipeline</title>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Helvetica';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin: 0.3em auto;
+      }
+      .remark-slide-content {
+        padding-left: 3em;
+        padding-right: 3em;
+        text-align: center;
+        vertical-align: middle;
+        background: #212121;
+        color: #777872;
+        text-shadow: 0 0 5px #333;
+      }
+      .remark-slide-content h1 { font-size: 3.8em; }
+      .remark-slide-content h2 { font-size: 2.4em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; margin:8px 0; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        -moz-border-radius: 5px;
+        -web-border-radius: 5px;
+        border-radius: 5px;
+      }
+      .hljs-monokai .hljs {
+        background: #3D3D3D;
+      }
+      .remark-code, .remark-inline-code {
+        font-size: 20px;
+        font-family: 'Monaco';
+      }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .remark-slide-content ul {
+        color: #cecece;
+      }
+      .remark-slide-content h1, .remark-slide-content h2 {
+        color: #f3f3f3;
+        line-height: 1.2em;
+      }
+      .remark-slide-content h3 {
+        color: #cecece;
+        line-height: 1.2em;
+      }
+      .cover {
+        padding-left: 0;
+        padding-right: 0;
+        background-image: url(./golden-gate.jpg);
+        background-size: cover !important;
+        text-shadow: 0 0 10px #000;
+      }
+      .cover h1 {
+        margin: 0.2em 0 0;
+        font-size: 5em;
+      }
+      .cover p {
+        color: #CCC;
+        text-shadow: 0 0 3px #000;
+      }
+      .cover-content {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 1em;
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .nobg {
+        background-image: none;
+      }
+      .engineering-productivity {
+        margin-left: 9em;
+        font-size: 26px;
+        color: #cecece;
+      }
+      .swe-duty {
+        text-align: left;
+        margin: 2em 0 0 11em;
+        font-size: 26px;
+      }
+      .trigger-time {
+        text-align: left;
+        margin: 0 0 0 7em;
+        font-size: 32px;
+      }
+      .trigger-time--9em {
+        margin-left: 9em;
+      }
+      .trigger-time--5em {
+        margin-left: 5em;
+      }
+      .trigger-time--4em {
+        margin-left: 4em;
+      }
+      .trigger-time--2em {
+        margin-left: 2em;
+      }
+      .trigger-time li {
+        margin-bottom: 8px;
+      }
+      .code-block {
+        text-align: left;
+        margin: 0 3em;
+      }
+      .code-block--small .remark-code-line {
+        font-size: 18px;
+      }
+      .referrence {
+        text-align: left;
+        margin-left: 2em;
+        font-size: 26px;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+
+      small {
+        font-size: 0.6em;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: cover
+
+.cover-content[
+# Bundler Pipeline
+talk about how module bundler works
+]
+
+---
+# What is module bundling
+
+<br />
+
+### On a high level, module bundling is simply the process of stitching together a group of modules (and their dependencies) into a single file (or group of files) in the correct order.
+
+---
+# Why
+
+--
+<br />
+
+## Problems:
+
+.trigger-time.trigger-time--2em[
+- hard to balance between modularity and http requests
+- plenty of tools in src-dest lifecycle
+- low productivity because of many repeated works
+]
+
+---
+# What we want
+
+.trigger-time.trigger-time--2em[
+- Modularity & Performance, mainly for separation of concerns
+- Integration, aggregate all dirty things
+- Automation, DRY
+- Fast
+]
+
+---
+# Bundler Solutions
+
+.trigger-time.trigger-time--2em[
+- Webpack
+- Browserify
+- JSpm
+- FIS
+- ...
+]
+
+---
+# Webpack
+
+<br />
+<br />
+
+<div style="margin: -3em; background: white;">
+  <img src="what-is-webpack.png" style="width: 40em;" />
+</div>
+
+---
+# Design
+
+.trigger-time.trigger-time--2em[
+- all in one
+- based on a plugin system
+- use loader to compile source code
+- configuration driven, like Grunt
+]
+
+---
+<div style="margin: -3em;">
+  <img src="combine-harvester.jpg" />
+</div>
+
+---
+# Pipeline
+
+--
+.code-block.code-block--small[
+```javascript
+["run-async", "watch-run-async", "compilation", 
+  "normal-module-factory", "context-module-factory",
+  "compile", "make-parallel", "after-compile-async",
+  "emit-async", "after-emit-async", "done", "failed",
+  "invalid", "after-plugins", "after-resolvers",
+  "normal-module-loader", "seal", "optimize",
+  "optimize-tree-async", "optimize-modules",
+  "after-optimize-modules", "optimize-chunks",
+  "after-optimize-chunks", "revive-modules",
+  "optimize-module-order", "optimize-module-ids",
+  "after-optimize-module-ids", "record-modules",
+  "revive-chunks", "optimize-chunk-order", "optimize-chunk-ids",
+  "after-optimize-chunk-ids", "record-chunks", "before-hash",
+  "after-hash", "before-chunk-assets", "additional-chunk-assets",
+  "record", "optimize-chunk-assets-async", "after-optimize-chunk-assets",
+  "optimize-assets-async", "after-optimize-assets", "build-module",
+  "succeed-module", "failed-module", "module-asset", "chunk-asset"]
+```
+]
+
+--
+### hard to understand
+
+---
+# Pipeline
+
+.trigger-time.trigger-time--2em[
+- load
+- seal
+- optimize
+- chunk
+- hash
+- restore
+]
+
+---
+# Loader
+
+### Loaders are transformations that are applied on a resource file of your app. They are functions (running in node.js) that take the source of a resource file as the parameter and return the new source.
+
+--
+.code-block[
+```javascript
+// single loader
+require('babel!./App.jsx');
+
+// multi loaders, transformed from right to left
+require('json!yaml!./cats.yml');
+```
+]
+
+<div>
+  <img src="yaml-loader.png" style="width: 30em" />
+</div>
+
+---
+# Plugin
+
+### Plugins expose the full potential of the Webpack engine to third-party developers. Using staged build callbacks, developers can introduce their own behaviors into the Webpack build process.
+
+--
+.code-block.code-block--small[
+```javascript
+function WebpackMd5Hash () {}
+
+WebpackMd5Hash.prototype.apply = (compiler) => {
+  compiler.plugin("compilation", (compilation) => {
+    compilation.plugin("chunk-hash", (chunk, chunkHash) => {
+      const source = chunk.modules.sort(compareModules)
+        .map(getModuleSource)
+        .reduce(concatenateSource, '');
+      const chunk_hash = md5(source);
+      chunkHash.digest = () => chunk_hash;
+    });
+  });
+};
+```
+]
+
+---
+# HMR
+
+<div style="margin: 0 -3em; background: white">
+  <img src="HMR.svg" style="width: 30em;" />
+</div>
+
+---
+# Code Splitting
+
+### Code Splitting is not just about extracting common code into a shared chunk. The more notable feature is that Code Splitting can be used to split code into an on demand loaded chunk.
+
+.code-block[
+```javascript
+const a = require("a");
+const b = require("b");
+require.ensure(["c"], (require) => {
+  require("b").xyz();
+  const d = require("d");
+});
+```
+]
+
+---
+# Problem
+
+### too COMPLEX to find the right configuration
+
+<div>
+  <img src="magic.gif" style="width: 20em;" />
+</div>
+
+---
+# Browserify
+
+<br />
+<br />
+
+<div>
+  <img src="wizard_hat_blue.png" style="width: 15em;" />
+</div>
+<div>
+  <img src="browserify.png" style="width: 20em;" />
+</div>
+
+---
+# Design
+
+.trigger-time.trigger-time--2em[
+- based on Stream
+- Unix on browser
+- code driven, like Gulp
+]
+
+---
+# Pipeline
+
+.code-block.code-block--small[
+```javascript
+var pipeline = splicer.obj([
+  'record', [ this._recorder() ],
+  'deps', [ this._mdeps ],
+  'json', [ this._json() ],
+  'unbom', [ this._unbom() ],
+  'unshebang', [ this._unshebang() ],
+  'syntax', [ this._syntax() ],
+  'sort', [ depsSort(dopts) ],
+  'dedupe', [ this._dedupe() ],
+  'label', [ this._label(opts) ],
+  'emit-deps', [ this._emitDeps() ],
+  'debug', [ this._debug(opts) ],
+  'pack', [ this._bpack ],
+  'wrap', []
+]);
+```
+]
+
+---
+# With Gulp
+
+.code-block.code-block--small[
+```javascript
+const stream = browserify().bundle()
+  .pipe(addsrc(standaloneFiles, { base: clientDir }))
+  .pipe(dedupe())
+  .pipe(hold())
+  .pipe(gulp.dest(staticDir))
+  // stamp version
+  .pipe(imagemin())
+  .pipe(stampImageVersion)
+  .pipe(hold())
+  .pipe(rewriteStyleUrl)
+  .pipe(stampOtherVersion)
+  .pipe(gulp.dest(staticDir))
+  // compress
+  .pipe(stampMin)
+  .pipe(cssmin())
+  .pipe(filterScript)
+  .pipe(uglify())
+  .pipe(filterScript.restore)
+  .pipe(gulp.dest(staticDir));
+```
+]
+
+---
+# References
+
+.trigger-time.trigger-time--2em[
+- [webpack](https://webpack.github.io/)
+- [Exploring WebPack](https://codepen.io/reverland/post/exploring-webpack)
+- [browserify](https://browserify.org/)
+- [Choosing the correct packaging tool for React](https://christianalfoni.github.io/javascript/2014/08/29/choosing-the-correct-packaging-tool-for-react-js.html)
+]
+
+---
+name: last-page
+
+# Thanks
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-0.6.5.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://remarkjs.com/remark.language.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+          highlightStyle: 'monokai',
+          highlightLanguage: 'remark'
+        }) ;
+    </script>
+  </body>
+</html>

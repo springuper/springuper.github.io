@@ -1,0 +1,21 @@
+const path = require('path');
+const DumpPlugin = require('./dumpPlugin');
+
+const src = path.join(__dirname);
+const dest = path.join(__dirname);
+
+module.exports = {
+  context: src,
+  entry: {
+    app: path.join(src, 'main.js')
+  },
+  output: {
+    path: dest,
+    filename: 'bundle.js'
+  },
+  module: {
+  },
+  plugins: [
+    new DumpPlugin()
+  ]
+};

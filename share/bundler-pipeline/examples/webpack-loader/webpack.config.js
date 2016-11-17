@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 const src = path.join(__dirname, '/components');
 const dest = path.join(__dirname, "/dest");
@@ -30,5 +31,13 @@ module.exports = {
         ]
       }
     ]
-  }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      "process.env": {
+        BROWSER: JSON.stringify(false)
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin()
+  ]
 };

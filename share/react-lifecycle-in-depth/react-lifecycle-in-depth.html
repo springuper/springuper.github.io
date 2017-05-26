@@ -443,6 +443,8 @@ Order Matters, [Case Study](https://github.com/adRise/www/pull/1190)
 
 .demo-link[
 [Demo](https://codesandbox.io/s/kRplQDGLr)
+,
+[Case Study](https://github.com/adRise/adrise_cmsui/pull/176/commits/57a0c68b8302b03e65269bab0c7ebc18d1da032a)
 ]
 
 ---
@@ -459,6 +461,7 @@ Order Matters, [Case Study](https://github.com/adRise/www/pull/1190)
 
 .trigger-time.trigger-time--2em[
 - dispatch action, may cause infinite loop, [issue](https://github.com/reactjs/react-router-redux/issues/212)
+- do expensive things without condition, [example](https://github.com/adRise/www/blob/master/src/common/containers/FireVideo/FireVideo.js#L79)
 - do things which have side effects, this method could be invoked multiple times in React Fiber
 ]
 
@@ -471,6 +474,7 @@ Order Matters, [Case Study](https://github.com/adRise/www/pull/1190)
 .trigger-time.trigger-time--2em[
 - default behavior is to re-render on every state change
 - returning false means the updating phase is skipped
+- `this.forceUpdate` could skip this method
 ]
 
 ---
@@ -543,6 +547,10 @@ React compares the current Element tree structure returned from the `render` met
 .trigger-time.trigger-time--2em[
 - similar to `componentDidMount`, but invoked many times
 - called after all of the children and itself are updated
+]
+
+.demo-link[
+[Demo](https://codesandbox.io/s/An9VEB4zO)
 ]
 
 ---

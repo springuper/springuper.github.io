@@ -10,14 +10,25 @@
       width: 100px;
       height: 50px;
       background-image: url(http://springuper.github.io/static/TubiTVText.png);
+      background-color: green;
       background-repeat: no-repeat;
       background-size: contain;
+    }
+    .svg-alternate-auto-size {
+      display: block;
+      width: 100px;
+      height: 50px;
+      background-image: url(http://springuper.github.io/static/TubiTVText.png);
+      background-color: green;
+      background-repeat: no-repeat;
     }
   </style>
 </head>
 <body>
-  <span class="svgContainer">
-    <div class="svg-alternate"></div>
-  </span>
+  <h3>background-size: contain</h3>
+  <div class="svg-alternate"></div>
+  <hr />
+  <h3>no background-size</h3>
+  <div class="svg-alternate-auto-size"></div>
 </body>
 </html> 

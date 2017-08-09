@@ -11,6 +11,14 @@
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
+    <style>
+      .reveal pre code {
+        max-height: 600px;
+      }
+      .session-title {
+        text-shadow: 1px 1px 2px black, 0 0 1em blue, 0 0 0.2em blue !important
+      }
+    </style>
 
 		<!-- Printing and PDF exports -->
 		<script>
@@ -64,8 +72,8 @@ chun@tubitv.com
 				</section>
         <section>
           <section data-background="images/GuillermoRauch.jpg">
-            <h2 class="fragment" style="margin-top: 20rem; color: white;">Programming the Universal Future with Next.js</h2>
-            <p class="fragment" style="color: white">Guillermo Rauch</p>
+            <h2 class="fragment session-title" style="margin-top: 20rem; color: white;">Programming the Universal Future with Next.js</h2>
+            <p class="fragment session-title" style="color: white">Guillermo Rauch</p>
           </section>
           <section data-markdown>
             <script type="text/template">
@@ -146,9 +154,9 @@ What if Data determines which code to load?
 [TC39 dynamic import proposal](https://github.com/tc39/proposal-dynamic-import)
             </script>
           </section>
-          <section data-markdown>
-            <script type="text/template">
-```
+          <section>
+            <pre>
+              <code class="js">
 const components = {
   photo: () => import('./photo'),
   gif: () => import('./gif'),
@@ -168,8 +176,8 @@ export default const DynamicThread = dynamic({
     </div>)
   }
 });
-```
-            </script>
+              </code>
+            </pre>
           </section>
           <section data-markdown>
             <script type="text/template">
@@ -183,8 +191,8 @@ export default const DynamicThread = dynamic({
         </section>
         <section>
           <section data-background="images/JonasHelfer.jpg">
-            <h2 class="fragment" style="margin-top: 20rem; color: white;">From REST to GraphQL</h2>
-            <p class="fragment" style="color: white">Jonas Helfer</p>
+            <h2 class="fragment session-title" style="margin-top: 20rem; color: white;">From REST to GraphQL</h2>
+            <p class="fragment session-title" style="color: white">Jonas Helfer</p>
           </section>
           <section data-markdown>
             <script type="text/template">
@@ -211,8 +219,8 @@ export default const DynamicThread = dynamic({
         </section>
         <section>
           <section data-background="images/EvanYou.jpg">
-            <h2 class="fragment" style="margin-top: 20rem; color: white;"> Build-time Optimizations in Frontend Engineering</h2>
-            <p class="fragment" style="color: white">Evan You</p>
+            <h2 class="fragment session-title" style="margin-top: 20rem; color: white;"> Build-time Optimizations in Frontend Engineering</h2>
+            <p class="fragment session-title" style="color: white">Evan You</p>
           </section>
           <section data-markdown>
             <script type="text/template">
@@ -231,8 +239,8 @@ export default const DynamicThread = dynamic({
         </section>
         <section>
           <section data-background="images/YeZheng.jpg">
-            <h2 class="fragment" style="margin-top: 20rem; color: white;">Roff IoT Application Development</h2>
-            <p class="fragment" style="color: white">Ye Zheng</p>
+            <h2 class="fragment session-title" style="margin-top: 20rem; color: white;">Roff IoT Application Development</h2>
+            <p class="fragment session-title" style="color: white">Ye Zheng</p>
           </section>
           <section>
             <div style="display: flex; justify-content:space-between;align-items:center">

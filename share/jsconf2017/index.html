@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Lessons Learned from JSConfCN 2017</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/solarized.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section data-markdown>
+					<script type="text/template">
+# Lessons Learned from JSConfCN 2017
+
+chun@tubitv.com
+					</script>
+				</section>
+				<section>
+          <section data-markdown>
+            <script type="text/template">
+## Most Impressed
+
+  - JS Community Thrives
+  - JS Evolves Rapidly
+  - JS Runs Everywhere
+            </script>
+          </section>
+          <section data-background="images/group-photo.jpg">
+          </section>
+          <section data-markdown data-background="images/theater.jpg">
+          </section>
+          <section data-markdown data-background="images/theater-part.jpg">
+          </section>
+          <section data-markdown data-background="images/theater-part-2.jpg">
+          </section>
+          <section data-markdown data-background="images/baby-learn-code.jpg">
+          </section>
+        </section>
+				<section data-markdown>
+					<script type="text/template">
+## Agenda
+
+- Next.js
+- GraphQL
+- Build-time Optimizations
+- JS in IoT
+					</script>
+				</section>
+        <section>
+          <section data-background="images/GuillermoRauch.jpg">
+            <h2 class="fragment" style="margin-top: 20rem; color: white;">Programming the Universal Future with Next.js</h2>
+            <p class="fragment" style="color: white">Guillermo Rauch</p>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## Features
+
+### Out of the Box
+
+<ul class="fragment">
+  <li>Server-rendered by default</li>
+  <li>Automatic code splitting for faster page loads</li>
+  <li>Simple client-side routing (page based)</li>
+  <li>Webpack-based dev environment which supports Hot Module Replacement (HMR)</li>
+  <li>Able to implement with Express or any other Node.js HTTP server</li>
+  <li>Customizable with your own Babel and Webpack configurations</li>
+</ul>
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## Routing
+
+- Automatically routing
+
+  ```
+  pages/
+  ├── about.js      # /about
+  ├── account
+  │   └── login.js  # /account/login
+  └── index.js      # /
+  ```
+- Automatic code splitting
+- Prefetch
+
+  ```
+  <li><Link prefetch href='/about'><a>About</a></Link></li>
+
+  // production
+  <link rel="preload" href="https://cdn.zeit.co/_next/e755a50b/page/" as="script">
+  ```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+```
+// pages/index.js
+import React from 'react'
+export default class extends React.Component {
+  static async getInitialProps ({ req }) {
+    return req
+      ? { userAgent: req.headers['user-agent'] }
+      : { userAgent: navigator.userAgent }
+  }
+  render() {
+    return (
+      <div><Link href="/about"><a>About</a></Link></div>
+      <div>Hello World {this.props.userAgent}</div>
+    )
+  }
+}
+```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## Why another Router?
+
+- Routes don’t need to be known ahead of time
+- Routes are always lazy-loadable
+- Top-level components can define `getInitialProps` that should block the loading of the route
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## Dynamic Import
+
+What if Data determines which code to load?
+
+[TC39 dynamic import proposal](https://github.com/tc39/proposal-dynamic-import)
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+```
+const components = {
+  photo: () => import('./photo'),
+  gif: () => import('./gif'),
+}
+export default const DynamicThread = dynamic({
+  modules({ data }) {
+    return data.reduce((c, { type }) => {
+      c[type] = components[type]
+      return c
+    }, {})
+  }
+  render({ data }, components) {
+    return (<div className="message">{
+      data.map(({ type, data }) => (
+        React.createElement(components[type], data)
+      ))
+    </div>)
+  }
+});
+```
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## Lessons Learned
+
+1. Many similar approaches
+2. Key idea: make it SCALABLE
+3. Maybe we should utilize or create such a framework?
+            </script>
+          </section>
+        </section>
+        <section>
+          <section data-background="images/JonasHelfer.jpg">
+            <h2 class="fragment" style="margin-top: 20rem; color: white;">From REST to GraphQL</h2>
+            <p class="fragment" style="color: white">Jonas Helfer</p>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## [Slides](http://2017.jsconf.cn/files/10-rest-to-grahql-jonas-helfer.pdf)
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## A Good Example - HN
+
+- [server](https://launchpad.graphql.com/j7798810p)
+- [client](https://codesandbox.io/s/82z6gEyvl)
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## Lessons Learned
+
+1. GraphQL are more and more popular, it's the future of APIs
+2. We have several applicable scenarios, ex. homescreen
+3. Try to use it in CMSUI in near future
+            </script>
+          </section>
+        </section>
+        <section>
+          <section data-background="images/EvanYou.jpg">
+            <h2 class="fragment" style="margin-top: 20rem; color: white;"> Build-time Optimizations in Frontend Engineering</h2>
+            <p class="fragment" style="color: white">Evan You</p>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## [Slides](http://2017.jsconf.cn/files/04-compile-time-optimizations-evan-you.pdf)
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## Lessons Learned
+
+1. Rollup is better for lib, ex. VPAID
+2. Know how tree shaking works
+3. AoT looks promising
+            </script>
+          </section>
+        </section>
+        <section>
+          <section data-background="images/YeZheng.jpg">
+            <h2 class="fragment" style="margin-top: 20rem; color: white;">Roff IoT Application Development</h2>
+            <p class="fragment" style="color: white">Ye Zheng</p>
+          </section>
+          <section>
+            <div style="display: flex; justify-content:space-between;align-items:center">
+              <div style="flex: 0 0 45%;">
+                <img src="images/ruffos-hardware.svg" width="100%" style="border:none;" />
+              </div>
+              <div style="flex: 0 0 45%;">
+                <img src="images/ruffos-code.png" width="100%" style="border:none;" />
+              </div>
+            </div>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## [Slides](http://2017.jsconf.cn/files/07-ruff-os-iot-zheng-ye.pdf)
+            </script>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+## Lessons Learned
+
+1. Rollup is better for lib, ex. VPAID
+2. Know how tree shaking works
+3. AoT looks promising
+            </script>
+          </section>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+## References
+
+- [JSConfCN 2017](http://2017.jsconf.cn/en/)
+- [next.js](https://github.com/zeit/next.js)
+- [next3 preview](https://zeit.co/blog/next3-preview)
+- [graphql.org](http://graphql.org)
+- [Rollup! The tree-shaking bundler](https://medium.com/tldr-tech/rollup-the-tree-shaking-bundler-ca546bd14477)
+- [ruff.io](http://ruff.io)
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+## Thanks
+          </script>
+        </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+        controls: false,
+        progress: true,
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>

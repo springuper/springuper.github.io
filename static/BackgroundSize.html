@@ -35,6 +35,7 @@
     Object.defineProperty = 'spring';
     var iframe = document.createElement('iframe');
     iframe.src = 'about:blank';
+    document.body.appendChild(iframe);
     alert(typeof iframe.window);
     alert(typeof iframe.contentWindow);
     alert(iframe.contentWindow && iframe.contentWindow.Object);

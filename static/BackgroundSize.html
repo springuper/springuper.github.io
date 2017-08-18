@@ -30,5 +30,14 @@
   <hr />
   <h3>no background-size</h3>
   <div class="svg-alternate-auto-size"></div>
+  <script>
+    alert(typeof Object.defineProperty);
+    Object.defineProperty = 'spring';
+    var iframe = document.createElement('iframe');
+    iframe.src = 'about:blank';
+    alert(typeof iframe.window);
+    alert(typeof iframe.contentWindow);
+    alert(iframe.contentWindow && iframe.contentWindow.Object);
+  </script>
 </body>
 </html> 

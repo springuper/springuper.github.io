@@ -34,17 +34,11 @@
     alert(typeof Object.defineProperty);
     Object.defineProperty = 'spring';
     var iframe = document.createElement('iframe');
-    iframe.src = 'about:blank';
+    iframe.src = 'javascript:false';
     document.body.appendChild(iframe);
-    alert(typeof iframe.window);
     alert(typeof iframe.contentWindow);
-    if (iframe.contentWindow) {
-      alert(typeof iframe.contentWindow.Object);
-      alert(typeof iframe.contentWindow.Object.defineProperty);
-    } else {
-      alert(typeof iframe.window.Object);
-      alert(typeof iframe.window.Object.defineProperty);
-    }
+    alert(typeof iframe.contentWindow.Object);
+    alert(typeof iframe.contentWindow.Object.defineProperty);
   </script>
 </body>
 </html> 

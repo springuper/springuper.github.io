@@ -38,7 +38,13 @@
     document.body.appendChild(iframe);
     alert(typeof iframe.window);
     alert(typeof iframe.contentWindow);
-    alert(iframe.contentWindow && iframe.contentWindow.Object);
+    if (iframe.contentWindow) {
+      alert(typeof iframe.contentWindow.Object);
+      alert(typeof iframe.contentWindow.Object.defineProperty);
+    } else {
+      alert(typeof iframe.window.Object);
+      alert(typeof iframe.window.Object.defineProperty);
+    }
   </script>
 </body>
 </html> 

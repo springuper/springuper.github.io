@@ -54,20 +54,22 @@ chun@tubi.tv
             <script type="text/template">
 ## Jest
 
+Delightful JavaScript Testing
+
 <img src="http://facebook.github.io/jest/img/jest.svg" alt="jest" class="jest-logo" />
 
             </script>
           </section>
           <section data-markdown>
             <script type="text/template">
-  ## Why Jest
+## Why Jest
 
-  - "zero-configuration" experience
-  - Fast
-  - Snapshot Testing
+- "zero-configuration" experience
+- Fast
+- Snapshot Testing
 
 
-  BTW, React is tested by Jest too
+BTW, React is tested by Jest too
             </script>
           </section>
           <section data-markdown>
@@ -76,7 +78,7 @@ chun@tubi.tv
 
 ### Out of the box
 
-Actually, Jest = Mocha + Expect + Sinon + Istanbul
+Jest = Mocha + Expect + Sinon + Istanbul
             </script>
           </section>
           <section data-markdown>
@@ -230,20 +232,7 @@ A Node library which provides a high-level API to control headless Chrome over t
             <script type="text/template">
 ## End To End Testing (e2e)
 
-<pre>
-  <code class="js">
-const puppeteer = require('puppeteer');
-
-(async () => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.goto('https://example.com');
-  await page.screenshot({path: 'example.png'});
-
-  await browser.close();
-})();
-  </code>
-</pre>
+> Most things that you can do manually in the browser can be done using Puppeteer!
 
 <i>Demo</i>
             </script>
@@ -260,6 +249,7 @@ const puppeteer = require('puppeteer');
 
 - brittle, maybe broken by network/small modifications
 - need run on a real local/staging/prod service
+- need figure out how to query DOM
             </script>
           </section>
           <section data-markdown>

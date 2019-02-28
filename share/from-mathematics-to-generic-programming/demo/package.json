@@ -1,0 +1,16 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "multiply": "tsc multiply.ts && node multiply.js",
+    "generic": "tsc generic.ts && node generic.js",
+    "genericAdvanced": "tsc genericAdvanced.ts && node genericAdvanced.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^3.3.3333"
+  }
+}

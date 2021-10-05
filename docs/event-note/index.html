@@ -125,12 +125,15 @@
         <i class="iconfont icon-right"></i>
       </a>
     </nav></footer>
-    </article></div><div class="comments" id="comments"></div></div>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
       </main>
 
       <footer id="footer" class="footer"><div class="social-links"><a href="mailto:springuper@gmail.com" class="iconfont icon-email" title="email"></a>
         <a target="_blank" rel="noopener" href="https://twitter.com/springuper" class="iconfont icon-twitter" title="twitter"></a>
+        <a target="_blank" rel="noopener" href="https://www.linkedin.com/in/chun-shang-45a41241/" class="iconfont icon-linkedin" title="linkedin"></a>
         <a target="_blank" rel="noopener" href="https://github.com/springuper" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/shang-chun" class="iconfont icon-zhihu" title="zhihu"></a>
         <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
     </div><div class="copyright">
   <span class="power-by">
@@ -153,7 +156,19 @@
       <div class="back-to-top" id="back-to-top">
         <i class="iconfont icon-up"></i>
       </div>
-    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'springuper/springuper.github.io')
+    script.setAttribute('issue-term', 'pathname')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
   <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
   <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
   <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>

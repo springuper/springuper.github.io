@@ -99,6 +99,16 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: even
 
+feed:
+  enable: true
+  type: atom
+  path: atom.xml
+  limit: 0
+  content_limit: 140
+  content_limit_delim: ' '
+  order_by: -date
+  autodiscovery: true
+
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:

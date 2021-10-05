@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="YUI经验谈-自定义事件默认行为"/><meta name="keywords" content="JavaScript, YUI, Event, Shang Chun" /><link rel="alternate" href="/default" title="Shang Chun" ><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://shangchun.net/2014/02/14/yui3-event-default-action/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>YUI经验谈-自定义事件默认行为 - Shang Chun</title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Shang Chun</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">Shang Chun</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">YUI经验谈-自定义事件默认行为
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2014-02-14
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-text">是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E5%95%A5%E7%94%A8"><span class="toc-text">有啥用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%8E%E4%B9%88%E7%94%A8"><span class="toc-text">怎么用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A6%81%E6%B3%A8%E6%84%8F"><span class="toc-text">要注意</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>纵观主流JS库和框架，YUI在自定义事件方面做的尤为出色。如果需要挑出一个代表性的feature，那么非<strong>事件默认行为</strong>莫属。</p>
+<h2 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h2><p>YUI自定义事件在总体上模仿了DOM事件的设计思想。DOM中的一些事件是有默认行为的，详细见<a target="_blank" rel="noopener" href="https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3-Events.html#event-flow-default-cancel">DOM3 Event - Default actions and cancelable events</a>一节。简单来说，所谓默认行为，是指该事件在通常情况下所表现出来的动作，例如：</p>
+<ul>
+<li>一个链接节点的<code>click</code>事件，默认行为是转向该链接href属性对应的地址</li>
+<li>表单的submit事件，默认行为是将表单包含的数据提交给表单的action</li>
+</ul>
+<p>说通常情况下，是因为有时开发者会在事件的回调函数中调用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">e.preventDefault();</span><br></pre></td></tr></table></figure>
+
+<p>来阻止默认行为的发生。</p>
+<span id="more"></span>
+
+<p><img src="/img/event-default-action.png" alt="Event Default Action"></p>
+<p>YUI自定义事件遵循了同样的思路，甚至API也和DOM完全一致。</p>
+<h2 id="有啥用"><a href="#有啥用" class="headerlink" title="有啥用"></a>有啥用</h2><p>事件默认行为，本质上，是一种<strong>管理事件和行为的对应关系</strong>的机制。这种机制既不像回调那样死板，也不像消息那样开放。通过将通用处理逻辑作为事件默认行为，满足常见需求的同时，为定制化需求提供了一定开放性，整体上更加灵活。</p>
+<p>在DOM事件中，和默认行为相关的场景并不少见：</p>
+<ul>
+<li>监听到链接的<code>click</code>事件时，在链接地址中加入追踪参数，利用默认行为跳转到新地址</li>
+<li>阻止表单<code>submit</code>事件默认行为，改为异步提交表单，提供更好的用户体验</li>
+</ul>
+<p>在自定义事件的应用中，也会遇到一些类似的例子。例如：</p>
+<ul>
+<li>注册时，有一些邮箱虽然是可用的，但对于EDM不给力，在这种情况下，阻止表单项验证成功的默认行为，展示建议用户使用其它邮箱的提示</li>
+<li>表单验证组件在检查表单项失败后触发<code>failure</code>事件，对应的默认行为是在表单项下方显示错误信息。这样的处理在大部分情况下是完全OK的。不过有一天，交互设计师在一个特定场景下提出所有提示都应该放在整个表单顶部，得益于这种灵活的机制，实现这种定制化逻辑十分轻松</li>
+<li>字符计数插件在输入变化时会默认更新字符数提示。在评价内容中，有更复杂的提示逻辑和展示效果，这时阻止默认行为，实现定制化内容即可</li>
+</ul>
+<h2 id="怎么用"><a href="#怎么用" class="headerlink" title="怎么用"></a>怎么用</h2><p>下面以表单项验证组件为例，展示如何使用事件默认行为。</p>
+<p>首先创建<code>FieldValidator</code>组件，并使其具备<code>EventTarget</code>的功能，实现自定义事件机制：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> FieldValidator = <span class="function"><span class="keyword">function</span> (<span class="params">ndField, validateFn</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> instance = <span class="built_in">this</span>;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;;</span><br><span class="line">Y.augment(FieldValidator, Y.EventTarget);</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>publish</code>声明检查成功和失败的自定义事件，主要目的是定义事件的默认行为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> FieldValidator = <span class="function"><span class="keyword">function</span> (<span class="params">ndField, validateFn</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 声明检查成功事件，设置默认行为</span></span><br><span class="line">    instance.publish(<span class="string">&#x27;success&#x27;</span>, &#123;</span><br><span class="line">        <span class="attr">emitFacade</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">defaultFn</span>: <span class="function"><span class="keyword">function</span> (<span class="params">e</span>) </span>&#123;</span><br><span class="line">            e.field.next(<span class="string">&#x27;.tip&#x27;</span>).setHTML(<span class="string">&#x27;ok&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 声明检查失败事件，设置默认行为</span></span><br><span class="line">    instance.publish(<span class="string">&#x27;failure&#x27;</span>, &#123;</span><br><span class="line">        <span class="attr">emitFacade</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">defaultFn</span>: <span class="function"><span class="keyword">function</span> (<span class="params">e</span>) </span>&#123;</span><br><span class="line">            e.field.next(<span class="string">&#x27;.tip&#x27;</span>).setHTML(<span class="string">&#x27;error&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>接下来注册表单项的<code>focus</code>、<code>blur</code>事件，在<code>blur</code>触发时检查表单内容，并触发自定义事件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> FieldValidator = <span class="function"><span class="keyword">function</span> (<span class="params">ndField, validateFn</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    ndField.on(&#123;</span><br><span class="line">        <span class="attr">focus</span>: <span class="function"><span class="keyword">function</span> (<span class="params">e</span>) </span>&#123;</span><br><span class="line">            ndField.next(<span class="string">&#x27;.tip&#x27;</span>).setHTML(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">blur</span>: <span class="function"><span class="keyword">function</span> (<span class="params">e</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (validateFn(<span class="built_in">this</span>.get(<span class="string">&#x27;value&#x27;</span>))) &#123;</span><br><span class="line">                <span class="comment">// 检查通过，触发检查成功事件</span></span><br><span class="line">                instance.fire(<span class="string">&#x27;success&#x27;</span>, &#123; <span class="attr">field</span>: ndField &#125;);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 检查未通过，触发检查失败事件</span></span><br><span class="line">                instance.fire(<span class="string">&#x27;failure&#x27;</span>, &#123; <span class="attr">field</span>: ndField &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>现在就可以使用这个组件了，一般情况下，我们不需要阻止默认行为，下面是一个具体示例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 检查邮箱</span></span><br><span class="line"><span class="keyword">new</span> FieldValidator(Y.one(<span class="string">&#x27;[name=&quot;email&quot;]&#x27;</span>), <span class="function"><span class="keyword">function</span> (<span class="params">value</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="regexp">/^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$/</span>.test(value);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>一切看起来都很美，直到有一天你接到一个需求：Yahoo邮箱在检查通过时需要展示EDM不给力的提示，这时候默认行为就可以来拯救你了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> validator = <span class="keyword">new</span> FieldValidator(Y.one(<span class="string">&#x27;[name=&quot;email&quot;]&#x27;</span>), <span class="function"><span class="keyword">function</span> (<span class="params">value</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="regexp">/^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$/</span>.test(value);</span><br><span class="line">&#125;);</span><br><span class="line">validator.on(<span class="string">&#x27;success&#x27;</span>, <span class="function"><span class="keyword">function</span> (<span class="params">e</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (e.field.get(<span class="string">&#x27;value&#x27;</span>).indexOf(<span class="string">&#x27;@yahoo.com&#x27;</span>) !== -<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// 阻止默认行为</span></span><br><span class="line">        e.preventDefault();</span><br><span class="line"></span><br><span class="line">	    <span class="comment">// 定制化行为</span></span><br><span class="line">		e.field.next(<span class="string">&#x27;.tip&#x27;</span>).setHTML(<span class="string">&#x27;换个邮箱吧，yahoo.com邮箱收不到优惠通知哦&#x27;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在<code>success</code>事件的回调中，通过阻止默认行为，不再执行提示内容为OK的默认逻辑，而是切换成判断雅虎邮箱，并给出特定提示的定制化逻辑。</p>
+<p>完整代码展示，请移步<a target="_blank" rel="noopener" href="http://jsfiddle.net/springuper/h4XAY/">JSFiddle</a>。</p>
+<h2 id="要注意"><a href="#要注意" class="headerlink" title="要注意"></a>要注意</h2><p>一个好的idea，最容易被滥用。默认行为不是万能药，只适合一些这样的场景：</p>
+<ul>
+<li>需要通过事件进行消息广播。如果callback就可以解决问题，那么明智之举是使用callback</li>
+<li>存在定制化需求的预期，即有些情况下需要中止默认行为的发生，换之以定制化行为</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3-Events.html#event-flow-default-cancel">DOM3 Event - Default actions and cancelable events</a></li>
+<li><a target="_blank" rel="noopener" href="http://yuilibrary.com/yui/docs/event-custom/index.html">YUI EventTarget</a></li>
+</ul>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://shangchun.net">Chun Shang</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://shangchun.net/2014/02/14/yui3-event-default-action/">https://shangchun.net/2014/02/14/yui3-event-default-action/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/JavaScript/">JavaScript</a>
+            <a href="/tags/YUI/">YUI</a>
+            <a href="/tags/Event/">Event</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2014/03/01/about/index/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">关于我</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2013/10/19/diff-great-software-engineer-from-a-good/">
+        <span class="next-text nav-default">[译]优秀与伟大程序员的区别</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:your@email.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/ahonn" class="iconfont icon-github" title="github"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2021<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Chun Shang</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

@@ -9,4 +9,5 @@ api
 npm-debug.log
 testReports/
 .sass-cache
+blog/public
 .*

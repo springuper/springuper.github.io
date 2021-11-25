@@ -117,6 +117,8 @@
 </blockquote>
 <p>GetValue 处理取值的细节，例如依附于对象的属性、执行 getter 等，不再深究。重点看下 ToBoolean，它能够将各种类型的值最终转化为布尔类型。具体的规则可参考 <a target="_blank" rel="noopener" href="http://es5.github.io/#x9.2">ES5#9.2 ToBoolean</a> 一节。</p>
 <p>接下来的处理很简单，如果 ToBoolen 得到的结果 <code>oldValue</code> 是 true，那就返回 false，否则返回 true。</p>
+<span id="more"></span>
+
 <h2 id="-1"><a href="#-1" class="headerlink" title="!!"></a>!!</h2><p>了解了 ! 之后，!! 就很好解释了，简单来说就是：</p>
 <blockquote>
 <p>产生式 <code>UnaryExpression : !! UnaryExpression</code> 按照下面的过程执行：</p>

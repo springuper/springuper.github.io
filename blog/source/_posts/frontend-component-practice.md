@@ -45,6 +45,8 @@ tags: [front-end, component, reduce, turbo]
 
 <center><img src="/images/frontend-component-practice/smart-box.png" alt="smart-box" width="500"></center>
 
+<!--more-->
+
 代码构成：
 
 ```bash

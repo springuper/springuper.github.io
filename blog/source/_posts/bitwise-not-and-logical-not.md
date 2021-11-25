@@ -23,6 +23,8 @@ GetValue 处理取值的细节，例如依附于对象的属性、执行 getter 
 
 接下来的处理很简单，如果 ToBoolen 得到的结果 `oldValue` 是 true，那就返回 false，否则返回 true。
 
+<!--more-->
+
 ## !!
 
 了解了 ! 之后，!! 就很好解释了，简单来说就是：

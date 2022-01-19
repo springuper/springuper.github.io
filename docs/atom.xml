@@ -6,7 +6,7 @@
   <link href="https://shangchun.net/atom.xml" rel="self"/>
   
   <link href="https://shangchun.net/"/>
-  <updated>2021-11-25T07:35:44.261Z</updated>
+  <updated>2022-01-19T13:23:16.603Z</updated>
   <id>https://shangchun.net/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>前端中的 Functional Reactive Programming</title>
+    <link href="https://shangchun.net/frontend-frp/"/>
+    <id>https://shangchun.net/frontend-frp/</id>
+    <published>2022-01-18T02:10:23.000Z</published>
+    <updated>2022-01-19T13:23:16.603Z</updated>
+    
+    <content type="html"><![CDATA[<p>请移步知乎“前端之美”专栏 <a href="https://zhuanlan.zhihu.com/p/77687564">前端中的 Functional Reactive Programming</a> 查看全文。</p>]]></content>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;请移步知乎“前端之美”专栏 &lt;a href=&quot;https://zhuanlan.zhihu.com/p/77687564&quot;&gt;前端中的 Functional Reactive Programming&lt;/a&gt;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="Functional Programming" scheme="https://shangchun.net/tags/Functional-Programming/"/>
+    
+    <category term="Functional Reactive Programming" scheme="https://shangchun.net/tags/Functional-Reactive-Programming/"/>
+    
+    <category term="RxJS" scheme="https://shangchun.net/tags/RxJS/"/>
+    
+  </entry>
   
   <entry>
     <title>招聘驱动的组织建设</title>

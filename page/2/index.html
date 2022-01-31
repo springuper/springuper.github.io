@@ -98,6 +98,20 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/react-design-highlights/">React 设计中的闪光点</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-01-31
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/28562066">React 设计中的闪光点</a> 查看全文。</p>
+
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/fe-pipeline/">前端中的 Pipeline</a>
         </h1>
 
@@ -336,28 +350,6 @@
 <p>另外，为了方便同时停止传播和阻止默认行为，YUI还提供了<code>halt</code>方法。</p>
           <div class="read-more">
             <a href="/event/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/event-target/">YUI事件体系之Y.EventTarget</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2012-11-25
-        </span></div>
-    </header>
-
-    <div class="post-content"><p><img src="/images/bubble-girl.jpg" alt="bubble girl"></p>
-<p>上两篇文章<a href="/event-do/">YUI事件体系之Y.Do</a>、<a href="/event-custom/">YUI事件体系之Y.CustomEvent</a>中，分别介绍了YUI实现AOP的<code>Y.Do</code>对象，以及建立自定义事件机制的<code>Y.CustomEvent</code>对象。</p>
-<p>本篇文章，将要介绍YUI事件体系集大成者、最为精华的部分——<code>Y.EventTarget</code>。</p>
-<h2 id="Y-EventTarget"><a href="#Y-EventTarget" class="headerlink" title="Y.EventTarget"></a>Y.EventTarget</h2><p>DOM事件中的目标元素为<code>event.target</code>，这类元素可以触发、监听一些事件，例如input元素的click、focus等事件。这也正是<code>Y.EventTarget</code>的命名渊源，它提供了一种让任意对象定义、监听、触发自定义事件的实现方式。</p>
-<p>从设计上看，<code>Y.EventTarget</code>通过内部维护一系列<code>Y.EventCustom</code>对象，提供了可以通过事件名称进行事件定义、监听和触发的便捷接口。另外，推荐使用<code>Y.augment</code>将它以组合的方式加载在其它类上，而不要使用继承。关于<code>Y.augment</code>和<code>Y.extend</code>之间的异同，可以参考我之前的一篇文章：<a href="/extend-and-augment/">Y.extend与Y.augment</a>。</p>
-<p>YUI很多基础类都扩展了<code>Y.EventTarget</code>，重要的有<code>Y</code>（YUI instance，sandbox）、<code>Y.Global</code>、<code>Y.Node</code>、<code>Y.NodeList</code>、<code>Y.Base</code>等。</p>
-<p>YUILibrary有专门一个章节介绍EventTarget，非常详尽，如果你对EventTarget的设计思路和使用方法感兴趣，请移步<a target="_blank" rel="noopener" href="http://yuilibrary.com/yui/docs/event-custom/">YUILibrary-EventTarget</a>。</p>
-          <div class="read-more">
-            <a href="/event-target/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/">

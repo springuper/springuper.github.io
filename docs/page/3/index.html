@@ -98,6 +98,28 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/event-target/">YUI事件体系之Y.EventTarget</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2012-11-25
+        </span></div>
+    </header>
+
+    <div class="post-content"><p><img src="/images/bubble-girl.jpg" alt="bubble girl"></p>
+<p>上两篇文章<a href="/event-do/">YUI事件体系之Y.Do</a>、<a href="/event-custom/">YUI事件体系之Y.CustomEvent</a>中，分别介绍了YUI实现AOP的<code>Y.Do</code>对象，以及建立自定义事件机制的<code>Y.CustomEvent</code>对象。</p>
+<p>本篇文章，将要介绍YUI事件体系集大成者、最为精华的部分——<code>Y.EventTarget</code>。</p>
+<h2 id="Y-EventTarget"><a href="#Y-EventTarget" class="headerlink" title="Y.EventTarget"></a>Y.EventTarget</h2><p>DOM事件中的目标元素为<code>event.target</code>，这类元素可以触发、监听一些事件，例如input元素的click、focus等事件。这也正是<code>Y.EventTarget</code>的命名渊源，它提供了一种让任意对象定义、监听、触发自定义事件的实现方式。</p>
+<p>从设计上看，<code>Y.EventTarget</code>通过内部维护一系列<code>Y.EventCustom</code>对象，提供了可以通过事件名称进行事件定义、监听和触发的便捷接口。另外，推荐使用<code>Y.augment</code>将它以组合的方式加载在其它类上，而不要使用继承。关于<code>Y.augment</code>和<code>Y.extend</code>之间的异同，可以参考我之前的一篇文章：<a href="/extend-and-augment/">Y.extend与Y.augment</a>。</p>
+<p>YUI很多基础类都扩展了<code>Y.EventTarget</code>，重要的有<code>Y</code>（YUI instance，sandbox）、<code>Y.Global</code>、<code>Y.Node</code>、<code>Y.NodeList</code>、<code>Y.Base</code>等。</p>
+<p>YUILibrary有专门一个章节介绍EventTarget，非常详尽，如果你对EventTarget的设计思路和使用方法感兴趣，请移步<a target="_blank" rel="noopener" href="http://yuilibrary.com/yui/docs/event-custom/">YUILibrary-EventTarget</a>。</p>
+          <div class="read-more">
+            <a href="/event-target/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/event-custom/">YUI事件体系之Y.CustomEvent</a>
         </h1>
 
@@ -308,33 +330,6 @@
 <p>我会有节奏的进行</p>
 <p>这一切都值得期待</p>
 
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/yui3-intro/">浅析YUI3</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2011-05-21
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>最近因为忙于YUI2到YUI3的迁移，没时间更新博客。现在闲暇一些，觉得似乎写一点自己对于YUI3的理解再合适不过。</p>
-<p>主要内容有以下几点：</p>
-<ol>
-<li>全局命名空间</li>
-<li>改变一切的模块</li>
-<li>Combo</li>
-<li>链式调用</li>
-<li>更广泛的自定义事件</li>
-<li>一些问题</li>
-</ol>
-<h2 id="全局命名空间"><a href="#全局命名空间" class="headerlink" title="全局命名空间"></a>全局命名空间</h2><p>YUI3为了保持向前兼容，采用了新的全局命名空间<code>YUI</code>。新的命名空间与YUI2的全局命名空间<code>YAHOO</code>最大的不同就是：<code>YUI</code>是一个构造函数，而且是一个<a href="http://shangchun.net/scope-safe-contructor.html">无论如何也返回一个实例的构造函数</a>。</p>
-<h2 id="改变一切的模块"><a href="#改变一切的模块" class="headerlink" title="改变一切的模块"></a>改变一切的模块</h2><p>YUI2时代，一般都是将某方面的全部方法写在统一的命名空间下，例如DOM相关的方法均在<code>YAHOO.util.Dom</code>，在需要使用这些方法时我们直接调用即可。YUI2真正体现了<strong>基础方法库</strong>(function library)这样一种定位。</p>
-          <div class="read-more">
-            <a href="/yui3-intro/" class="read-more-link">Read more..</a>
-          </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">
         <i class="iconfont icon-left"></i>

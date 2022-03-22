@@ -6,7 +6,7 @@
   <link href="https://shangchun.net/atom.xml" rel="self"/>
   
   <link href="https://shangchun.net/"/>
-  <updated>2022-01-31T09:16:34.468Z</updated>
+  <updated>2022-03-22T13:08:08.863Z</updated>
   <id>https://shangchun.net/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>前端中的 Functional Reactive Programming（二）- 进阶版 AutoComplete</title>
+    <link href="https://shangchun.net/frontend-frp-2nd/"/>
+    <id>https://shangchun.net/frontend-frp-2nd/</id>
+    <published>2022-03-21T11:34:00.000Z</published>
+    <updated>2022-03-22T13:08:08.863Z</updated>
+    
+    <content type="html"><![CDATA[<p>请移步知乎“前端之美”专栏 <a href="https://zhuanlan.zhihu.com/p/473437861">前端中的 Functional Reactive Programming（二）- 进阶版 AutoComplete</a> 查看全文。</p>]]></content>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;请移步知乎“前端之美”专栏 &lt;a href=&quot;https://zhuanlan.zhihu.com/p/473437861&quot;&gt;前端中的 Functional Reactive Programming（二）- 进阶版 AutoComplete&lt;/a&gt;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="Functional Programming" scheme="https://shangchun.net/tags/Functional-Programming/"/>
+    
+    <category term="Functional Reactive Programming" scheme="https://shangchun.net/tags/Functional-Reactive-Programming/"/>
+    
+    <category term="RxJS" scheme="https://shangchun.net/tags/RxJS/"/>
+    
+  </entry>
   
   <entry>
     <title>面试是双向的</title>

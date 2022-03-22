@@ -98,6 +98,37 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/event/">YUI事件体系之Y.Event</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2013-01-20
+        </span></div>
+    </header>
+
+    <div class="post-content"><p><img src="/images/mouse.png" alt="mouse event"></p>
+<p>在介绍了由<code>Y.Do</code>、<code>Y.CustomEvent</code>、<code>Y.EventTarget</code>构建的自定义事件体系后，本篇文章将为大家介绍建立在这一体系之上，YUI对DOM事件的封装——<code>Y.Event</code>。</p>
+<h2 id="Y-DOMEventFacade"><a href="#Y-DOMEventFacade" class="headerlink" title="Y.DOMEventFacade"></a>Y.DOMEventFacade</h2><p>众所周知，浏览器之间存在大量的不兼容问题，在事件方面尤其如此。<code>Y.DOMEventFacade</code>主要用来处理DOM事件对象的浏览器兼容问题，提供跨浏览器的简洁接口。事实上，我们常在<code>Y.one(&#39;.selector&#39;).on(&#39;click&#39;, function (e) &#123;&#125;)</code>中使用的<code>e</code>就是<code>Y.DOMEventFacade</code>的实例。</p>
+<p>具体来说，兼容处理的属性主要有：</p>
+<ul>
+<li>target，专门处理了target为文本节点的情况，统一为元素节点，方便操作</li>
+<li>relativeTarget，关联目标节点，在mouseover/mouseout等事件中设置</li>
+<li>keyCode/charCode等输入信息</li>
+<li>pageX/clientX等位置信息</li>
+</ul>
+<p>兼容处理的方法主要有：</p>
+<ul>
+<li>stopPropagation/stopImmediatePropagation，不支持停止立即传播时，仅能在YUI层面模拟，不会阻止通过原生方法添加的同层回调，即，在YUI监听过el的click事件后，又通过<code>el.addEventListener(&#39;click&#39;, nativeCallback)</code>监听，如果在YUI的回调中调用<code>e.stopImmediatePropagation</code>的话，<code>nativeCallback</code>仍然会执行</li>
+<li>preventDefault</li>
+</ul>
+<p>另外，为了方便同时停止传播和阻止默认行为，YUI还提供了<code>halt</code>方法。</p>
+          <div class="read-more">
+            <a href="/event/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/event-target/">YUI事件体系之Y.EventTarget</a>
         </h1>
 
@@ -302,34 +333,6 @@
           <div class="read-more">
             <a href="/understanding-this-keyword/" class="read-more-link">Read more..</a>
           </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/change-theme/">新外观，更优雅，更直接</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2011-06-05
-        </span></div>
-    </header>
-
-    <div class="post-content"><p><img src="/images/metro.png" alt="Metro"></p>
-<p>我叫尚春，来自美团网</p>
-<p>如你所看</p>
-<p>我的blog彻底重建</p>
-<p>引入了很多<a target="_blank" rel="noopener" href="http://ubelly.com/2011/01/metro-windows-phone-7-design-language/">Metro</a>的设计理念</p>
-<p>因为我欣赏更加凸显内容的表达方式</p>
-<p>而不再认为高光、阴影是现代风格所必须</p>
-<p>这，是一种真正意义上的返璞归真</p>
-<p>在这里</p>
-<p>所有的图标都是用<a target="_blank" rel="noopener" href="http://raphaeljs.com/">Raphaël</a>绘制</p>
-<p>我写的一个小型通用库Spring也崭露头角</p>
-<p>并将茁壮成长</p>
-<p>一切都远未完善</p>
-<p>我会有节奏的进行</p>
-<p>这一切都值得期待</p>
-
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">
         <i class="iconfont icon-left"></i>

@@ -98,6 +98,30 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/understanding-this-keyword/">[译]理解Javascript关键字this</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2011-06-21
+        </span></div>
+    </header>
+
+    <div class="post-content"><div class="preface">
+    <p>在上一次原生javascript分享时，我发现自己对this的理解仍然不够准确。在翻看了很多现有的文章后，我很失望的发现基本全是在讲种种类型的场景下this是怎样怎样，我需要的不是这些，我想看到更深入的一些解释，例如this在函数中从何而来。后来，我准备自己查阅资料后总结一篇，就在准备资料的时候我欣喜的看到了下面这篇文章，当时的心情只能用相见恨晚来表达。我认为自己不会写出更好的文章，所以就勉强翻译过来给一些E文不太好的童鞋分享，E文好的童鞋请移步，原著更加准确生动些。</p>
+    <p>原文链接：<a href="http://javascriptweblog.wordpress.com/2010/08/30/understanding-javascripts-this/" target="_blank">Understanding JavaScript’s this keyword</a></p>
+</div>
+
+<p><code>this</code>在Javascript中应用广泛，但对它的误解却比比皆是。</p>
+<h2 id="你需要知道"><a href="#你需要知道" class="headerlink" title="你需要知道"></a>你需要知道</h2><p>每个运行环境(execution context，简称环境)都含有一个与之关联的ThisBinding常量，它们具有相同的生命周期。运行环境分为三类：</p>
+<h3 id="1-全局环境"><a href="#1-全局环境" class="headerlink" title="1. 全局环境"></a>1. 全局环境</h3><p><code>this</code>指向全局对象，在浏览器中为<code>window</code>对象。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alert(<span class="built_in">this</span>);  <span class="comment">// window</span></span><br></pre></td></tr></table></figure>
+          <div class="read-more">
+            <a href="/understanding-this-keyword/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/change-theme/">新外观，更优雅，更直接</a>
         </h1>
 

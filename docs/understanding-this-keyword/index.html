@@ -27,21 +27,7 @@
   gtag('js', new Date());
 
   gtag('config', 'UA-48551774-1');
-</script><script id="baidu_push">
-(function(){
-    var bp = document.createElement('script');
-    var curProtocol = window.location.protocol.split(':')[0];
-    if (curProtocol === 'https') {
-        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
-    }
-    else {
-        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
-    }
-    var s = document.getElementsByTagName("script")[0];
-    s.parentNode.insertBefore(bp, s);
-})();
-</script>
-<script>
+</script><script>
   window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
 </script>
 
@@ -168,7 +154,9 @@
 <ol>
 <li>令ref为执行MemberExpression后得到的结果</li>
 <li>令func为GetValue(ref)</li>
-<li>若Type(ref)是引用，则<br> a) 若IsPropertyReference(ref)为true，令thisValue为GetBase(ref)<br> b) 否则，ref的基本对象是一个Environment Record，令thisValue为执行GetBase(ref)的具体方法ImplicitThisValue得到的结果</li>
+<li>若Type(ref)是引用，则
+ a) 若IsPropertyReference(ref)为true，令thisValue为GetBase(ref)
+ b) 否则，ref的基本对象是一个Environment Record，令thisValue为执行GetBase(ref)的具体方法ImplicitThisValue得到的结果</li>
 <li>否则，Type(ref)不是引用，则令thisValue为undefined</li>
 <li>令this等于thisValue，argument values等于argList，调用func内部方法[[Call]]，并将结果返回</li>
 </ol>

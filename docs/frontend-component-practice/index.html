@@ -27,21 +27,7 @@
   gtag('js', new Date());
 
   gtag('config', 'UA-48551774-1');
-</script><script id="baidu_push">
-(function(){
-    var bp = document.createElement('script');
-    var curProtocol = window.location.protocol.split(':')[0];
-    if (curProtocol === 'https') {
-        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
-    }
-    else {
-        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
-    }
-    var s = document.getElementsByTagName("script")[0];
-    s.parentNode.insertBefore(bp, s);
-})();
-</script>
-<script>
+</script><script>
   window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
 </script>
 
@@ -125,9 +111,12 @@
 
 <p>随着业务规模的增加和开发团队的扩张，这套机制逐渐显示出它的一些不足：</p>
 <ol>
-<li><strong>资源冗余</strong><br>页面的逐渐增加，交互的逐渐复杂化，导致对应的 css 和 js 都有大幅度增长，进而出现为了依赖某个 js 中的一个函数，需要加载整个模块，或者为了使用某个 css 中的部分样式依赖整个 css，冗余资源较多</li>
-<li><strong>对应关系不直观</strong><br>没有显而易见的对应规则，导致的一个问题是修改某个业务模块的 css 或者 js 时，几乎只能依靠 grep。靠人来维护页面模块 html、css 和 js 之间的依赖关系，容易犯错，常常出现内容已经删除但是 css 或 js 还存在的问题</li>
-<li><strong>难于单元测试</strong><br>以页面为最小粒度进行资源整合，不同功能的业务模块相互影响，复杂度太高，自动化测试难以推进</li>
+<li><strong>资源冗余</strong>
+页面的逐渐增加，交互的逐渐复杂化，导致对应的 css 和 js 都有大幅度增长，进而出现为了依赖某个 js 中的一个函数，需要加载整个模块，或者为了使用某个 css 中的部分样式依赖整个 css，冗余资源较多</li>
+<li><strong>对应关系不直观</strong>
+没有显而易见的对应规则，导致的一个问题是修改某个业务模块的 css 或者 js 时，几乎只能依靠 grep。靠人来维护页面模块 html、css 和 js 之间的依赖关系，容易犯错，常常出现内容已经删除但是 css 或 js 还存在的问题</li>
+<li><strong>难于单元测试</strong>
+以页面为最小粒度进行资源整合，不同功能的业务模块相互影响，复杂度太高，自动化测试难以推进</li>
 </ol>
 <p>2013 年开始，在调研了 FIS、BEM 等方案之后，结合美团开发框架的实际，我们初步实现了一套轻量级的组件化开发方案。主要的改进是：</p>
 <ul>
@@ -150,9 +139,12 @@
 
 <p>对比之前，可以看到组件化的一些特点：</p>
 <ol>
-<li><strong>按需加载</strong><br>只加载必要的前端资源</li>
-<li><strong>对应关系非常清晰</strong><br>组件所需要的前端资源都在同一目录，职责明确且唯一，对应关系显著</li>
-<li><strong>易于测试</strong><br>组件是具备独立展现和交互的最小单元，可利用 Phantom 等工具自动化测试</li>
+<li><strong>按需加载</strong>
+只加载必要的前端资源</li>
+<li><strong>对应关系非常清晰</strong>
+组件所需要的前端资源都在同一目录，职责明确且唯一，对应关系显著</li>
+<li><strong>易于测试</strong>
+组件是具备独立展现和交互的最小单元，可利用 Phantom 等工具自动化测试</li>
 </ol>
 <p>此外，由于前端资源集中进行调度，组件化也为高阶性能优化提供了空间。例如实现组件级别的 BigRender、通过数据分析进行资源的合并加载等等。</p>
 <h3 id="组件化-2-0：趋于成熟"><a href="#组件化-2-0：趋于成熟" class="headerlink" title="组件化 2.0：趋于成熟"></a>组件化 2.0：趋于成熟</h3><p>组件化 1.0 上线后，由于简单易用，很快得到工程师的认可，并开始在各项业务中应用起来。新的需求接踵而来，一直持续到 2014 年底，这个阶段我们称之为组件化 2.0。下面介绍下主要的几个改进。</p>

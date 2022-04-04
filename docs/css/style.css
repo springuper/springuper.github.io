@@ -634,6 +634,8 @@ h6 {
     list-style: inside; }
     .post .post-content ul li input[type="checkbox"] {
       margin-right: 5px; }
+  .post .post-content ul > ul {
+    margin-left: 2rem; }
   .post .post-content blockquote {
     margin: 2em 0;
     padding: 10px 20px;

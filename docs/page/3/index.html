@@ -98,6 +98,30 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/event-delegate/">YUI事件体系之Y.delegate</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2013-04-05
+        </span></div>
+    </header>
+
+    <div class="post-content"><p><img src="/images/delegate.jpg" alt="relay baton"></p>
+<p>在介绍了YUI自定义事件体系和对DOM事件的封装后，本篇文章重点阐述事件方面的一种常用技术——事件代理。事件代理（Event Delegation，又称事件委托）充分运用事件传播模型，用一种十分优雅的方式实现了批量节点事件监听。具体的原理和优点请移步zakas比较古老的一篇文章<a target="_blank" rel="noopener" href="http://www.nczonline.net/blog/2009/06/30/event-delegation-in-javascript/">Event delegation in JavaScript</a>。事件代理在YUI中的实现为<code>Y.delegate</code>。</p>
+<h2 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h2><p>为方便讨论，约定以下名称：</p>
+<ul>
+<li>代理节点：实际监听事件的节点。在事件传播到此节点时判断是否符合代理条件，符合则执行回调函数。</li>
+<li>被代理节点：希望监听事件的节点。如果不采用事件代理，那么应该直接监听这些节点的事件。</li>
+<li>目标节点：事件发生的目标节点，即<code>event.target</code>。</li>
+</ul>
+<p>三者的层次关系从内到外依次为：目标节点 &lt;= 被代理节点 &lt;= 代理节点。</p>
+          <div class="read-more">
+            <a href="/event-delegate/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/event/">YUI事件体系之Y.Event</a>
         </h1>
 
@@ -308,30 +332,6 @@
 <p style="text-align:center; text-indent:0;"><a href="/assets/YUI3-in-Meituan.key_.zip">keynote下载</a> | <a href="/assets/YUI3-in-Meituan.pdf.zip">pdf下载</a></p>
           <div class="read-more">
             <a href="/yui3-in-meituan/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/understanding-this-keyword/">[译]理解Javascript关键字this</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2011-06-21
-        </span></div>
-    </header>
-
-    <div class="post-content"><div class="preface">
-    <p>在上一次原生javascript分享时，我发现自己对this的理解仍然不够准确。在翻看了很多现有的文章后，我很失望的发现基本全是在讲种种类型的场景下this是怎样怎样，我需要的不是这些，我想看到更深入的一些解释，例如this在函数中从何而来。后来，我准备自己查阅资料后总结一篇，就在准备资料的时候我欣喜的看到了下面这篇文章，当时的心情只能用相见恨晚来表达。我认为自己不会写出更好的文章，所以就勉强翻译过来给一些E文不太好的童鞋分享，E文好的童鞋请移步，原著更加准确生动些。</p>
-    <p>原文链接：<a href="http://javascriptweblog.wordpress.com/2010/08/30/understanding-javascripts-this/" target="_blank">Understanding JavaScript’s this keyword</a></p>
-</div>
-
-<p><code>this</code>在Javascript中应用广泛，但对它的误解却比比皆是。</p>
-<h2 id="你需要知道"><a href="#你需要知道" class="headerlink" title="你需要知道"></a>你需要知道</h2><p>每个运行环境(execution context，简称环境)都含有一个与之关联的ThisBinding常量，它们具有相同的生命周期。运行环境分为三类：</p>
-<h3 id="1-全局环境"><a href="#1-全局环境" class="headerlink" title="1. 全局环境"></a>1. 全局环境</h3><p><code>this</code>指向全局对象，在浏览器中为<code>window</code>对象。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alert(<span class="built_in">this</span>);  <span class="comment">// window</span></span><br></pre></td></tr></table></figure>
-          <div class="read-more">
-            <a href="/understanding-this-keyword/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">

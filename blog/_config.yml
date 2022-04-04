@@ -99,6 +99,10 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: even
 
+marked:
+  gfm: true
+  breaks: false
+
 feed:
   enable: true
   type: atom

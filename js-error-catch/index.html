@@ -27,21 +27,7 @@
   gtag('js', new Date());
 
   gtag('config', 'UA-48551774-1');
-</script><script id="baidu_push">
-(function(){
-    var bp = document.createElement('script');
-    var curProtocol = window.location.protocol.split(':')[0];
-    if (curProtocol === 'https') {
-        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
-    }
-    else {
-        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
-    }
-    var s = document.getElementsByTagName("script")[0];
-    s.parentNode.insertBefore(bp, s);
-})();
-</script>
-<script>
+</script><script>
   window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
 </script>
 
@@ -113,7 +99,8 @@
       <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Javascript%E9%94%99%E8%AF%AF%E6%A8%A1%E5%9E%8B"><span class="toc-text">Javascript错误模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-text">生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#try-catch"><span class="toc-text">try-catch</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#window-onerror"><span class="toc-text">window.onerror</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86"><span class="toc-text">错误日志收集</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E6%97%A5%E5%BF%97%E5%A4%84%E7%90%86"><span class="toc-text">错误日志处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol>
     </div>
   </div><div class="post-content"><blockquote>
-<p>If an error is possible, someone will make it. The designer must assume that all possible errors will occur and design so as to minimize the chance of the error in the first place, or its effects once it gets made. Errors should be easy to detect, they should have minimal consequences, and, if possible, their effects should be reversible.<br><em>–Donald Norman, author, The Design of Everyday Things</em></p>
+<p>If an error is possible, someone will make it. The designer must assume that all possible errors will occur and design so as to minimize the chance of the error in the first place, or its effects once it gets made. Errors should be easy to detect, they should have minimal consequences, and, if possible, their effects should be reversible.
+<em>–Donald Norman, author, The Design of Everyday Things</em></p>
 </blockquote>
 <p>我觉得后端工程师较前端工程师最大的便利之一就是：<strong>良好的代码监控机制</strong>。</p>
 <p>每次后端工程师上线后，如果PHP运行中出现错误，会立即记录在error log中，并由脚本根据不同的错误级别进行邮件、短信报警。前端工程师在这方面被动很多，大多数情况下是通过用户反映给客服，然后客服再通知技术部门解决，中间的链条甚至会更长一些，因此前端方面的bug造成的影响往往较为严重。</p>

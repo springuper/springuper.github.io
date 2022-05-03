@@ -84,6 +84,33 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/yui3-practice/">YUI3在美团的实践</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2013-05-10
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>美团网在2010年引爆了团购行业，并在2012年销售额超过55亿，实现了全面盈利。在业务规模不断增长的背后，作为研发队伍中和用户最接近的前端团队承担着非常大的压力，比如用户量急剧上升带来的产品多样化，业务运营系统的界面交互日益复杂，代码膨胀造成维护成本增加等等。面对这些挑战，我们持续改进前端技术架构，在提升用户体验和工作效率的同时，成功支撑了美团业务的快速发展，这一切都得益于构建在YUI3框架之上稳定高效的前端代码。在应用YUI3的过程中，我们团队积累了一些经验，这里总结成篇，分享给大家。</p>
+<h2 id="为什么选择YUI3"><a href="#为什么选择YUI3" class="headerlink" title="为什么选择YUI3"></a>为什么选择YUI3</h2><p>使用什么前端基础框架是建立前端团队最重要的技术决策之一。美团项目初期因为要加快开发进度，选择了当时团队最熟悉的YUI2（前框架时代杰出的类库），保证美团能够更快更早地上线，抢占市场先机。不久由于前端技术发展很快，YUI2的缺点逐渐凸显，例如开发方式落后、影响工作效率等等，于是我们开始考虑基础库的迁移。</p>
+<p>经过一段时间对主流前端库、框架的反复考量，我们认为YUI3是最适合我们团队使用的基础框架。</p>
+<p>首先，国内的开源框架及其社区刚开始起步，在代码质量、架构设计和理念创新上还难以跟YUI3比肩，所以基本排除在外。其次，国外像YUI3这样面向用户产品、文档丰富、扩展性良好的成熟框架屈指可数，例如ExtJS和Dojo则更适合业务复杂的传统企业级开发。最后，使用jQuery这种类库构建同YUI3一样强大的框架对创业团队来说并不可取，美团快速发展、竞争多变的业务特点决定了我们必须把主要精力放在更高一层的业务开发上，而不是去重复发明一个蹩脚的YUI。</p>
+<p>YUI3成为最终选择有以下几个直接的原因：</p>
+<ul>
+<li>非常优秀，是真正的框架，真正的重型武器，具有强劲的持续开发能力，可以应对业务的快速发展。不管是规模不断增长的用户产品，还是交互日趋复杂的业务系统（美团有超过100个业务系统作全电子化的运营支撑），YUI3都游刃有余。</li>
+<li>代码整齐规范，容易维护，适合有洁癖的工程师，同时能够显著提高团队协作时的开发效率。因为人手紧缺，后端工程师也需要参与前端开发，一致的代码风格使前后端配合轻松简单。</li>
+<li>有出色的架构设计，是很好的框架范本，通过研究学习可以帮助工程师成长，培养良好的工程思维。人是美团最重要的产品。</li>
+</ul>
+<p>随着团队成长，我们最后引入了YUI3，在迁移过程中，遇到了很多技术上的和工程上的挑战，但是我们一直在前进，一直在行进中开火。从结果来看，YUI3为我们团队提供了先进生产力，为快速开发、快速部署、快速迭代提供了源源不断的力量。</p>
+<p>YUI3的优秀主要表现在模块和组件框架的出色设计，下面我们着重介绍这两方面的一些实践经验。</p>
+          <div class="read-more">
+            <a href="/yui3-practice/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/event-delegate/">YUI事件体系之Y.delegate</a>
         </h1>
 
@@ -302,24 +329,6 @@
 <p>在我看来，前端行业更加团结、热情，有非常开放、分享的精神。非常喜欢这个行业的风气。</p>
 <p>此次交流会，我做了关于我们团队在YUI3方面的一些实践（<a href="/yui3-in-meituan.html">YUI3在美团</a>），虽然还很初级，但我们在慢慢强大。在行进中开火，纵情向前！</p>
 
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/yui3-in-meituan/">YUI3在美团</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2011-08-04
-        </span></div>
-    </header>
-
-    <div class="post-content"><div style="text-align:center;"><div style="width:425px; margin:0 auto;" id="__ss_8759550"><object id="__sse8759550" width="425" height="355"><param name="movie" value="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=yui3-110802225931-phpapp02&stripped_title=yui3-8759550&userName=springuper" /><param name="allowFullScreen" value="true"/><param name="allowScriptAccess" value="always"/><embed name="__sse8759550" src="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=yui3-110802225931-phpapp02&stripped_title=yui3-8759550&userName=springuper" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="355"></embed></object></div></div>
-
-<p style="text-align:center; text-indent:0;"><a href="/assets/YUI3-in-Meituan.key_.zip">keynote下载</a> | <a href="/assets/YUI3-in-Meituan.pdf.zip">pdf下载</a></p>
-          <div class="read-more">
-            <a href="/yui3-in-meituan/" class="read-more-link">Read more..</a>
-          </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">
         <i class="iconfont icon-left"></i>

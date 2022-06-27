@@ -6,7 +6,7 @@
   <link href="https://shangchun.net/atom.xml" rel="self"/>
   
   <link href="https://shangchun.net/"/>
-  <updated>2022-05-03T03:59:49.290Z</updated>
+  <updated>2022-06-27T00:54:40.679Z</updated>
   <id>https://shangchun.net/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>数据请求利器 React Query</title>
+    <link href="https://shangchun.net/react-query/"/>
+    <id>https://shangchun.net/react-query/</id>
+    <published>2022-06-05T08:25:19.000Z</published>
+    <updated>2022-06-27T00:54:40.679Z</updated>
+    
+    <content type="html"><![CDATA[<p>请移步知乎“前端之美”专栏 <a href="https://zhuanlan.zhihu.com/p/522609991">数据请求利器 React Query</a> 查看全文。</p>]]></content>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;请移步知乎“前端之美”专栏 &lt;a href=&quot;https://zhuanlan.zhihu.com/p/522609991&quot;&gt;数据请求利器 React Query&lt;/a&gt;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="React" scheme="https://shangchun.net/tags/React/"/>
+    
+    <category term="React Query" scheme="https://shangchun.net/tags/React-Query/"/>
+    
+  </entry>
   
   <entry>
     <title>Fire Fast</title>

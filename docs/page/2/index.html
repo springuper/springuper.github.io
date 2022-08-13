@@ -27,7 +27,21 @@
   gtag('js', new Date());
 
   gtag('config', 'UA-48551774-1');
-</script><script>
+</script><script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
   window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
 </script>
 
@@ -83,6 +97,20 @@
       <main id="main" class="main">
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/typescript-advanced/">TypeScript 进阶</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2021-05-15
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/370000610">TypeScript 进阶</a> 查看全文。</p>
+
+        </div></article>
+      <article class="post">
     <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/continuation/">Continuation 在 JS 中的应用</a>
         </h1>
@@ -264,31 +292,6 @@
 <p><a target="_blank" rel="noopener" href="http://jsbin.com/kebigicu/1/embed?js,console">JS Bin</a></p>
           <div class="read-more">
             <a href="/promise-insight/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/yui3-event-default-action/">YUI经验谈-自定义事件默认行为</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2014-02-14
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>纵观主流JS库和框架，YUI在自定义事件方面做的尤为出色。如果需要挑出一个代表性的feature，那么非<strong>事件默认行为</strong>莫属。</p>
-<h2 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h2><p>YUI自定义事件在总体上模仿了DOM事件的设计思想。DOM中的一些事件是有默认行为的，详细见<a target="_blank" rel="noopener" href="https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3-Events.html#event-flow-default-cancel">DOM3 Event - Default actions and cancelable events</a>一节。简单来说，所谓默认行为，是指该事件在通常情况下所表现出来的动作，例如：</p>
-<ul>
-<li>一个链接节点的<code>click</code>事件，默认行为是转向该链接href属性对应的地址</li>
-<li>表单的submit事件，默认行为是将表单包含的数据提交给表单的action</li>
-</ul>
-<p>说通常情况下，是因为有时开发者会在事件的回调函数中调用</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">e.preventDefault();</span><br></pre></td></tr></table></figure>
-
-<p>来阻止默认行为的发生。</p>
-          <div class="read-more">
-            <a href="/yui3-event-default-action/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/">

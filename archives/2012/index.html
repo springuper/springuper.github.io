@@ -27,7 +27,21 @@
   gtag('js', new Date());
 
   gtag('config', 'UA-48551774-1');
-</script><script>
+</script><script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
   window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
 </script>
 
@@ -85,7 +99,7 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="archive" class="archive"><div class="archive-title">
           <span class="archive-post-counter">
-            39 Posts In Total
+            40 Posts In Total
           </span>
         </div>
       <div class="collection-title">

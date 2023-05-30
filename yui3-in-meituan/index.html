@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="YUI3在美团"/><meta name="keywords" content="YUI, Meituan, Shang Chun" /><link rel="alternate" href="/atom.xml" title="Shang Chun" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://shangchun.net/yui3-in-meituan/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-48551774-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-48551774-1');
+</script><script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>YUI3在美团 - Shang Chun</title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Shang Chun</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">Shang Chun</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            Tags
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">YUI3在美团
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2011-08-04
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Notes%EF%BC%9A"><span class="toc-text">Notes：</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><div style="text-align:center;"><div style="width:425px; margin:0 auto;" id="__ss_8759550"><object id="__sse8759550" width="425" height="355"><param name="movie" value="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=yui3-110802225931-phpapp02&stripped_title=yui3-8759550&userName=springuper" /><param name="allowFullScreen" value="true"/><param name="allowScriptAccess" value="always"/><embed name="__sse8759550" src="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=yui3-110802225931-phpapp02&stripped_title=yui3-8759550&userName=springuper" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="355"></embed></object></div></div>
+
+<p style="text-align:center; text-indent:0;"><a href="/assets/YUI3-in-Meituan.key_.zip">keynote下载</a> | <a href="/assets/YUI3-in-Meituan.pdf.zip">pdf下载</a></p>
+
+<span id="more"></span>
+
+<h2 id="Notes："><a href="#Notes：" class="headerlink" title="Notes："></a>Notes：</h2><ol>
+<li><p>常荣幸和大家一起分享我们团队在YUI3方面的一些实践。</p>
+</li>
+<li><p>我叫尚春，他们都叫我春哥。这里是我的博客和email。我在2010年12月11日毕业后进入美团工作，到现在已有7个多月的工作经验。这段时间，在师傅的指导下迅速成长，对前端的认识不断深入。</p>
+</li>
+<li><p>此次分享主要涉及两方面的内容。首先是关于选择YUI3作为基础库的原因，这里我们重点介绍下YUI3的模块机制；然后我们主要就我们实际迁移中遇到的一些挑战作详细表述，例如划分模块、加载策略等。</p>
+</li>
+<li><p>简要介绍下我们的前端团队。我们是一支小而精悍的队伍，为美团网视觉界面和用户交互提供充足动力。</p>
+<ul>
+<li>我们崇尚的是“快”，通过快速开发、快速部署、快速迭代来完成任务、优化功能</li>
+<li>我们坚持“在行进中开火”</li>
+<li>我们认为做事不应该准备太多，一定要先做起来，然后发现不足并不断改进，宁可十年不将军，不可一日不拱卒</li>
+</ul>
+<p> 这些信条可能更加适合我们这样的小团队。</p>
+</li>
+<li><p>我们首先要回答的问题是：为什么选择YUI3。第一个原因，我们原来采用的是YUI2。作为YUI团队的作品，YUI2非常正统、稳定。第二个原因，YUI团队已经把重心转移到YUI3，基本不再维护YUI2。但这都不是最有说服力的原因。</p>
+</li>
+<li><p>最为重要的原因是YUI3本身，它足够的优秀。YUI3具有很多新的特性，例如模块机制、选择器的全面应用、更强大的自定义事件、组件框架等等。如果说YUI2是库时代杰出典范之一的话，YUI3就是框架时代一颗璀璨的明星。</p>
+</li>
+<li><p>时间有限，我们重点介绍下YUI3的模块机制。模块是YUI3最大的变化，没有之一。这一底层设计机制改变了原有YUI2时代的规则。它为我们带来了自动加载、沙箱、combo等等特性，解放生产力的同时，提高了多人协作上的便利。使用YUI3添加模块、调用模块比较简单。</p>
+</li>
+<li><p>我们把源码进行适当简化，主要理解一下内部的机制。YUI构造器的add方法是这样定义的，即将模块的信息注册在YUI构造器的静态属性Env中。</p>
+</li>
+<li><p>YUI的use方法主要流程是：计算调用模块所依赖的所有模块，将这些模块进行排序并输出，通过attach方法将这些模块的api依次捆绑在YUI实例（沙箱）上,将载满api的YUI实例传递到回调函数中。</p>
+</li>
+<li><p>与直接嵌入script标签相比，模块的特点有：</p>
+<ul>
+<li>注册模块与调用模块分离，两者不是紧密耦合关系</li>
+<li>所有模块都加载并绑定后才会执行回调函数，多个use间是异步关系。但，当所有模块都具备的情况下，多个use又是同步关系</li>
+<li>通过实例绑定调用模块的api，实现了一种简便的沙箱机制。这一机制有利于协同开发</li>
+<li>在模块定义时的一些元信息将所有模块有序组织起来，形成一个系统</li>
+</ul>
+</li>
+<li><p>YUI3的所有模块分为四个层级，它们构成了YUI3的架构。</p>
+<ul>
+<li>最底层是种子文件YUI，它定义了YUI构造器以及yui模块，主要包括Lang，UA，封装的Array, Object, 以及Get等等</li>
+<li>第二层为核心工具层，主要是一些工具模块，例如DOM，Node，Event</li>
+<li>第三层为组件框架层，主要是为构建组件提供丰富灵活的机制</li>
+<li>第四层为组件层，包括了IO，JSON，Animation等重要模块</li>
+</ul>
+</li>
+<li><p>我们遇到很多挑战：</p>
+<ul>
+<li>如何将原来的功能划分为模块，如何将所有模块组织起来，这是比较大的一个挑战</li>
+<li>Combo服务的实现。yahoo的combo只能提供YUI自身模块，而且速度在国内并不占优势。我们采用了minify，进行了一些修改和配置，能够在线上线下提供combo的支持</li>
+<li>模块加载策略的研究</li>
+<li>版本管理的问题。原来我们采用了query string的方式进行版本管理，现在则是用embedding的方式</li>
+</ul>
+</li>
+<li><p>目前，我们已经将大多数后台系统迁移到了YUI3。本季度我们要完成主站的迁移工作。</p>
+</li>
+<li><p>在介绍迁移之前，先看一下原来我们组织js的方式。这里主要包含三类文件：二次开发的核心文件core.js和一些widget文件，应用层级的文件，例如app-deal.js，来自第三方的文件，例如jquery.js。这种方式非常简单，但在web app时代已经不再适合较为复杂的前端开发，维护成本比较高。</p>
+</li>
+<li><p>那如何划分模块呢，我们总结了如下几条原则：</p>
+<ul>
+<li>抽象与应用必须脱离。更通用的功能应该放在更低的层级，应用层完全面向实际问题，在解决的过程中调用抽象出来的方法</li>
+<li>职责单一。保持每个模块的职责足够简单，方便维护和可持续开发</li>
+<li>粒度得当。有了combo，我们可以不必担心粒度太小，文件过多导致的速度问题。但是，从可维护的角度来考虑，粒度应该适当而不宜过小，避免海底捞针的情形出现</li>
+<li>我们的模块体系应该是开放的，不符合YUI规范的第三方模块，我们可以借鉴整合进来，使我们的基础框架更加完善，更加性感</li>
+</ul>
+</li>
+<li><p>美团的JS架构，按照抽象与应用程度，分为四层：</p>
+<ul>
+<li>最底层交给强悍的YUI3，为我们提供很跨浏览器的api和很好的框架</li>
+<li>第二层是我们二次开发的一些核心方法和控件库。mt-base中包含strtotime，getRadioValue等基础方法，对Cookie的简单操作，一些封装的页面动画等。w-base，w-autocomplete等包含一些封装的控件，提供更加高效的用户体验，且便于后端人员调用</li>
+<li>第三层包含美团各个分站点的一些通用模块。例如mis-base包含后台mis系统的消息系统、checkFormChanged等通用方法。这一层更加接近应用</li>
+<li>最上面一层，应用模块，这些模块的方法都是用来解决实际问题的。例如mis-deal用来处理mis系统中所有deal相关页面的交互，finance-pay用来处理财务系统中的付款相关页面的交互。一些零碎的应用方法我们放在对应站点的misc模块中</li>
+</ul>
+</li>
+<li><p>为了保持向前兼容，我们定义了新的全局对象M。我们对YUI进行了简单的封装，可以使用M.add添加模块，使用M.use调用模块。请注意，每次使用M.use都会新生成一个config的实例，这个config信息主要包含一些combo服务器信息，我们自己开发模块的信息。这样loader就知道该如何计算依赖的模块了。在对use的封装中，我们还引入了debug的功能。［代码演示］</p>
+</li>
+<li><p>目前我们采用的加载方式是：预加载通用基础模块，例如yui，node，event，io等，然后是站点级别的一些操作，例如mis系统的widget初始化、消息系统初始化等，最后是页面级别的一个特定应用入口。</p>
+</li>
+<li><p>我们对基于PHP loader的服务器端loader进行了尝试，并准备近期进行部署。</p>
+<p>服务器端loader优势在于速度，同时，将其整合在框架中降低了维护成本，简便易用。</p>
+</li>
+<li><p>通过使用服务器端loader，可以做到一次性加载。</p>
+</li>
+</ol>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://shangchun.net">Chun Shang</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://shangchun.net/yui3-in-meituan/">https://shangchun.net/yui3-in-meituan/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/YUI/">YUI</a>
+            <a href="/tags/Meituan/">Meituan</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/w3ctech-meituan/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">w3cTech 21期在美团举行</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/understanding-this-keyword/">
+        <span class="next-text nav-default">[译]理解Javascript关键字this</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:springuper@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://twitter.com/springuper" class="iconfont icon-twitter" title="twitter"></a>
+        <a target="_blank" rel="noopener" href="https://www.linkedin.com/in/chun-shang-45a41241/" class="iconfont icon-linkedin" title="linkedin"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/springuper" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/shang-chun" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2011 - 2023<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Chun Shang</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'springuper/springuper.github.io')
+    script.setAttribute('issue-term', 'pathname')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

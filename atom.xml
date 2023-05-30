@@ -48,6 +48,35 @@
   </entry>
   
   <entry>
+    <title>基于 Context 做 React 状态管理</title>
+    <link href="https://shangchun.net/react-context/"/>
+    <id>https://shangchun.net/react-context/</id>
+    <published>2023-03-09T01:12:00.000Z</published>
+    <updated>2023-05-30T14:40:42.936Z</updated>
+    
+    <content type="html"><![CDATA[<p>请移步知乎“前端之美”专栏 <a href="https://zhuanlan.zhihu.com/p/607970423">基于 Context 做 React 状态管理</a> 查看全文。</p>]]></content>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;请移步知乎“前端之美”专栏 &lt;a href=&quot;https://zhuanlan.zhihu.com/p/607970423&quot;&gt;基于 Context 做 React 状态管理&lt;/a&gt;</summary>
+        
+      
+    
+    
+    
+    
+    <category term="React" scheme="https://shangchun.net/tags/React/"/>
+    
+    <category term="Context" scheme="https://shangchun.net/tags/Context/"/>
+    
+    <category term="useContextSelector" scheme="https://shangchun.net/tags/useContextSelector/"/>
+    
+  </entry>
+  
+  <entry>
     <title>管理的杠杆</title>
     <link href="https://shangchun.net/management-lever/"/>
     <id>https://shangchun.net/management-lever/</id>

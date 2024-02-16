@@ -84,6 +84,67 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/event-custom/">YUI事件体系之Y.CustomEvent</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2012-09-01
+        </span></div>
+    </header>
+
+    <div class="post-content"><p><img src="/images/DIY.jpg" alt="DIY"></p>
+<p>上一篇<a href="/2013/01/20/event-do/">文章</a>中，简要介绍了YUI实现AOP的<code>Y.Do</code>对象。</p>
+<p>接下来，我们继续对YUI事件体系进行探索。本次要介绍的是<code>Y.CustomEvent</code>对象，从命名上就可以看出，这个对象在整个YUI事件体系中十分重要。它建立起整个自定义事件的体系，而且，DOM事件也构建在这个体系之上。</p>
+<h2 id="Y-Subscriber"><a href="#Y-Subscriber" class="headerlink" title="Y.Subscriber"></a>Y.Subscriber</h2><p>Y.Subscriber的作用比较简单：执行回调函数。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Y.Subscriber = <span class="function"><span class="keyword">function</span> (<span class="params">fn, context</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.fn = fn; <span class="comment">// 回调函数</span></span><br><span class="line">    <span class="built_in">this</span>.context = context; <span class="comment">// 上下文</span></span><br><span class="line">    <span class="built_in">this</span>.id = Y.stamp(<span class="built_in">this</span>); <span class="comment">// 设置唯一id</span></span><br><span class="line">&#125;;</span><br><span class="line">Y.Subscriber.prototype = &#123;</span><br><span class="line">    <span class="attr">constructor</span>: Y.Subscriber,</span><br><span class="line">    <span class="comment">// 执行回调函数</span></span><br><span class="line">    <span class="attr">notify</span>: <span class="function"><span class="keyword">function</span> (<span class="params">args, ce</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.deleted) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">var</span> ret;</span><br><span class="line"></span><br><span class="line">        ret = <span class="built_in">this</span>.fn.apply(<span class="built_in">this</span>.context, args || []);</span><br><span class="line">        <span class="comment">// 只监听一次</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.once) &#123;</span><br><span class="line">            ce._delete(<span class="built_in">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Y-CustomEvent"><a href="#Y-CustomEvent" class="headerlink" title="Y.CustomEvent"></a>Y.CustomEvent</h2><p><code>Y.CustomEvent</code>主要作用是：建立自定义事件机制，为方便的进行事件创建、监听、触发提供良好基础。自定义事件机制，实际上是<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern">Observer Pattern</a>（<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Observer_pattern">Publish–subscribe Pattern</a>的演化）的一种实现，这种机制能够方便的实现模块间解耦，增强模块的扩展性。</p>
+<p>YUI的自定义事件较其它一些js库来说要强大一些，有这样一些好的features：</p>
+<ul>
+<li>支持事件接口(Event Facade)，在回调函数中可以进行调用</li>
+<li>支持设置默认执行方法</li>
+<li>支持停止/立即停止传播，并可设定停止传播时执行的方法</li>
+<li>支持阻止默认行为(默认执行方法)，并可设定阻止默认行为时执行的方法</li>
+<li>支持冒泡。指定冒泡目标序列，就可以顺序的触发事件(需要<code>Y.EventTarget</code>)</li>
+<li>支持广播。每个自定义事件，都可以设置在当前YUI实例范围内和全局YUI内进行广播</li>
+</ul>
+<p>可以看出，YUI的自定义事件和DOM事件极其类似，这种设计自然到我们在用自定义事件时，丝毫感觉不到和DOM事件的差异。</p>
+          <div class="read-more">
+            <a href="/event-custom/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/event-do/">YUI事件体系之Y.Do</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2012-07-14
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>YUI团队在种种场合不断的夸耀自己的事件体系是多么强大：</p>
+<ul>
+<li>YUI 3′s Event module is one of the strengths of the library  –Eric Miraglia, <a target="_blank" rel="noopener" href="http://www.yuiblog.com/blog/2009/10/30/smith-yuiconf2009-events/">YUI Theater — Luke Smith: “Events Evolved”</a></li>
+<li>YUI 3 is not all about DOM manipulation — it also contains a robust set of class/object management tools, not to mention our powerful custom events –Tilo Mitra, <a target="_blank" rel="noopener" href="http://net.tutsplus.com/articles/general/10-things-i-learned-while-interning-at-yui/">10 Things I Learned While Interning at YUI</a></li>
+<li>One of the strengths of the YUI App Framework is that it’s integrated tightly with the rest of YUI and benefits from YUI’s fantastic event system and plugin/extension infrastructure. –Ryan Grove, <a target="_blank" rel="noopener" href="http://www.quora.com/How-can-I-decided-whether-to-choose-YUI-3s-MVC-or-Backbone-for-a-new-project#ld_xJGMd1_3012">How can I decided whether to choose YUI 3’s MVC or Backbone for a new project?</a></li>
+</ul>
+<p>事实的确如此吗？就使用YUI的开发者反馈来看，应该是不错的：</p>
+<ul>
+<li>AFAIK YUI 3’s event system is the most sophisticated of any JavaScript framework. Am I wrong in thinking that? –<a target="_blank" rel="noopener" href="https://twitter.com/wrumsby/status/113568040834174976">Walter Rumsby</a></li>
+<li>I love the event system in YUI. Pure awesomeness. –<a target="_blank" rel="noopener" href="https://twitter.com/kev_nz/statuses/180472697644515328">Kevin Isom</a></li>
+<li>I am constantly impressed by the degree of excellence I find in working with the YUI3 framework –Andrew Wooldridge, <a target="_blank" rel="noopener" href="http://andrewwooldridge.com/blog/2011/03/08/cross-yui-communication-and-custom-events/">Cross YUI Communication and Custom Events</a></li>
+</ul>
+<p>作为一名YUI用户，我对其事件体系的强大深有体会。从本篇文章起，我将对YUI事件机制做一个全面分析。</p>
+<p>本次我们介绍的是比较基础的两个对象<code>Y.EventHandle</code>和<code>Y.Do</code>。千里之行积于跬步，YUI整套事件机制也是从这两个对象开始构筑的。</p>
+          <div class="read-more">
+            <a href="/event-do/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/extend-and-augment/">Y.extend与Y.augment</a>
         </h1>
 
@@ -262,48 +323,6 @@
             <a href="/yui3-intro/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/event-note/">Event小记</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2011-03-17
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>Event在javascript中的重要性不言而喻，正是它驱动着所有事情的进行。记下一些读书的心得，整理如下：</p>
-<ul>
-<li>Event按类别可分为input events和semantic events。semantic events的发生通常都建立在input events之上，例如点击“提交”按钮后产生onsubmit事件。input events依赖于输入设备。Events按模块可分为HTMLEvents、MouseEvents和UIEvents，对应的接口分别为Event、MouseEvent和UIEvent，其中MouseEvent接口继承了Event接口和UIEvent接口，常用的属性有altKey、ctrlKey、shiftKey和一些位置信息。</li>
-<li>DOM level 0的事件响应方式得到最为广泛的支持。具体应用方式有两种，一种是在页面目标元素中添加对应属性，如&lt;input type=”button” onclick=”alert(this.nodeName)” /&gt;；对应的另一种方式为 elButton.onclick = function(){ alert(this.nodeName); }。显式调用响应方法也非常简单，elButton.onclick()即可。响应方法中的this指代的是触发事件的页面元素。这种事件处理方式有一些缺点，例如：每个对象的某种事件只能添加一个响应方法，当需要将多个元素绑定事件时实现较为复杂等。</li>
-<li>DOM level 2的事件响应方式进行了诸多改进。事件被赋予一个传播过程，细分为capturing、target node、bubbling三个阶段。这一机制是有一定渊源的，不妨细讲。在当年Netscape与IE大战的年代，当遇到多个嵌套元素绑定同一事件时，如何确定响应方法执行顺序成为大家共同的问题，不幸的是他们做出了相反的选择：NetScape按照事件捕获的顺序执行，即父级节点响应方法优先执行，而IE按照事件冒泡的顺序执行，即子级节点响应方法优先执行。之后W3C过来和稀泥，也就制定了事件传播过程这一机制。需要注意的是，可以通过设定addEventListener的第三个参数设定响应方法在capturing阶段执行（true）还是在bubbling阶段执行（false）。</li>
-<li>有些元素在一些操作后会有默认动作，如果恰好添加了这类事件监听器的话，执行的顺序是：响应方法执行先于默认动作。阻止默认动作发生，DOM level 0中可以用return false（window.status是一个例外，需return true）；DOM level 2中可以使用preventDefault方法。停止事件传播使用stopPropagation方法。</li>
-<li>IE的事件模型并未遵循W3C标准。事件传播没有capturing阶段，bubbling阶段不能获得currentTarget，不会传递给事件响应方法event对象而是有一个全局event对象，注册/移除响应方法使用attachEvent/detachEvent，阻止事件传播使用cancelBubble等等。</li>
-<li>为了将鼠标动作限定在特定页面元素，即便鼠标已不在该元素区域内，可将响应方法和事件注册在document上，在IE中可使用setCapture/releaseCapture方法。一个典型的案例是在拖拽模块时，鼠标移动常常快于模块。</li>
-<li>keyCode代表键位编号，charCode代表键位上字符的编号。IE的键盘事件中只有keyCode属性，可以用 e.charCode || e.keyCode获得keypress事件发生时对应按键的字符编号。</li>
-<li>通过Document.createEvent创建自定义事件，并用Event.initEvent进行初始化，dispatchEvent进行调度。IE中可使用Document.createEventObject创建自定义事件，并用fireEvent进行调度。这部分可以说成为高级前端必备知识，在模块化编程等方面有较为重要的应用。</li>
-</ul>
-
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/yui-domready-after-load/">YUI onDOMReady滞后window.onload原因浅析</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2011-03-11
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="开篇"><a href="#开篇" class="headerlink" title="开篇"></a>开篇</h2><p>我很好奇其他前端工程师在wp后台写新文章的时候是在用可视化还是html模式。反正我是一路打着标签过来的，呵呵。</p>
-<h2 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h2><p>一直以来，我都先验的认为dom ready事件肯定发生在load之前。但是，最近的一个ticket上线后发现一个很奇怪的现象：在IE下，有时会发生页面load时仍没有捕捉到dom ready的时间。通过多次观察，发现发生这种现象一般是较为简单的页面。</p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>首先，在反复检查代码后排除了自身bug的问题。然后，去找到YUI（我们团队主要以YUI2作为基础库，并准备近期升级到YUI3）的<code>onDOMReady</code>实现，希望通过分析源码找到问题的起源，将<code>onDOMReady</code>在不含frame的IE中分支拣出来，代码量并不多：</p>
-          <div class="read-more">
-            <a href="/yui-domready-after-load/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
       <nav class="pagination"><a class="prev" href="/page/3/">
         <i class="iconfont icon-left"></i>
         <span class="prev-text">Prev</span>
@@ -331,7 +350,7 @@
     <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
   </span>
 
-  <span class="copyright-year">&copy;2011 - 2023<span class="heart">
+  <span class="copyright-year">&copy;2011 - 2024<span class="heart">
       <i class="iconfont icon-heart"></i>
     </span>
     <span class="author">Chun Shang</span>

@@ -84,6 +84,48 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/fe-pipeline/">前端中的 Pipeline</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017-10-05
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/28561932">前端中的 Pipeline</a> 查看全文。</p>
+
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/bitwise-not-and-logical-not/">js 中的 !! 与 ~~</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2015-10-17
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>在各大 js 的开源项目中，时常见到 !! 和 ~~，偶有猜对，却总不得要领。本文旨在深入剖析下这两个运算符的原理，以及使用时的利弊。</p>
+<h2 id=""><a href="#" class="headerlink" title="!"></a>!</h2><p>为了简化问题，我们首先了解下常见的逻辑非运算符 !，EcmaScript 中的定义是：</p>
+<blockquote>
+<p>产生式 <code>UnaryExpression : ! UnaryExpression</code> 按照下面的过程执行：</p>
+<ul>
+<li>令 <code>expr</code> 为解析执行 <code>UnaryExpression</code> 的结果</li>
+<li>令 <code>oldValue</code> 为 ToBoolean(GetValue(<code>expr</code>))</li>
+<li>如果 <code>oldValue</code> 为 true, 返回 false</li>
+<li>返回 true</li>
+</ul>
+</blockquote>
+<p>GetValue 处理取值的细节，例如依附于对象的属性、执行 getter 等，不再深究。重点看下 ToBoolean，它能够将各种类型的值最终转化为布尔类型。具体的规则可参考 <a target="_blank" rel="noopener" href="http://es5.github.io/#x9.2">ES5#9.2 ToBoolean</a> 一节。</p>
+<p>接下来的处理很简单，如果 ToBoolen 得到的结果 <code>oldValue</code> 是 true，那就返回 false，否则返回 true。</p>
+          <div class="read-more">
+            <a href="/bitwise-not-and-logical-not/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/frontend-component-practice/">前端组件化开发实践</a>
         </h1>
 
@@ -307,67 +349,6 @@
             <a href="/event-target/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/event-custom/">YUI事件体系之Y.CustomEvent</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2012-09-01
-        </span></div>
-    </header>
-
-    <div class="post-content"><p><img src="/images/DIY.jpg" alt="DIY"></p>
-<p>上一篇<a href="/2013/01/20/event-do/">文章</a>中，简要介绍了YUI实现AOP的<code>Y.Do</code>对象。</p>
-<p>接下来，我们继续对YUI事件体系进行探索。本次要介绍的是<code>Y.CustomEvent</code>对象，从命名上就可以看出，这个对象在整个YUI事件体系中十分重要。它建立起整个自定义事件的体系，而且，DOM事件也构建在这个体系之上。</p>
-<h2 id="Y-Subscriber"><a href="#Y-Subscriber" class="headerlink" title="Y.Subscriber"></a>Y.Subscriber</h2><p>Y.Subscriber的作用比较简单：执行回调函数。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Y.Subscriber = <span class="function"><span class="keyword">function</span> (<span class="params">fn, context</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.fn = fn; <span class="comment">// 回调函数</span></span><br><span class="line">    <span class="built_in">this</span>.context = context; <span class="comment">// 上下文</span></span><br><span class="line">    <span class="built_in">this</span>.id = Y.stamp(<span class="built_in">this</span>); <span class="comment">// 设置唯一id</span></span><br><span class="line">&#125;;</span><br><span class="line">Y.Subscriber.prototype = &#123;</span><br><span class="line">    <span class="attr">constructor</span>: Y.Subscriber,</span><br><span class="line">    <span class="comment">// 执行回调函数</span></span><br><span class="line">    <span class="attr">notify</span>: <span class="function"><span class="keyword">function</span> (<span class="params">args, ce</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.deleted) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">var</span> ret;</span><br><span class="line"></span><br><span class="line">        ret = <span class="built_in">this</span>.fn.apply(<span class="built_in">this</span>.context, args || []);</span><br><span class="line">        <span class="comment">// 只监听一次</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.once) &#123;</span><br><span class="line">            ce._delete(<span class="built_in">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Y-CustomEvent"><a href="#Y-CustomEvent" class="headerlink" title="Y.CustomEvent"></a>Y.CustomEvent</h2><p><code>Y.CustomEvent</code>主要作用是：建立自定义事件机制，为方便的进行事件创建、监听、触发提供良好基础。自定义事件机制，实际上是<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern">Observer Pattern</a>（<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Observer_pattern">Publish–subscribe Pattern</a>的演化）的一种实现，这种机制能够方便的实现模块间解耦，增强模块的扩展性。</p>
-<p>YUI的自定义事件较其它一些js库来说要强大一些，有这样一些好的features：</p>
-<ul>
-<li>支持事件接口(Event Facade)，在回调函数中可以进行调用</li>
-<li>支持设置默认执行方法</li>
-<li>支持停止/立即停止传播，并可设定停止传播时执行的方法</li>
-<li>支持阻止默认行为(默认执行方法)，并可设定阻止默认行为时执行的方法</li>
-<li>支持冒泡。指定冒泡目标序列，就可以顺序的触发事件(需要<code>Y.EventTarget</code>)</li>
-<li>支持广播。每个自定义事件，都可以设置在当前YUI实例范围内和全局YUI内进行广播</li>
-</ul>
-<p>可以看出，YUI的自定义事件和DOM事件极其类似，这种设计自然到我们在用自定义事件时，丝毫感觉不到和DOM事件的差异。</p>
-          <div class="read-more">
-            <a href="/event-custom/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/event-do/">YUI事件体系之Y.Do</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2012-07-14
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>YUI团队在种种场合不断的夸耀自己的事件体系是多么强大：</p>
-<ul>
-<li>YUI 3′s Event module is one of the strengths of the library  –Eric Miraglia, <a target="_blank" rel="noopener" href="http://www.yuiblog.com/blog/2009/10/30/smith-yuiconf2009-events/">YUI Theater — Luke Smith: “Events Evolved”</a></li>
-<li>YUI 3 is not all about DOM manipulation — it also contains a robust set of class/object management tools, not to mention our powerful custom events –Tilo Mitra, <a target="_blank" rel="noopener" href="http://net.tutsplus.com/articles/general/10-things-i-learned-while-interning-at-yui/">10 Things I Learned While Interning at YUI</a></li>
-<li>One of the strengths of the YUI App Framework is that it’s integrated tightly with the rest of YUI and benefits from YUI’s fantastic event system and plugin/extension infrastructure. –Ryan Grove, <a target="_blank" rel="noopener" href="http://www.quora.com/How-can-I-decided-whether-to-choose-YUI-3s-MVC-or-Backbone-for-a-new-project#ld_xJGMd1_3012">How can I decided whether to choose YUI 3’s MVC or Backbone for a new project?</a></li>
-</ul>
-<p>事实的确如此吗？就使用YUI的开发者反馈来看，应该是不错的：</p>
-<ul>
-<li>AFAIK YUI 3’s event system is the most sophisticated of any JavaScript framework. Am I wrong in thinking that? –<a target="_blank" rel="noopener" href="https://twitter.com/wrumsby/status/113568040834174976">Walter Rumsby</a></li>
-<li>I love the event system in YUI. Pure awesomeness. –<a target="_blank" rel="noopener" href="https://twitter.com/kev_nz/statuses/180472697644515328">Kevin Isom</a></li>
-<li>I am constantly impressed by the degree of excellence I find in working with the YUI3 framework –Andrew Wooldridge, <a target="_blank" rel="noopener" href="http://andrewwooldridge.com/blog/2011/03/08/cross-yui-communication-and-custom-events/">Cross YUI Communication and Custom Events</a></li>
-</ul>
-<p>作为一名YUI用户，我对其事件体系的强大深有体会。从本篇文章起，我将对YUI事件机制做一个全面分析。</p>
-<p>本次我们介绍的是比较基础的两个对象<code>Y.EventHandle</code>和<code>Y.Do</code>。千里之行积于跬步，YUI整套事件机制也是从这两个对象开始构筑的。</p>
-          <div class="read-more">
-            <a href="/event-do/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">
         <i class="iconfont icon-left"></i>
         <span class="prev-text">Prev</span>
@@ -395,7 +376,7 @@
     <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
   </span>
 
-  <span class="copyright-year">&copy;2011 - 2023<span class="heart">
+  <span class="copyright-year">&copy;2011 - 2024<span class="heart">
       <i class="iconfont icon-heart"></i>
     </span>
     <span class="author">Chun Shang</span>

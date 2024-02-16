@@ -84,6 +84,46 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/frontend-frp/">前端中的 Functional Reactive Programming</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2022-01-18
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/77687564">前端中的 Functional Reactive Programming</a> 查看全文。</p>
+
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/recruitment-driven-organization/">招聘驱动的组织建设</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2021-11-23
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>今天有一位候选人问我：“你作为团队负责人，最重要的工作是什么？”，坦白来说，我自己并没有很深刻地思考过这个问题。脱口而出的答案是：招人，招足够优秀的人。</p>
+<p>这时，我看到候选人深以为然地点了点头，似乎是非常认可我这由衷的答复。考虑到他也十足优秀，既然得到了肯定，那我不妨继续沿着这个思路畅想下，谈谈招聘驱动的组织建设。</p>
+<h2 id="组织建设的核心？"><a href="#组织建设的核心？" class="headerlink" title="组织建设的核心？"></a>组织建设的核心？</h2><p>在我们这个工程师行业，虽然很多人声称自己是码畜，只是外表光鲜地干着搬砖的体力活。不过纵观最近 20 多年互联网的飞速发展，诚如 Paul Graham 所言，真正意义上的工程师，或者黑客，实际上是最具有可放大性和可测量性的工种之一。当你的代码跑在成百上千台机器上为百万千万甚至以亿计的用户服务时，毫无疑问你的价值也得到了巨大程度的放大。</p>
+<p>进一步，优秀的工程师和普通的工程师的差距就像太阳和灯泡一样大，虽然都能发光发热，但是数量级不一样。</p>
+<p>基于此，我粗俗地以为，工程师组织建设的核心就是招人，招足够优秀的人：</p>
+<ul>
+<li>优秀的工程师会带来优秀的解决方案，进而提升组织效能</li>
+<li>优秀的工程师会自我迭代，填满组织成长过程中的内生间隙，保障组织可持续发展</li>
+<li>优秀的工程师会自我管理，结果驱动且不断对齐组织目标，管理者更关注中长期问题</li>
+<li>最重要的是，优秀的工程师会吸引优秀的工程师</li>
+</ul>
+          <div class="read-more">
+            <a href="/recruitment-driven-organization/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/react-hooks/">React Hooks 原理剖析</a>
         </h1>
 
@@ -194,48 +234,6 @@
     <div class="post-content"><p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/28562066">React 设计中的闪光点</a> 查看全文。</p>
 
         </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/fe-pipeline/">前端中的 Pipeline</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2017-10-05
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/28561932">前端中的 Pipeline</a> 查看全文。</p>
-
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/bitwise-not-and-logical-not/">js 中的 !! 与 ~~</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2015-10-17
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>在各大 js 的开源项目中，时常见到 !! 和 ~~，偶有猜对，却总不得要领。本文旨在深入剖析下这两个运算符的原理，以及使用时的利弊。</p>
-<h2 id=""><a href="#" class="headerlink" title="!"></a>!</h2><p>为了简化问题，我们首先了解下常见的逻辑非运算符 !，EcmaScript 中的定义是：</p>
-<blockquote>
-<p>产生式 <code>UnaryExpression : ! UnaryExpression</code> 按照下面的过程执行：</p>
-<ul>
-<li>令 <code>expr</code> 为解析执行 <code>UnaryExpression</code> 的结果</li>
-<li>令 <code>oldValue</code> 为 ToBoolean(GetValue(<code>expr</code>))</li>
-<li>如果 <code>oldValue</code> 为 true, 返回 false</li>
-<li>返回 true</li>
-</ul>
-</blockquote>
-<p>GetValue 处理取值的细节，例如依附于对象的属性、执行 getter 等，不再深究。重点看下 ToBoolean，它能够将各种类型的值最终转化为布尔类型。具体的规则可参考 <a target="_blank" rel="noopener" href="http://es5.github.io/#x9.2">ES5#9.2 ToBoolean</a> 一节。</p>
-<p>接下来的处理很简单，如果 ToBoolen 得到的结果 <code>oldValue</code> 是 true，那就返回 false，否则返回 true。</p>
-          <div class="read-more">
-            <a href="/bitwise-not-and-logical-not/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
       <nav class="pagination"><a class="prev" href="/">
         <i class="iconfont icon-left"></i>
         <span class="prev-text">Prev</span>
@@ -263,7 +261,7 @@
     <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
   </span>
 
-  <span class="copyright-year">&copy;2011 - 2023<span class="heart">
+  <span class="copyright-year">&copy;2011 - 2024<span class="heart">
       <i class="iconfont icon-heart"></i>
     </span>
     <span class="author">Chun Shang</span>

@@ -84,6 +84,33 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/yui3-intro/">浅析YUI3</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2011-05-21
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>最近因为忙于YUI2到YUI3的迁移，没时间更新博客。现在闲暇一些，觉得似乎写一点自己对于YUI3的理解再合适不过。</p>
+<p>主要内容有以下几点：</p>
+<ol>
+<li>全局命名空间</li>
+<li>改变一切的模块</li>
+<li>Combo</li>
+<li>链式调用</li>
+<li>更广泛的自定义事件</li>
+<li>一些问题</li>
+</ol>
+<h2 id="全局命名空间"><a href="#全局命名空间" class="headerlink" title="全局命名空间"></a>全局命名空间</h2><p>YUI3为了保持向前兼容，采用了新的全局命名空间<code>YUI</code>。新的命名空间与YUI2的全局命名空间<code>YAHOO</code>最大的不同就是：<code>YUI</code>是一个构造函数，而且是一个<a href="http://shangchun.net/scope-safe-contructor.html">无论如何也返回一个实例的构造函数</a>。</p>
+<h2 id="改变一切的模块"><a href="#改变一切的模块" class="headerlink" title="改变一切的模块"></a>改变一切的模块</h2><p>YUI2时代，一般都是将某方面的全部方法写在统一的命名空间下，例如DOM相关的方法均在<code>YAHOO.util.Dom</code>，在需要使用这些方法时我们直接调用即可。YUI2真正体现了<strong>基础方法库</strong>(function library)这样一种定位。</p>
+          <div class="read-more">
+            <a href="/yui3-intro/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/event-note/">Event小记</a>
         </h1>
 

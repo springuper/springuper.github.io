@@ -11,3 +11,4 @@ testReports/
 .sass-cache
 blog/public
 .*
+!.github/

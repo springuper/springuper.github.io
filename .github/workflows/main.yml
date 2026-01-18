@@ -50,6 +50,8 @@ jobs:
         run: |
           cp -r blog/public/* docs/
           cp favicon.ico docs/
+          # 确保删除 CNAME 文件（如果存在）
+          rm -f docs/CNAME
 
       # Deploy to gh-pages branch
       - name: Deploy
@@ -57,4 +59,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
-          cname: false  # 确保不使用自定义域名
+          keep_files: false  # 不保留旧文件，确保完全替换

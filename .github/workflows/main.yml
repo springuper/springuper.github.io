@@ -48,8 +48,8 @@ jobs:
       # Copy built files to docs directory
       - name: Copy files to docs
         run: |
-          # 先清理 docs 目录（保留目录结构）
-          find docs -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          # 先清理 docs 目录中的旧文件（但保留 docs 目录本身）
+          rm -rf docs/* docs/.* 2>/dev/null || true
           # 复制构建结果
           cp -r blog/public/* docs/
           cp favicon.ico docs/

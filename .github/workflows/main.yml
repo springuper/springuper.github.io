@@ -52,6 +52,9 @@ jobs:
           cp favicon.ico docs/
           # 确保删除 CNAME 文件（如果存在）
           rm -f docs/CNAME
+          # 验证文件是否正确复制
+          ls -lh docs/index.html
+          head -5 docs/index.html
 
       # Deploy to gh-pages branch
       - name: Deploy

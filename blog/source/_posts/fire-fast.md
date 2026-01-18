@@ -8,7 +8,7 @@ tags:
   - Organization
 ---
 
-[上篇文章](https://shangchun.net/hire-slow/)，我们谈过了“Hire slow，fire fast”的前半句，今天我们聊下后半句，也即“fire fast”。
+[上篇文章](https://springuper.github.io/hire-slow/)，我们谈过了"Hire slow，fire fast"的前半句，今天我们聊下后半句，也即"fire fast"。
 
 历经千辛万苦，新人终于到岗并开始适应新环境，大部分人都可以在两到三个月时间恢复战斗力，进而产出符合预期的价值。
 但也有少数例外情况，由于种种原因，新人并没有达成预期。应该怎么处理这样的情况呢？
@@ -76,7 +76,7 @@ tags:
 ## 所有的底气来自于有能力招更好的人
 
 不少管理者在是否 fire 之间犹豫不决还有一个重要因素：招人不易。试问：如果一个月内就可以招到符合要求的候补成员，还用得着犹豫吗？当然不用！
-所以，类似我在[招聘驱动的组织建设](https://shangchun.net/recruitment-driven-organization/)中提到的
+所以，类似我在[招聘驱动的组织建设](https://springuper.github.io/recruitment-driven-organization/)中提到的
 
 > 工程师组织建设的核心就是招人，招足够优秀的人
 

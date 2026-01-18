@@ -18,7 +18,7 @@ tags: [YUI]
 6. 一些问题
 
 ## 全局命名空间
-YUI3为了保持向前兼容，采用了新的全局命名空间`YUI`。新的命名空间与YUI2的全局命名空间`YAHOO`最大的不同就是：`YUI`是一个构造函数，而且是一个[无论如何也返回一个实例的构造函数](http://shangchun.net/scope-safe-contructor.html)。
+YUI3为了保持向前兼容，采用了新的全局命名空间`YUI`。新的命名空间与YUI2的全局命名空间`YAHOO`最大的不同就是：`YUI`是一个构造函数，而且是一个[无论如何也返回一个实例的构造函数](https://springuper.github.io/scope-safe-constructor/)。
 
 ## 改变一切的模块
 

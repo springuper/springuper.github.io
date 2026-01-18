@@ -48,20 +48,23 @@ jobs:
       # Copy built files to docs directory
       - name: Copy files to docs
         run: |
-          # 先清理 docs 目录中的旧文件（但保留 docs 目录本身和 .git）
-          find docs -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} + 2>/dev/null || true
+          # 先清理 docs 目录中的旧文件（但保留 docs 目录本身）
+          # 使用更安全的方法：只删除文件和目录，不删除 . 和 ..
+          shopt -s dotglob
+          rm -rf docs/* 2>/dev/null || true
+          shopt -u dotglob
           # 复制构建结果
-          cp -r blog/public/* docs/
-          cp favicon.ico docs/
+          cp -r blog/public/* docs/ 2>&1
+          cp favicon.ico docs/ 2>&1
           # 确保删除 CNAME 文件（如果存在）
           rm -f docs/CNAME
           # 验证文件是否正确复制
           echo "=== Checking blog/public/index.html ==="
-          ls -lh blog/public/index.html
+          ls -lh blog/public/index.html || echo "blog/public/index.html not found!"
           echo "=== Checking docs/index.html ==="
-          ls -lh docs/index.html
+          ls -lh docs/index.html || echo "docs/index.html not found!"
           echo "=== First 10 lines of docs/index.html ==="
-          head -10 docs/index.html
+          head -10 docs/index.html || echo "Cannot read docs/index.html"
           echo "=== File count in docs ==="
           find docs -type f | wc -l
 

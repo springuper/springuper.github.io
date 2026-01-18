@@ -17,7 +17,7 @@ jobs:
     
     # Grant GITHUB_TOKEN the permissions required for deploying to GitHub Pages
     permissions:
-      contents: read
+      contents: write  # 需要 write 权限来推送到 gh-pages 分支
       pages: write
       id-token: write
 

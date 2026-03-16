@@ -690,4 +690,4 @@ where
 
 ---
 
-**下一章预告**：第 12 章将介绍 **异步编程与 async/await**，从 TS 的 `Promise` 和 `async/await` 出发，理解 Rust 的 `Future`、`async` 块与 `tokio` 运行时。
+**下一章预告**：第 12 章将介绍 **智能指针**，学习 Box、Rc、Arc、RefCell 等，理解 Rust 在堆分配和共享所有权上的精细控制。

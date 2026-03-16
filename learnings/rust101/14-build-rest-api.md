@@ -787,4 +787,4 @@ app.delete('/todos/:id', async (req, res) => {
 
 ---
 
-*下一篇：第 15 章 — 异步编程深入（Future、async/await、select!）*
+*下一篇：第 15 章 — 测试、工具链与 Node.js 互操作，学习 cargo test、文档测试、napi-rs 以及渐进式迁移策略。*

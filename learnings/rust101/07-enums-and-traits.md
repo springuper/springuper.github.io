@@ -807,4 +807,4 @@ fn main() {
 
 ---
 
-**下一章预告**：第 08 章将介绍 Rust 的**模块系统与包管理**，对应 TS 的 `import`/`export` 和 `package.json`，以及 Cargo 的 workspace 与依赖管理。
+**下一章预告**：第 08 章将介绍 **集合与迭代器**，学习 Vec、HashMap 以及 Rust 强大的惰性迭代器链，体验零成本抽象的实际威力。

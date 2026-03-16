@@ -536,4 +536,4 @@ Rust 工具链围绕 **rustup**（版本与组件管理）和 **Cargo**（包管
 - **src/main.rs** ≈ src/index.ts
 - **tests/** ≈ __tests__/
 
-下一步可以学习 Rust 的语法与类型系统，或从一个小项目（如 CLI 工具）开始实践。
+下一章将介绍 **Rust 的类型系统基础**，从 TypeScript 的类型映射出发，学习 Rust 的基础类型、变量绑定和 struct。

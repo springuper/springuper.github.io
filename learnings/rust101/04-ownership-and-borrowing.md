@@ -745,4 +745,4 @@ fn main() {
 | 生命周期 | 防止悬垂引用；多数情况可自动推断 |
 | 编译错误 | value used after move、借用冲突、does not live long enough —— 都是编译器在帮你避免运行时 bug |
 
-下一章将介绍**结构体与枚举**，继续在类型系统中体现所有权与借用的应用。
+下一章将介绍 **错误处理**，学习 Option、Result 和 ? 操作符，告别 try/catch。

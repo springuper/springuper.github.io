@@ -622,4 +622,4 @@ console.timeEnd('Rust');
 
 ---
 
-*本章完。下一章可以是专题深入（如 FFI、WASM）或实战项目（如用 Axum 写 API）。*
+*本系列完结。恭喜你走完了从 TypeScript 到 Rust 的入门之旅！推荐接下来阅读 [The Rust Book](https://doc.rust-lang.org/book/) 和 [Rust by Example](https://doc.rust-lang.org/rust-by-example/) 继续深入。*

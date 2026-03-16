@@ -306,20 +306,19 @@ Rust 程序内存占用通常显著低于同等功能的 Node.js 服务，在规
 ### 实战代码
 
 ```typescript
-// Node.js：高并发时内存与 CPU 压力大
+// Node.js：高并发时 GC 压力大
 const server = http.createServer(async (req, res) => {
-  const data = await fetchFromDB(); // 每个请求都可能增加堆压力
-  res.end(JSON.stringify(data));
+  const data = await fetchFromDB(); // 对象用完不会立刻释放，等 GC 来扫
+  res.end(JSON.stringify(data));     // 高并发下"待回收垃圾"快速堆积，触发 Major GC 暂停
 });
 ```
 
 ```rust
-// Rust：内存可控，无 GC，适合高并发
+// Rust：内存确定性释放，无 GC
 async fn handle_request(req: Request) -> Response {
-    let data = fetch_from_db().await;
-    Response::json(data)
+    let data = fetch_from_db().await; // 也会用堆，但离开作用域立刻 drop
+    Response::json(data)              // 没有垃圾堆积，内存峰值低且稳定
 }
-// 无 GC 暂停，内存布局紧凑，单机可处理更高 QPS
 ```
 
 ---
@@ -476,4 +475,4 @@ error: expected `;`, found `}`
 | 编译器角色   | 充当最严格的 Code Reviewer，把大量错误挡在编译期                      |
 | 入门心态     | 接受编译器的「挑剔」，把它视为帮你避免未来 bug 的工具                 |
 
-下一章将深入 **变量、所有权与借用**，从 TypeScript 的「引用」直觉过渡到 Rust 的 Ownership 模型。
+下一章将介绍 **Rust 的工具链与项目管理**，从你熟悉的 npm/package.json 出发，快速上手 cargo 和 Cargo.toml。

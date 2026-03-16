@@ -631,4 +631,4 @@ fn might_fail(choice: u32) -> Result<String, AppError> {
 
 ---
 
-**下一章预告：** 第 06 章将介绍 Rust 的模块系统与工程组织，如何用 `mod` 和 `use` 组织大型项目。
+**下一章预告：** 第 06 章将介绍 **模式匹配**，Rust 的超级加强版 switch，配合 Option/Result 使用威力倍增。

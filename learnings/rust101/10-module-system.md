@@ -517,4 +517,4 @@ impl Config {
 
 ---
 
-**下一章预告：** 第 11 章将介绍 **异步编程与 async/await**，从 Promise 到 Future，从 Event Loop 到 Tokio 运行时。
+**下一章预告：** 第 11 章将深入 **泛型**，学习 Trait Bound、静态/动态分发以及生命周期标注。

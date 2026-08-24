@@ -78,7 +78,7 @@
   
   <title>Shang Chun</title>
 
-<meta name="generator" content="Hexo 5.4.0"></head>
+<meta name="generator" content="Hexo 5.4.2"></head>
 
 <body>
   <div class="scrollPercentage"></div>
@@ -172,6 +172,95 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/agent-harness-comparison/">给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2026-08-23
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>如果你用过两个以上的 AI 编程工具，大概率会有这种困惑：<strong>同一个模型，装在 Claude Code 里和装在 OpenCode 里，干活的样子完全不一样。</strong> 一个慢条斯理、先列计划再动手；一个风风火火、脚本一甩就开跑；一个问东问西，一个闷头就干。模型明明是同一个，差别从哪来的？</p>
+<p>答案藏在 harness 里。</p>
+<p>“Harness” 的英文原意是<strong>马具、鞍具</strong>——套在牲口身上，让它的力气能变成拉车、耕地这些实际用途的那套东西。AI 语境下，<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/glossary">Anthropic 官方文档</a>给这类工具起过一个很准确的名字：<strong>agentic harness</strong>（Agent 鞍具）。大模型本身只会”说话”——从概率里吐出下一段 token；是 harness 给它装上了”手脚”（读写文件、跑命令）、”眼睛”（观察执行结果）、”红绿灯”（权限审批），它才真正能干起活来。</p>
+<p>所以，<strong>你买的从来不是模型，而是”模型 + 一整套鞍具”。</strong> 这篇文章想做的事很朴素：拿一把解剖刀，把五款有代表性的 agent harness——Claude Code、Codex、OpenCode、Pi、DeepSeek Harness——按同一套框架拆开，看看它们各自把”身体”装成了什么样；再把我亲手实测的记录摆上来，让结论都落在事实上。</p>
+<p>为了拆得干净，我给自己配了一套统一的解剖框架。先讲框架，再拆标本。</p>
+    <div class="read-more">
+      <a href="/agent-harness-comparison/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
+      <a class="post-link" href="/terminal-ui-react-ink/">Terminal UI：用 React 的方式重做命令行</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2026-02-27
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>如果你用过 Claude Code、Gemini CLI 或 GitHub Copilot CLI，会立刻注意到一件事：这些工具在终端里的表现，和过去那种黑底白字、一行行 <code>console.log</code> 的 CLI 完全不同。它们有清晰的布局——左侧是对话区，右侧是状态或工具面板，底部是输入框；有焦点切换、有动效、有层次感。这不是偶然。这些 AI Coding 工具都选择了同一条技术路线：<strong>用 React 写终端界面</strong>。</p>
+<p>本文想和你聊聊这个方向的代表方案 <a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink">Ink</a>，以及它背后的思路：当「前端之美」的心智迁移到终端这块看似受限的介质时，会发生什么。</p>
+    <div class="read-more">
+      <a href="/terminal-ui-react-ink/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/ai-needs-more-programmers/">AI 时代会需要更多程序员</a>
       
     </h1>
@@ -197,7 +286,7 @@
 
     
     <p>“AI 会取代程序员吗？”</p>
-<p>这个问题从 2024 年 AI Coding 工具开始真正进入工程实践以来，就一直萦绕在很多程序员的心头。随着 Cursor、Claude Code、GitHub Copilot 等工具的迭代速度越来越快，从最初只能做简单的代码补全，到现在可以连续数小时不间断地生成相对完善的实现，这种焦虑也在不断加剧。</p>
+<p>这个问题从 AI Coding 工具开始真正进入工程实践以来，就一直萦绕在很多程序员的心头。虽然 GitHub Copilot 早在 2021 年就已发布，Cursor 也在 2023 年面世，但 2024 年大家并没有很认真地对待 AI coding，主要还停留在代码补全和测试用例生成等简单场景。然而到了 2025 年，随着 Claude Code 等新工具的推出，AI 在编程辅助上的应用真的变得广泛起来，从最初只能做简单的代码补全，到现在可以连续数小时不间断地生成相对完善的实现，这种变化让程序员的焦虑也在不断加剧。</p>
 <p>作为一个在技术行业摸爬滚打多年的程序员，我想分享一个可能和主流焦虑不太一样的观点：<strong>AI 时代不仅不会让程序员失业，反而会需要更多的程序员——但前提是，我们必须学会与新的生产力工具共舞，升级自己的技能和思维方式。</strong></p>
 <p><img src="/images/ai-programmer.jpg" alt="AI 时代会需要更多程序员"></p>
     <div class="read-more">
@@ -533,111 +622,6 @@
     
     <p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/522609991">数据请求利器 React Query</a> 查看全文。</p>
 
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/fire-fast/">Fire Fast</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2022-05-03
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p><a href="https://springuper.github.io/hire-slow/">上篇文章</a>，我们谈过了”Hire slow，fire fast”的前半句，今天我们聊下后半句，也即”fire fast”。</p>
-<p>历经千辛万苦，新人终于到岗并开始适应新环境，大部分人都可以在两到三个月时间恢复战斗力，进而产出符合预期的价值。
-但也有少数例外情况，由于种种原因，新人并没有达成预期。应该怎么处理这样的情况呢？</p>
-<h2 id="一定要-fire-吗？"><a href="#一定要-fire-吗？" class="headerlink" title="一定要 fire 吗？"></a>一定要 fire 吗？</h2><p>首先我们要界定这个人是不是达到了需要 fire 的标准，具体各团队可能都有些适合自身的判断。
-我个人比较偏向的标准是：</p>
-<ol>
-<li>不能达成预期的预期是长期性的，短期内很难改观<p style="margin: 0 0 0.2rem 0">
-如果新人只是因为对于当前技术栈不熟悉，或者因为外语、远程办公等工作环境的剧烈变化导致的不符合预期，那么我们是可以考虑多给些时间以进一步考察。
-但如果新人是因为自身能力问题，譬如一个高级工程师无法产出合格的系统方案设计，或者总是用两倍甚至三倍以上的时间才能交付质量下乘的项目，
-这类问题通常无法短时间内通过培训等助力方式快速提升
-</p></li>
-<li>存在一些原则性的根源问题<p style="margin: 0 0 0.2rem 0">
-每个团队可能都有一些”红线“，譬如一个非常分布式的基于信任构建的团队里，非常依赖高度自驱来推进各项目，如果新人无法自律，划水严重，
-如果在管理者进行警告督促后仍无有效改正的话，可以认定存在原则性问题。类似的红线问题还有不诚信、泄露公司机密牟利等等
-</p></li>
-</ol>
-<p>其实第二点只是第一点的一种特例，本质上第一点这一标准就够了。</p>
-    <div class="read-more">
-      <a href="/fire-fast/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/hire-slow/">Hire Slow</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2022-04-04
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p>我曾亲眼见证过这样一个事情：</p>
-<p>一个内部工具团队，因为业务增长太快压力山大，某个时间点 lead 在招聘方面做出了妥协，放水招进来一个看起来还凑合的工程师。
-过了一小段时间，团队里其他人慢慢开始离职。有几个是我非常熟悉的伙伴，平时跟他们沟通不少，大家普遍的一些感触是：我怎么和这样的人一起工作。
-再后来，团队雪崩式解散，部门领导不得不抽调其他资源维系业务运转。</p>
-<p>有一次我也跟原来的 lead 闲聊，当谈到为什么当初招那个人的时候，他坦言：业务太多了，内部服务开发又不招人喜欢，没办法。</p>
-<p>这些年来，随着团队管理经验的逐步积累，我越来越意识到师傅曾经教给我们的那句话的重要性：“Hire slow，fire fast”。今天我们就先聊一下前半句：Hire slow。</p>
-    <div class="read-more">
-      <a href="/hire-slow/" class="read-more-link">Read more..</a>
-    </div>
     
     
   </div>

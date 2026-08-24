@@ -885,9 +885,9 @@
     
     
     
-    <category term="Promise" scheme="https://springuper.github.io/tags/Promise/"/>
-    
     <category term="JavaScript" scheme="https://springuper.github.io/tags/JavaScript/"/>
+    
+    <category term="Promise" scheme="https://springuper.github.io/tags/Promise/"/>
     
     <category term="Monad" scheme="https://springuper.github.io/tags/Monad/"/>
     

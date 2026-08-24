@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Website mata -->
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<!-- Disable transformation -->
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<!-- Website description -->
+
+<meta name="description" content="Terminal UI：用 React 的方式重做命令行" />
+
+
+<!-- Website keywords -->
+
+<meta name="keywords" content="React, Terminal, TUI, Ink, Frontend, Shang Chun" />
+
+
+
+
+<!-- Website rss -->
+
+<link rel="alternate" href="/atom.xml" title="Shang Chun" type="application/atom+xml">
+
+
+<!-- Website favicon -->
+
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+
+
+<!-- Canonical, good for google search engine -->
+<link rel="canonical" href="https://springuper.github.io/terminal-ui-react-ink/" />
+
+<!-- Fancybox styling -->
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+
+
+<!-- MathJax (LaTeX) support -->
+
+
+<!-- Theme styling -->
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Analytics and push -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-48551774-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+
+  gtag('config', 'UA-48551774-1');
+</script>
+
+  
+
+
+
+<!-- LeanCloud Counter -->
+
+
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"latex":false};
+</script>
+  
+  <title>Terminal UI：用 React 的方式重做命令行 - Shang Chun</title>
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body>
+  <div class="scrollPercentage"></div>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Shang Chun</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+    <a href="/">
+      <li class="mobile-menu-item">
+        
+        
+        Home              </li>
+    </a>
+    
+    <a href="/archives/">
+      <li class="mobile-menu-item">
+        
+        
+        Archives              </li>
+    </a>
+    
+    <a href="/tags/">
+      <li class="mobile-menu-item">
+        
+        
+        Tags              </li>
+    </a>
+    
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+      <div class="logo-wrapper">  
+  <a href="/." class="logo">Shang Chun</a>  
+</div>  
+  
+<nav class="site-navbar">  
+    
+    <ul id="menu" class="menu">  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/">  
+              
+              
+              Home  
+              
+          </a>  
+        </li>  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/archives/">  
+              
+              
+              Archives  
+              
+          </a>  
+        </li>  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/tags/">  
+              
+              
+              Tags  
+              
+          </a>  
+        </li>  
+        
+    </ul>  
+    
+</nav>  
+
+    </header>
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
+      Terminal UI：用 React 的方式重做命令行
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2026-02-27
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88-Terminal-UI-%E7%AA%81%E7%84%B6%E3%80%8C%E5%8F%98%E7%BE%8E%E3%80%8D%E4%BA%86%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">一、为什么 Terminal UI 突然「变美」了？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E-print-%E5%88%B0%E5%BA%94%E7%94%A8"><span class="toc-number">1.1.</span> <span class="toc-text">从 print 到应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B%E7%9A%84%E5%85%B1%E8%AF%86%EF%BC%9AReact-Ink"><span class="toc-number">1.2.</span> <span class="toc-text">技术选型的共识：React + Ink</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Ink-%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%9AReact-Flexbox%EF%BC%8C%E5%BF%83%E6%99%BA%E9%9B%B6%E8%BF%81%E7%A7%BB"><span class="toc-number">2.</span> <span class="toc-text">二、Ink 的核心：React + Flexbox，心智零迁移</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Yoga-%E5%B8%83%E5%B1%80%EF%BC%9A%E7%BB%88%E7%AB%AF%E9%87%8C%E7%9A%84-Flexbox"><span class="toc-number">2.1.</span> <span class="toc-text">Yoga 布局：终端里的 Flexbox</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%BB%84%E4%BB%B6%EF%BC%9ABox-%E4%B8%8E-Text"><span class="toc-number">2.2.</span> <span class="toc-text">基础组件：Box 与 Text</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E3%80%8C%E8%BF%B7%E4%BD%A0-Claude-Code%E3%80%8D%E5%B8%83%E5%B1%80%E7%A4%BA%E4%BE%8B"><span class="toc-number">2.3.</span> <span class="toc-text">一个「迷你 Claude Code」布局示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hooks%EF%BC%9A%E7%8A%B6%E6%80%81%E4%B8%8E%E8%BE%93%E5%85%A5"><span class="toc-number">2.4.</span> <span class="toc-text">Hooks：状态与输入</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Ink-%E7%9A%84%E6%9E%B6%E6%9E%84%EF%BC%9AReact-%E7%9A%84%E5%8F%A6%E4%B8%80%E7%A7%8D-renderer"><span class="toc-number">3.</span> <span class="toc-text">三、Ink 的架构：React 的另一种 renderer</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#react-reconciler%EF%BC%9A%E5%90%8C%E4%B8%80%E5%A5%97%E8%B0%83%E5%BA%A6%EF%BC%8C%E4%B8%8D%E5%90%8C%E7%9A%84%E5%AE%BF%E4%B8%BB"><span class="toc-number">3.1.</span> <span class="toc-text">react-reconciler：同一套调度，不同的宿主</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8-Counter-%E4%B8%B2%E8%B5%B7%E5%85%A8%E8%BF%87%E7%A8%8B%EF%BC%9A%E5%8E%9F%E5%9C%B0%E5%8F%98%E5%8C%96%E6%97%B6%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">3.2.</span> <span class="toc-text">用 Counter 串起全过程：原地变化时会发生什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E-react-dom-%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="toc-number">3.3.</span> <span class="toc-text">与 react-dom 的对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Terminal-%E7%89%B9%E6%9C%89%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%8CInk-%E6%80%8E%E4%B9%88%E5%BA%94%E5%AF%B9%EF%BC%9F"><span class="toc-number">4.</span> <span class="toc-text">四、Terminal 特有的问题，Ink 怎么应对？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E9%BC%A0%E6%A0%87%EF%BC%9A%E9%94%AE%E7%9B%98%E4%BC%98%E5%85%88%E7%9A%84%E4%BA%A4%E4%BA%92%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.1.</span> <span class="toc-text">无鼠标：键盘优先的交互模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E6%96%AD%E5%A2%9E%E9%95%BF%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%9AStatic-%E4%B8%8E-overflow"><span class="toc-number">4.2.</span> <span class="toc-text">不断增长的内容：Static 与 overflow</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%88%E7%AB%AF%E5%B0%BA%E5%AF%B8%E5%8F%98%E5%8C%96%E4%B8%8E%E5%85%89%E6%A0%87"><span class="toc-number">4.3.</span> <span class="toc-text">终端尺寸变化与光标</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88-React-%E5%BF%83%E6%99%BA%E9%80%82%E5%90%88-Terminal-UI%EF%BC%9F"><span class="toc-number">5.</span> <span class="toc-text">五、为什么 React 心智适合 Terminal UI？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%BB%84%E4%BB%B6%E5%8C%96%E5%A4%A9%E7%84%B6%E5%A5%91%E5%90%88%E9%9D%A2%E6%9D%BF%E5%BC%8F%E5%B8%83%E5%B1%80"><span class="toc-number">5.1.</span> <span class="toc-text">1. 组件化天然契合面板式布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%8A%B6%E6%80%81%E5%A4%8D%E6%9D%82%E6%97%B6%E5%A3%B0%E6%98%8E%E5%BC%8F%E6%9B%B4%E5%8F%AF%E6%8E%A7"><span class="toc-number">5.2.</span> <span class="toc-text">2. 状态复杂时声明式更可控</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%94%9F%E6%80%81%E4%B8%8E%E8%B0%83%E8%AF%95"><span class="toc-number">5.3.</span> <span class="toc-text">3. 生态与调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%9C%A8%E5%8F%97%E9%99%90%E4%BB%8B%E8%B4%A8%E4%B8%AD%E5%9D%9A%E6%8C%81%E5%AE%A1%E7%BE%8E"><span class="toc-number">6.</span> <span class="toc-text">六、在受限介质中坚持审美</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%95%99%E7%99%BD%E4%B8%8E%E9%97%B4%E8%B7%9D"><span class="toc-number">6.1.</span> <span class="toc-text">留白与间距</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%89%B2%E5%BD%A9%E4%B8%8E%E5%B1%82%E6%AC%A1"><span class="toc-number">6.2.</span> <span class="toc-text">色彩与层次</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%95%88%E4%B8%8E%E5%8F%8D%E9%A6%88"><span class="toc-number">6.3.</span> <span class="toc-text">动效与反馈</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8A%A8%E6%89%8B%E8%AF%95%E8%AF%95%EF%BC%9A%E8%B5%84%E6%BA%90%E4%B8%8E%E7%A4%BA%E4%BE%8B"><span class="toc-number">7.</span> <span class="toc-text">七、动手试试：资源与示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Useful-Components"><span class="toc-number">7.1.</span> <span class="toc-text">Useful Components</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%98%E6%96%B9-Examples"><span class="toc-number">7.2.</span> <span class="toc-text">官方 Examples</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%88%86%E9%92%9F%E4%B8%8A%E6%89%8B%E8%B7%AF%E5%BE%84"><span class="toc-number">7.3.</span> <span class="toc-text">5 分钟上手路径</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81Ink-%E7%9A%84%E5%B1%80%E9%99%90%EF%BC%88%E9%80%89%E5%9E%8B%E5%8F%82%E8%80%83%EF%BC%89"><span class="toc-number">8.</span> <span class="toc-text">八、Ink 的局限（选型参考）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E9%87%8F%E9%87%8D%E7%BB%98%E4%B8%8E%E6%80%A7%E8%83%BD"><span class="toc-number">8.1.</span> <span class="toc-text">全量重绘与性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8"><span class="toc-number">8.2.</span> <span class="toc-text">内存占用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%9F%E8%83%BD%E8%BE%B9%E7%95%8C"><span class="toc-number">8.3.</span> <span class="toc-text">功能边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E7%BB%93%E8%AF%AD%EF%BC%9A%E4%BB%8B%E8%B4%A8%E5%9C%A8%E5%8F%98%EF%BC%8C%E7%BE%8E%E6%84%9F%E6%B0%B8%E6%81%92"><span class="toc-number">9.</span> <span class="toc-text">九、结语：介质在变，美感永恒</span></a></li></ol>
+    </div>
+  </div>
+  
+
+  <div class="post-content">
+    
+    <p>如果你用过 Claude Code、Gemini CLI 或 GitHub Copilot CLI，会立刻注意到一件事：这些工具在终端里的表现，和过去那种黑底白字、一行行 <code>console.log</code> 的 CLI 完全不同。它们有清晰的布局——左侧是对话区，右侧是状态或工具面板，底部是输入框；有焦点切换、有动效、有层次感。这不是偶然。这些 AI Coding 工具都选择了同一条技术路线：<strong>用 React 写终端界面</strong>。</p>
+<p>本文想和你聊聊这个方向的代表方案 <a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink">Ink</a>，以及它背后的思路：当「前端之美」的心智迁移到终端这块看似受限的介质时，会发生什么。</p>
+<span id="more"></span>
+
+<h2 id="一、为什么-Terminal-UI-突然「变美」了？"><a href="#一、为什么-Terminal-UI-突然「变美」了？" class="headerlink" title="一、为什么 Terminal UI 突然「变美」了？"></a>一、为什么 Terminal UI 突然「变美」了？</h2><h3 id="从-print-到应用"><a href="#从-print-到应用" class="headerlink" title="从 print 到应用"></a>从 print 到应用</h3><p>很长一段时间里，命令行工具给人的印象是：黑窗口，白字或灰字，偶尔加点颜色，输出靠 <code>console.log</code> 或 <code>printf</code> 堆叠。交互靠一问一答的 prompt。复杂一点的用 ncurses 画表格，但开发和维护成本都很高，和现代前端的组件化、声明式思路相去甚远。</p>
+<p>2025 年前后，情况变了。Claude Code、Gemini CLI、Codex CLI 等一系列 AI 编程助手把终端当成了主战场。它们需要展示：多轮对话、工具调用结果、文件变更、进度状态……信息量大、结构复杂，纯文本流完全不够用。于是，<strong>终端被当作一块真正的 UI 画布</strong>来对待。</p>
+<h3 id="技术选型的共识：React-Ink"><a href="#技术选型的共识：React-Ink" class="headerlink" title="技术选型的共识：React + Ink"></a>技术选型的共识：React + Ink</h3><p>这些工具不约而同地选用了同一条技术栈：<strong>Ink</strong>——一个把 React 渲染到终端的 renderer。Claude Code、Gemini CLI、GitHub Copilot CLI、Prisma CLI、Cloudflare Wrangler、Shopify CLI 等，都基于 Ink 构建其 TUI 层。</p>
+<p>这背后的逻辑很直观：这些团队大多有丰富的 React 经验。与其用传统方式（ncurses、readline、手写 ANSI 转义）从零搭一套终端 UI，不如复用已有的前端心智——组件、状态、Hooks、声明式渲染。Ink 恰好提供了这一层抽象。</p>
+<h2 id="二、Ink-的核心：React-Flexbox，心智零迁移"><a href="#二、Ink-的核心：React-Flexbox，心智零迁移" class="headerlink" title="二、Ink 的核心：React + Flexbox，心智零迁移"></a>二、Ink 的核心：React + Flexbox，心智零迁移</h2><p>Ink 的 slogan 很干脆：「React for CLIs」。你写的就是 React 组件，只是渲染目标从 DOM 变成了终端。</p>
+<h3 id="Yoga-布局：终端里的-Flexbox"><a href="#Yoga-布局：终端里的-Flexbox" class="headerlink" title="Yoga 布局：终端里的 Flexbox"></a>Yoga 布局：终端里的 Flexbox</h3><p>Ink 使用 <a target="_blank" rel="noopener" href="https://github.com/facebook/yoga">Yoga</a> 作为布局引擎——这也是 React Native 用的那套。所以：</p>
+<ul>
+<li>每一个 <code>Box</code> 默认就是 <code>display: flex</code> 的容器</li>
+<li><code>flexDirection</code>、<code>justifyContent</code>、<code>alignItems</code>、<code>padding</code>、<code>margin</code>、<code>flexGrow</code> 等属性，和你在 CSS 里写的几乎一一对应</li>
+<li>百分比宽高（如 <code>width=&quot;70%&quot;</code>）也支持，可以做出响应式布局</li>
+</ul>
+<p>如果你已经会用 Flexbox 做 Web 布局，那在 Ink 里做终端布局，几乎没有额外学习成本。</p>
+<h3 id="基础组件：Box-与-Text"><a href="#基础组件：Box-与-Text" class="headerlink" title="基础组件：Box 与 Text"></a>基础组件：Box 与 Text</h3><p>Ink 提供两个最核心的组件：</p>
+<ul>
+<li>**<code>Text</code>**：承载所有文本，支持 <code>chalk</code> 风格的颜色、粗体、下划线等样式</li>
+<li>**<code>Box</code>**：布局容器，相当于浏览器里的 <code>div</code>，支持上述 Flexbox 属性</li>
+</ul>
+<p>所有可见文本必须包在 <code>Text</code> 里，所有布局结构用 <code>Box</code> 搭。下面是一个最简单的例子：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render, <span class="title class_">Box</span>, <span class="title class_">Text</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;ink&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">App</span> = (<span class="params"></span>) =&gt; (</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Box</span> <span class="attr">flexDirection</span>=<span class="string">&quot;column&quot;</span> <span class="attr">padding</span>=<span class="string">&#123;1&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;green&quot;</span> <span class="attr">bold</span>&gt;</span>✓ 任务完成<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;gray&quot;</span>&gt;</span>已处理 42 个文件<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">App</span> /&gt;</span></span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="一个「迷你-Claude-Code」布局示例"><a href="#一个「迷你-Claude-Code」布局示例" class="headerlink" title="一个「迷你 Claude Code」布局示例"></a>一个「迷你 Claude Code」布局示例</h3><p>我们可以用 <code>Box</code> 和 <code>flexDirection</code> 快速搭出一个类似 Claude Code 的三栏布局：左侧主内容、右侧边栏、底部输入区。代码如下：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span>, &#123; useState &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render, <span class="title class_">Box</span>, <span class="title class_">Text</span>, useInput &#125; <span class="keyword">from</span> <span class="string">&#x27;ink&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">App</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> [input, setInput] = <span class="title function_">useState</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">useInput</span>(<span class="function">(<span class="params">char, key</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (key.<span class="property">return</span>) &#123;</span><br><span class="line">      <span class="comment">// 处理提交</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (key.<span class="property">backspace</span>) &#123;</span><br><span class="line">      <span class="title function_">setInput</span>(<span class="function">(<span class="params">prev</span>) =&gt;</span> prev.<span class="title function_">slice</span>(<span class="number">0</span>, -<span class="number">1</span>));</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (char) <span class="title function_">setInput</span>(<span class="function">(<span class="params">prev</span>) =&gt;</span> prev + char);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Box</span> <span class="attr">flexDirection</span>=<span class="string">&quot;column&quot;</span> <span class="attr">width</span>=<span class="string">&quot;100%&quot;</span> <span class="attr">height</span>=<span class="string">&quot;100%&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      &#123;/* 主内容区：左 70% + 右 30% */&#125;</span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Box</span> <span class="attr">flexDirection</span>=<span class="string">&quot;row&quot;</span> <span class="attr">flexGrow</span>=<span class="string">&#123;1&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Box</span> <span class="attr">flexDirection</span>=<span class="string">&quot;column&quot;</span> <span class="attr">width</span>=<span class="string">&quot;70%&quot;</span> <span class="attr">padding</span>=<span class="string">&#123;1&#125;</span> <span class="attr">borderStyle</span>=<span class="string">&quot;single&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Text</span> <span class="attr">bold</span>&gt;</span>对话区<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;gray&quot;</span>&gt;</span>Assistant: 你好，有什么我可以帮忙的？<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Box</span> <span class="attr">flexDirection</span>=<span class="string">&quot;column&quot;</span> <span class="attr">width</span>=<span class="string">&quot;30%&quot;</span> <span class="attr">padding</span>=<span class="string">&#123;1&#125;</span> <span class="attr">borderStyle</span>=<span class="string">&quot;single&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Text</span> <span class="attr">bold</span>&gt;</span>工具面板<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;cyan&quot;</span>&gt;</span>Read, Edit, Bash...<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      &#123;/* 底部输入区 */&#125;</span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Box</span> <span class="attr">padding</span>=<span class="string">&#123;1&#125;</span> <span class="attr">borderStyle</span>=<span class="string">&quot;single&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;yellow&quot;</span>&gt;</span><span class="symbol">&amp;gt;</span> <span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">Text</span>&gt;</span>&#123;input || &#x27; &#x27;&#125;<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">App</span> /&gt;</span></span>);</span><br></pre></td></tr></table></figure>
+
+<p>这里的结构完全是「前端式」的：外层 <code>flexDirection=&quot;column&quot;</code> 分上下两块，上面再用 <code>flexDirection=&quot;row&quot;</code> 分左右。<code>borderStyle=&quot;single&quot;</code> 画出边框，<code>padding</code>、<code>width</code> 控制间距和占比。熟悉 React 和 Flexbox 的人一眼能看懂。</p>
+<h3 id="Hooks：状态与输入"><a href="#Hooks：状态与输入" class="headerlink" title="Hooks：状态与输入"></a>Hooks：状态与输入</h3><p>Ink 支持完整的 React Hooks。除了 <code>useState</code>、<code>useEffect</code>，还提供了针对终端的专用 Hooks：</p>
+<ul>
+<li>**<code>useInput</code>**：监听键盘输入，处理方向键、回车、Ctrl+C 等</li>
+<li><strong><code>useFocus</code></strong> / **<code>useFocusManager</code>**：管理焦点，实现 Tab 切换、不同区域的键盘导航</li>
+<li>**<code>useWindowSize</code>**：获取终端宽高，做响应式布局</li>
+</ul>
+<p>这些 API 让「交互式」TUI 的开发体验和写 Web 应用非常接近：状态驱动视图，事件驱动状态更新。</p>
+<h2 id="三、Ink-的架构：React-的另一种-renderer"><a href="#三、Ink-的架构：React-的另一种-renderer" class="headerlink" title="三、Ink 的架构：React 的另一种 renderer"></a>三、Ink 的架构：React 的另一种 renderer</h2><p>很多人好奇：Ink 到底是怎么把 React 画到终端里的？答案其实很直接：<strong>Ink 是 React 的一个自定义 renderer</strong>，和 <code>react-dom</code> 平级。React 负责调度和协调，renderer 负责把组件树「画」到宿主环境里。浏览器里是 DOM，终端里就是 stdout。</p>
+<h3 id="react-reconciler：同一套调度，不同的宿主"><a href="#react-reconciler：同一套调度，不同的宿主" class="headerlink" title="react-reconciler：同一套调度，不同的宿主"></a>react-reconciler：同一套调度，不同的宿主</h3><p>React 在 16 之后把「协调逻辑」和「宿主渲染」解耦了。<code>react-dom</code> 用的是 <code>react-reconciler</code> 提供的 API，实现了一套「createInstance、appendChild、commitUpdate……」的 host config，把 React 元素变成 DOM 节点。Ink 做的是一样的的事，只不过宿主不是 DOM，而是<strong>终端</strong>。</p>
+<p>Ink 和 Yoga 的关系可以这么理解：<strong>Ink 是 React 的 Terminal renderer，Yoga 是 Ink 内部使用的布局引擎</strong>。Ink 在创建 <code>Box</code> 等节点时，会同步创建对应的 Yoga 节点；协调完成后，调用 Yoga 计算布局，再根据布局结果生成输出。Yoga 是 Ink 的依赖，不作为独立进程或服务存在。</p>
+<p>Ink 的实现大致分几层：</p>
+<ol>
+<li><p><strong>Reconciler 层</strong>：用 <code>react-reconciler</code> 注册一套 host config，告诉 React「如何创建/更新/删除一个终端节点」。这里的「节点」不是 DOM 元素，而是 Ink 内部的节点结构，每个 <code>Box</code> 会绑定一个 Yoga 节点。</p>
+</li>
+<li><p><strong>布局层</strong>：commit 完成后，Ink 调用 Yoga 对整棵布局树做 Flexbox 计算。<code>flexDirection</code>、<code>padding</code> 等属性在创建时已映射到 Yoga 节点，Yoga 算出每个节点的 x、y、width、height。</p>
+</li>
+<li><p><strong>输出层</strong>：根据 Yoga 输出的布局结果，把每个 <code>Text</code> 节点的内容、样式转换成 ANSI 转义序列，按行列写入一个 2D 字符 buffer。最后通过 <code>process.stdout.write</code> 输出，必要时先清屏再重绘。</p>
+</li>
+</ol>
+<p>整体架构可以用下面的字符图概括：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                        React (调度 + 协调)                         │</span><br><span class="line">│  你的 JSX: &lt;Box&gt;&lt;Text&gt;Hello&lt;/Text&gt;&lt;/Box&gt;                         │</span><br><span class="line">└─────────────────────────────────────┬───────────────────────────┘</span><br><span class="line">                                      │</span><br><span class="line">                                      ▼</span><br><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                     react-reconciler                              │</span><br><span class="line">│  提供 createContainer、updateContainer、commitUpdate 等 API          │</span><br><span class="line">│  不关心宿主是 DOM 还是 Terminal，只负责 diff 和调度                  │</span><br><span class="line">└─────────────────────────────────────┬───────────────────────────┘</span><br><span class="line">                                      │ host config 回调</span><br><span class="line">                                      ▼</span><br><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                         Ink (Host Renderer)                       │</span><br><span class="line">│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐   │</span><br><span class="line">│  │ createInstance│──▶│ Ink 节点树  │───▶│ Yoga 布局计算 (C/WASM)│   │</span><br><span class="line">│  │ appendChild   │    │ Box↔YogaNode│    │ flexDirection,    │   │</span><br><span class="line">│  │ commitUpdate  │    │ Text       │    │ padding, margin... │   │</span><br><span class="line">│  └─────────────┘    └──────┬──────┘    └──────────┬──────────┘   │</span><br><span class="line">│                            │                       │              │</span><br><span class="line">│                            │  布局结果 (x,y,w,h)    │              │</span><br><span class="line">│                            ▼                       │              │</span><br><span class="line">│                    ┌───────────────┐               │              │</span><br><span class="line">│                    │ 2D 字符 buffer │◀──────────────┘              │</span><br><span class="line">│                    │ + ANSI 样式    │                              │</span><br><span class="line">│                    └───────┬───────┘                              │</span><br><span class="line">└────────────────────────────┼──────────────────────────────────────┘</span><br><span class="line">                             │ process.stdout.write</span><br><span class="line">                             ▼</span><br><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                      Terminal (stdout / stdin)                    │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>简要来说：<strong>React 负责「要渲染什么」，react-reconciler 负责「何时、如何调度更新」，Ink 负责「在终端里怎么画」——而「怎么画」又分两步：Yoga 算位置，Ink 把位置 + 文本转成 ANSI 输出</strong>。</p>
+<h3 id="用-Counter-串起全过程：原地变化时会发生什么？"><a href="#用-Counter-串起全过程：原地变化时会发生什么？" class="headerlink" title="用 Counter 串起全过程：原地变化时会发生什么？"></a>用 Counter 串起全过程：原地变化时会发生什么？</h3><p>用一个最简单的 Counter 来串起整个流程，尤其看看「只有数字原地变化」时，背后发生了什么：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span>, &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render, <span class="title class_">Text</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;ink&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">Counter</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> [count, setCount] = <span class="title function_">useState</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> timer = <span class="built_in">setInterval</span>(<span class="function">() =&gt;</span> <span class="title function_">setCount</span>(<span class="function"><span class="params">c</span> =&gt;</span> c + <span class="number">1</span>), <span class="number">100</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="function">() =&gt;</span> <span class="built_in">clearInterval</span>(timer);</span><br><span class="line">  &#125;, []);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;green&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      计数: &#123;count&#125;</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">Counter</span> /&gt;</span></span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>首次渲染</strong>（count = 0）：</p>
+<ol>
+<li>React 渲染 <code>&lt;Counter&gt;</code>，得到 <code>&#123;count: 0&#125;</code> 的虚拟树</li>
+<li>react-reconciler 调用 Ink 的 host config：createInstance(Text), appendChild(text “计数: 0”)</li>
+<li>Ink 构建节点树，为布局创建 Yoga 节点（这里只有一个 Text，布局很简单）</li>
+<li>Yoga 计算：这一行占多少宽、多高</li>
+<li>Ink 把 “计数: 0” + 绿色 ANSI 写入 buffer，<code>stdout.write</code> 输出</li>
+<li>终端显示：<code>计数: 0</code></li>
+</ol>
+<p><strong>100ms 后</strong>，<code>setCount(1)</code> 触发更新：</p>
+<ol>
+<li>React 调度一次更新，reconciler 做 diff，发现只有 <strong>Text 的 children 变了</strong>（”0” → “1”）</li>
+<li>reconciler 调用 <code>commitUpdate</code>，告诉 Ink：这个 Text 的内容要改成 “计数: 1”</li>
+<li><strong>关键点</strong>：Ink 不会只更新终端里「数字那一格」。终端没有 DOM 那样的增量更新能力</li>
+<li>Ink 清空当前输出区域，整棵树重新走一遍：Yoga 再算一次布局（结果可能一样），再生成完整的 2D buffer</li>
+<li>整块内容重写到 stdout，终端看到的是「计数: 1」——从用户视角像是数字原地变了，但底层是一次全量重绘</li>
+</ol>
+<p>所以：<strong>虽然 React 和 reconciler 只标记了「Text 的 children 变了」，Ink 仍然会做全屏级别的重绘</strong>。这是终端介质的限制，不是 Ink 的 bug。浏览器里 react-dom 可以只 <code>textNode.textContent = &#39;1&#39;</code> 改那一处，终端里通常只能「清掉再画一遍」。</p>
+<h3 id="与-react-dom-的对比"><a href="#与-react-dom-的对比" class="headerlink" title="与 react-dom 的对比"></a>与 react-dom 的对比</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>react-dom</th>
+<th>Ink</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>宿主环境</td>
+<td>DOM</td>
+<td>终端（stdout）</td>
+</tr>
+<tr>
+<td>布局引擎</td>
+<td>浏览器引擎</td>
+<td>Yoga（Flexbox）</td>
+</tr>
+<tr>
+<td>更新粒度</td>
+<td>DOM 增量更新</td>
+<td>全屏重绘</td>
+</tr>
+<tr>
+<td>输入方式</td>
+<td>鼠标 + 键盘</td>
+<td>主要键盘</td>
+</tr>
+</tbody></table>
+<p>同一套 React 心智，换了一个宿主环境，就能从浏览器「平移」到终端。这种抽象能力，正是 Ink 的核心价值。</p>
+<h2 id="四、Terminal-特有的问题，Ink-怎么应对？"><a href="#四、Terminal-特有的问题，Ink-怎么应对？" class="headerlink" title="四、Terminal 特有的问题，Ink 怎么应对？"></a>四、Terminal 特有的问题，Ink 怎么应对？</h2><p>终端和浏览器差异很大：没有鼠标、没有滚动条、内容可能无限增长、窗口可能被 resize。Ink 针对这些场景提供了一些机制。</p>
+<h3 id="无鼠标：键盘优先的交互模型"><a href="#无鼠标：键盘优先的交互模型" class="headerlink" title="无鼠标：键盘优先的交互模型"></a>无鼠标：键盘优先的交互模型</h3><p>终端里没有可靠的「点击」语义，交互主要靠键盘。Ink 用 <code>useInput</code> 监听 stdin 的按键事件，把 <code>key.upArrow</code>、<code>key.downArrow</code>、<code>key.return</code>、<code>key.tab</code> 等暴露出来。焦点切换则依赖 <code>useFocus</code> 和 <code>useFocusManager</code>：你声明哪些区域是可聚焦的，用户用 Tab 在它们之间切换，当前焦点区域才能接收 <code>useInput</code> 的事件。</p>
+<p>这种「键盘 + 焦点」的模型和 Web 的「鼠标 + 键盘」不同，需要你显式设计 Tab 顺序和快捷键。例如用 <code>useFocus</code> 声明可聚焦区域，Tab 在它们之间切换，当前焦点用边框高亮：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">Pane</span> = (<span class="params">&#123; label &#125;</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; isFocused &#125; = <span class="title function_">useFocus</span>();</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Box</span> <span class="attr">borderStyle</span>=<span class="string">&quot;single&quot;</span> <span class="attr">padding</span>=<span class="string">&#123;1&#125;</span> <span class="attr">borderColor</span>=<span class="string">&#123;isFocused</span> ? &#x27;<span class="attr">green</span>&#x27; <span class="attr">:</span> &#x27;<span class="attr">gray</span>&#x27;&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Text</span>&gt;</span>&#123;isFocused ? &#x27;▶ &#x27; : &#x27;  &#x27;&#125;&#123;label&#125;<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 多个 Pane 时，Tab 按渲染顺序切换焦点；聚焦中的 Pane 才能收到 useInput 事件</span></span><br></pre></td></tr></table></figure>
+
+<p>一些终端支持鼠标事件（如 xterm 的 SGR 协议），但跨终端兼容性差，Ink 的设计以键盘为中心，这也是大多数 CLI 工具的共识。</p>
+<h3 id="不断增长的内容：Static-与-overflow"><a href="#不断增长的内容：Static-与-overflow" class="headerlink" title="不断增长的内容：Static 与 overflow"></a>不断增长的内容：Static 与 overflow</h3><p>AI 对话、日志输出这类场景的特点是：<strong>新内容不断追加</strong>，旧的不会消失。如果每次都全树重绘，历史消息会被重复渲染，而且可能超出终端高度。</p>
+<p>Ink 提供了 <strong><code>&lt;Static&gt;</code></strong> 组件专门处理这种「只增不减」的内容。<code>Static</code> 接收一个 <code>items</code> 数组，用 render 函数渲染每一项。关键是：<strong>已经渲染过的 item 不会被重新渲染</strong>，只会把新 item 追加到输出里。这样历史消息「钉」在终端上方，新的往下长，底部的动态区（比如输入框、进度条）照常更新。Gatsby 的构建输出、Tap 的测试列表都是这么做的。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Static</span> items=&#123;messages&#125;&gt;</span><br><span class="line">  &#123;<span class="function"><span class="params">msg</span> =&gt;</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Box</span> <span class="attr">key</span>=<span class="string">&#123;msg.id&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;gray&quot;</span>&gt;</span>&#123;msg.role&#125;: <span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Text</span>&gt;</span>&#123;msg.content&#125;<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line">  )&#125;</span><br><span class="line">&lt;/<span class="title class_">Static</span>&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">Box</span> <span class="attr">marginTop</span>=<span class="string">&#123;1&#125;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;<span class="name">Text</span>&gt;</span>输入: &#123;input&#125;<span class="tag">&lt;/<span class="name">Text</span>&gt;</span>  &#123;/* 动态区，每次更新都重绘 */&#125;</span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>对于有固定高度的区域，<code>Box</code> 支持 <code>overflow=&quot;hidden&quot;</code> 或 <code>overflow=&quot;visible&quot;</code>，可以裁掉超出部分。但 Ink 目前**没有 <code>overflow=&quot;scroll&quot;</code>**，也就是没有内置的「滚动视窗」——你不能在一个固定高度的 Box 里用方向键滚动查看超长内容。社区有 <code>ink-scroll-view</code> 等库做类似事情，但需要自己实现 windowing 逻辑（只渲染可见区域 + 维护 scroll offset）。</p>
+<h3 id="终端尺寸变化与光标"><a href="#终端尺寸变化与光标" class="headerlink" title="终端尺寸变化与光标"></a>终端尺寸变化与光标</h3><p><code>useWindowSize</code> 可以拿到当前终端的行数和列数，配合 <code>stdout.on(&#39;resize&#39;)</code> 能在用户拖拽窗口时重新布局。<code>useCursor</code> 则用于控制光标的显示和位置，比如在输入框里让光标出现在正确的位置。</p>
+<p>另外，当输出行数超过终端高度时，Ink 会清屏再重绘，而不是像 <code>docker-compose logs -f</code> 那样让内容自然向上卷动。这是 Ink 的设计选择：它假设你是「应用式」的全屏 TUI，而不是流式日志查看器。</p>
+<h2 id="五、为什么-React-心智适合-Terminal-UI？"><a href="#五、为什么-React-心智适合-Terminal-UI？" class="headerlink" title="五、为什么 React 心智适合 Terminal UI？"></a>五、为什么 React 心智适合 Terminal UI？</h2><h3 id="1-组件化天然契合面板式布局"><a href="#1-组件化天然契合面板式布局" class="headerlink" title="1. 组件化天然契合面板式布局"></a>1. 组件化天然契合面板式布局</h3><p>TUI 的典型结构就是多块「面板」：对话区、日志区、状态栏、输入框……每一块都可以抽成组件，用 props 控制展示内容，用 state 控制展开/折叠、选中项等。这和我们在 Web 里拆 <code>Sidebar</code>、<code>ChatArea</code>、<code>InputBar</code> 的思路完全一致。</p>
+<h3 id="2-状态复杂时声明式更可控"><a href="#2-状态复杂时声明式更可控" class="headerlink" title="2. 状态复杂时声明式更可控"></a>2. 状态复杂时声明式更可控</h3><p>AI 工具要展示的内容非常动态：对话在增长、工具在运行、进度在更新。用命令式的 <code>process.stdout.write</code> + 光标控制，很容易写出难以维护的意大利面。而 React 的「state → view」单向数据流，让每次渲染都是当前状态的完整快照，逻辑清晰得多。</p>
+<h3 id="3-生态与调试"><a href="#3-生态与调试" class="headerlink" title="3. 生态与调试"></a>3. 生态与调试</h3><p>Ink 是 React renderer，所以你可以用 React DevTools 检查组件树。测试也可以用 React Testing Library 的思路，对组件做快照或行为测试。对已经深度使用 React 的团队来说，这是巨大的效率加成。</p>
+<h2 id="六、在受限介质中坚持审美"><a href="#六、在受限介质中坚持审美" class="headerlink" title="六、在受限介质中坚持审美"></a>六、在受限介质中坚持审美</h2><p>终端没有像素级自由，没有阴影和圆角（除非用 Unicode 和块字符模拟），色彩也受限于 256 色或真彩。但「前端之美」的本质不是特效堆砌，而是<strong>信息层次、留白、对齐、一致性</strong>。这些在终端里同样可以做到。</p>
+<h3 id="留白与间距"><a href="#留白与间距" class="headerlink" title="留白与间距"></a>留白与间距</h3><p>Ink 的 <code>padding</code>、<code>margin</code>、<code>gap</code> 和 Flexbox 的 <code>justifyContent</code>、<code>alignItems</code> 让你可以精确控制空白。不要塞满每一列，适当的留白能让界面更易读。例如：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Box</span> flexDirection=<span class="string">&quot;row&quot;</span> gap=&#123;<span class="number">2</span>&#125;&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Box</span> <span class="attr">padding</span>=<span class="string">&#123;1&#125;</span>&gt;</span><span class="tag">&lt;<span class="name">Text</span>&gt;</span>左<span class="tag">&lt;/<span class="name">Text</span>&gt;</span><span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Box</span> <span class="attr">padding</span>=<span class="string">&#123;1&#125;</span>&gt;</span><span class="tag">&lt;<span class="name">Text</span>&gt;</span>右<span class="tag">&lt;/<span class="name">Text</span>&gt;</span><span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line">&lt;/<span class="title class_">Box</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="色彩与层次"><a href="#色彩与层次" class="headerlink" title="色彩与层次"></a>色彩与层次</h3><p><code>Text</code> 的 <code>color</code>、<code>backgroundColor</code>、<code>bold</code>、<code>dimColor</code> 可以建立清晰的视觉层次。一个简单约定：标题用亮色 + 粗体，次要信息用 <code>dimColor</code>，成功/错误/警告分别用绿/红/黄。例如：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="title class_">Box</span> flexDirection=<span class="string">&quot;column&quot;</span> gap=&#123;<span class="number">1</span>&#125;&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Text</span> <span class="attr">bold</span> <span class="attr">color</span>=<span class="string">&quot;cyan&quot;</span>&gt;</span># 构建完成<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;green&quot;</span>&gt;</span>  ✓ 编译通过<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;red&quot;</span>&gt;</span>  ✗ 测试失败: spec/a.test.js<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Text</span> <span class="attr">dimColor</span>&gt;</span>  耗时 2.3s<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line">&lt;/<span class="title class_">Box</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Ink 底层用 chalk，支持 <code>green</code>、<code>#005cc5</code>、<code>rgb(232, 131, 136)</code> 等写法。避免到处高亮，保持克制的配色，终端里的层次感会明显提升。</p>
+<h3 id="动效与反馈"><a href="#动效与反馈" class="headerlink" title="动效与反馈"></a>动效与反馈</h3><p>终端里没有 CSS 动画，但可以借助状态驱动的重绘，做出「活着」的感觉。这里举几个具体例子。</p>
+<p><strong>Spinner</strong>：用社区库 <code>ink-spinner</code>，几行代码就能在加载时显示旋转动画：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render, <span class="title class_">Text</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;ink&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">Spinner</span> <span class="keyword">from</span> <span class="string">&#x27;ink-spinner&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">Loading</span> = (<span class="params"></span>) =&gt; (</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;green&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">Spinner</span> <span class="attr">type</span>=<span class="string">&quot;dots&quot;</span> /&gt;</span><span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    &#123;&#x27; 正在拉取...&#x27;&#125;</span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line">);</span><br><span class="line"><span class="title function_">render</span>(<span class="language-xml"><span class="tag">&lt;<span class="name">Loading</span> /&gt;</span></span>);</span><br></pre></td></tr></table></figure>
+
+<p><code>Spinner</code> 内部用 <code>setInterval</code> 切换不同字符（如 <code>⠋</code> <code>⠙</code> <code>⠹</code> …），触发 React 重绘，视觉上就是旋转。<code>type</code> 可选 <code>dots</code>、<code>line</code>、<code>arrow</code> 等，来自 <a target="_blank" rel="noopener" href="https://github.com/sindresorhus/cli-spinners">cli-spinners</a>。</p>
+<p><strong>进度条</strong>：用 <code>Box</code> 的 <code>width</code> 配合百分比，就能模拟进度条宽度变化：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">ProgressBar</span> = (<span class="params">&#123; percent = <span class="number">50</span> &#125;</span>) =&gt; (</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">Box</span> <span class="attr">width</span>=<span class="string">&#123;20&#125;</span> <span class="attr">flexDirection</span>=<span class="string">&quot;row&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">Box</span> <span class="attr">width</span>=<span class="string">&#123;</span>`$&#123;<span class="attr">percent</span>&#125;%`&#125; <span class="attr">backgroundColor</span>=<span class="string">&quot;green&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">Text</span>&gt;</span> <span class="tag">&lt;/<span class="name">Text</span>&gt;</span><span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">Text</span> <span class="attr">color</span>=<span class="string">&quot;gray&quot;</span>&gt;</span> &#123;percent&#125;%<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">Box</span>&gt;</span></span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>每次 <code>percent</code> 变化，Ink 会重绘，绿色区域「长」一截。这是很多 CLI（如 npm install）的常见模式。</p>
+<p><strong>光标</strong>：<code>useCursor</code> 可以控制光标位置和显隐。输入框里让光标出现在正确位置、等待输入时让光标闪烁，都能增强交互反馈。Gatsby 构建时的进度条 + 已完成页列表，就是 Static + 动效组合的典型。</p>
+<h2 id="七、动手试试：资源与示例"><a href="#七、动手试试：资源与示例" class="headerlink" title="七、动手试试：资源与示例"></a>七、动手试试：资源与示例</h2><p>如果你对 Ink 产生了兴趣，官方和社区有大量现成资源可以快速上手。</p>
+<h3 id="Useful-Components"><a href="#Useful-Components" class="headerlink" title="Useful Components"></a>Useful Components</h3><p>Ink 官方文档整理了 <a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink?tab=readme-ov-file#useful-components">Useful Components</a>，都是经过验证的社区库，可直接 <code>npm install</code> 使用：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ink-text-input</code></td>
+<td>文本输入框</td>
+</tr>
+<tr>
+<td><code>ink-select-input</code></td>
+<td>下拉选择</td>
+</tr>
+<tr>
+<td><code>ink-spinner</code></td>
+<td>加载动画</td>
+</tr>
+<tr>
+<td><code>ink-progress-bar</code></td>
+<td>进度条</td>
+</tr>
+<tr>
+<td><code>ink-multi-select</code></td>
+<td>多选列表</td>
+</tr>
+<tr>
+<td><code>ink-table</code></td>
+<td>表格</td>
+</tr>
+<tr>
+<td><code>ink-confirm-input</code></td>
+<td>确认（Yes/No）</td>
+</tr>
+<tr>
+<td><code>ink-syntax-highlight</code></td>
+<td>代码高亮</td>
+</tr>
+<tr>
+<td><code>ink-markdown</code></td>
+<td>渲染 Markdown</td>
+</tr>
+<tr>
+<td><code>ink-scroll-view</code></td>
+<td>滚动容器</td>
+</tr>
+</tbody></table>
+<p>这些组件覆盖了 TUI 里最常见的交互模式。比如做一个「选择模板」的 CLI，用 <code>ink-select-input</code> 几分钟就能搭起来；展示代码片段用 <code>ink-syntax-highlight</code>，和 IDE 的终端预览体验类似。</p>
+<h3 id="官方-Examples"><a href="#官方-Examples" class="headerlink" title="官方 Examples"></a>官方 Examples</h3><p>Ink 仓库的 <a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink/tree/master/examples">examples</a> 目录提供了可运行的示例，用 <code>npm run example examples/[name]</code> 即可体验：</p>
+<ul>
+<li><strong>Counter</strong>：每 100ms 自增的数字，就是前文用来解释渲染流程的那个</li>
+<li><strong>Jest</strong>：模拟 Jest 的测试输出 UI，Static + 动态进度</li>
+<li><strong>Table</strong>：多列表格，感受 Flexbox 在终端里的对齐</li>
+<li><strong>Focus management</strong>：用 <code>useFocus</code> 做 Tab 切换，多个可聚焦区域</li>
+<li><strong>User input</strong>：<code>useInput</code> 监听键盘，实现简单输入</li>
+<li><strong>Static</strong>：Gatsby 风格的「已完成项在上方累积 + 底部动态更新」</li>
+<li><strong>Suspense</strong>：异步数据加载 + Suspense 边界</li>
+<li><strong>Router</strong>：用 React Router 的 <code>MemoryRouter</code> 做「页面」切换</li>
+</ul>
+<p>这些示例都是完整的、可运行的，建议克隆 <a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink">ink</a> 仓库后逐个跑一遍，比读文档直观得多。</p>
+<h3 id="5-分钟上手路径"><a href="#5-分钟上手路径" class="headerlink" title="5 分钟上手路径"></a>5 分钟上手路径</h3><ol>
+<li><code>npx create-ink-app my-cli</code> 或 <code>npx create-ink-app --typescript my-cli</code></li>
+<li>在 <code>ui.tsx</code> 里把默认组件改成前文的 Counter 或迷你布局</li>
+<li><code>npm run build &amp;&amp; npm start</code> 看效果</li>
+<li>装上 <code>ink-spinner</code>，加一个 <code>Loading</code> 组件</li>
+<li>打开 <a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink/tree/master/examples">examples</a> 挑一个感兴趣的，对照源码改一改</li>
+</ol>
+<h2 id="八、Ink-的局限（选型参考）"><a href="#八、Ink-的局限（选型参考）" class="headerlink" title="八、Ink 的局限（选型参考）"></a>八、Ink 的局限（选型参考）</h2><p>了解这些，有助于你在「是否用 Ink」和「如何设计」时做出更合适的决策。它们不影响 Ink 作为 TUI 方案的价值，但值得在选型时纳入考量。</p>
+<h3 id="全量重绘与性能"><a href="#全量重绘与性能" class="headerlink" title="全量重绘与性能"></a>全量重绘与性能</h3><p>每次 state 变化都会触发全树遍历和全屏重绘。对简单 UI 影响不大；组件树深、更新频繁时，可能出现闪烁或卡顿。建议：用 <code>Static</code> 分离只增不减的内容、对昂贵计算用 <code>useMemo</code>、必要时节流。Ink 还提供 <code>incrementalRendering</code> 和 <code>maxFps</code> 选项，可以按需开启。</p>
+<h3 id="内存占用"><a href="#内存占用" class="headerlink" title="内存占用"></a>内存占用</h3><p>Ink 依赖 Node、React、Yoga（含 WASM），整体内存较纯原生 CLI 高：开发模式约 50MB，打包后约 32MB。Go 的 Bubble Tea 同类应用可能只有几 MB。对本地 CLI、AI 工具通常可接受；资源受限环境需权衡。</p>
+<h3 id="功能边界"><a href="#功能边界" class="headerlink" title="功能边界"></a>功能边界</h3><ul>
+<li><strong>无 overflow: scroll</strong>：长列表滚动需自己实现或借助 <code>ink-scroll-view</code></li>
+<li><strong>CJK / IME</strong>：中文输入法下可能有延迟或光标错位</li>
+<li><strong>Windows</strong>：部分终端 ANSI 支持不完整</li>
+</ul>
+<h2 id="九、结语：介质在变，美感永恒"><a href="#九、结语：介质在变，美感永恒" class="headerlink" title="九、结语：介质在变，美感永恒"></a>九、结语：介质在变，美感永恒</h2><p>前端之美的初心，是追求更好的人机交互——清晰的视觉层次、流畅的反馈、符合直觉的操作。这份追求并不局限于浏览器。当 AI 工具、DevTools、云开发环境越来越依赖终端时，Terminal UI 就成了新的战场。</p>
+<p>Ink 的价值在于：<strong>它让 React 开发者无需切换心智，就能在终端里延续同样的设计语言和工程实践</strong>。Flexbox、组件、Hooks——这些你早已掌握的前端技艺，在终端里依然有效。</p>
+<p>如果你对 Terminal UI 感兴趣，不妨从 Ink 开始。用你熟悉的 React，在 80x24 的字符画布上，做一点既实用又好看的东西。这也是前端之美的一种延续。</p>
+<hr>
+<p><strong>参考文献与延伸阅读</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink">Ink - React for CLIs</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink?tab=readme-ov-file#useful-components">Ink - Useful Components</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vadimdemedes/ink/tree/master/examples">Ink - Examples</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/facebook/yoga">Yoga - Cross-platform layout engine</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/anthropics/claude-code">Claude Code - Anthropic’s agentic coding tool</a></li>
+<li><a target="_blank" rel="noopener" href="https://vadimdemedes.com/posts/building-rich-command-line-interfaces-with-ink-and-react">Building rich command-line interfaces with Ink and React</a></li>
+</ul>
+
+    
+  </div>
+
+  
+  <!-- Post Copyright -->
+
+<div class="post-copyright">
+  <p class="copyright-item">
+    <span>Author: </span>
+    <a href="https://springuper.github.io">Chun Shang</a>
+  </p>
+  <p class="copyright-item">
+    <span>Link: </span>
+    <a href="https://springuper.github.io/terminal-ui-react-ink/">https://springuper.github.io/terminal-ui-react-ink/</a>
+  </p>
+  <p class="copyright-item">
+    <span>License: </span>
+    
+    <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+  </p>
+</div>
+
+    
+
+  
+
+  
+  <footer class="post-footer">
+    
+    <div class="post-tags">
+      
+      <a href="/tags/React/">React</a>
+      
+      <a href="/tags/Terminal/">Terminal</a>
+      
+      <a href="/tags/TUI/">TUI</a>
+      
+      <a href="/tags/Ink/">Ink</a>
+      
+      <a href="/tags/Frontend/">Frontend</a>
+      
+    </div>
+    
+      
+  <nav class="post-nav">  
+      
+      <a class="prev" href="/agent-harness-comparison/">  
+        <i class="iconfont icon-left"></i>  
+        <span class="prev-text nav-default">给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测</span>  
+        <span class="prev-text nav-mobile">Prev</span>  
+      </a>  
+      
+      
+      <a class="next" href="/ai-needs-more-programmers/">  
+        <span class="next-text nav-default">AI 时代会需要更多程序员</span>  
+        <span class="prev-text nav-mobile">Next</span>  
+        <i class="iconfont icon-right"></i>  
+      </a>  
+      
+  </nav>  
+  
+
+  </footer>
+  
+
+</article>
+        </div>
+          
+  <div class="comments" id="comments">  
+      
+      <div id="utterances-container"></div>  
+      
+  </div>  
+  
+
+      </div>
+    </main>
+    <footer id="footer" class="footer">
+      <!-- Social Links -->
+
+<div class="social-links">
+  
+  
+  
+  
+  <a href="mailto:springuper@gmail.com" class="iconfont icon-email" title="email"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://twitter.com/springuper" class="iconfont icon-twitter" title="twitter"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://www.linkedin.com/in/chun-shang-45a41241/" class="iconfont icon-linkedin" title="linkedin"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://github.com/springuper" class="iconfont icon-github" title="github"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/shang-chun" class="iconfont icon-zhihu" title="zhihu"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+  
+</div>
+
+
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+  <span class="division">|</span>
+  <span class="hosting-info">
+    footer.hosting
+  </span>
+
+  <span class="copyright-year">
+    <span>
+      
+      &copy;
+      
+      2011 - 2026      
+    </span>
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+
+    <span class="author">Chun Shang</span>
+  </span>
+
+</div>
+    </footer>
+    <div class="back-to-top" id="back-to-top"> <i class="iconfont icon-up"></i> </div>
+  </div>
+    
+    
+    
+    
+    
+  
+<script>
+  var container = document.getElementById('utterances-container');
+  var script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', 'springuper/springuper.github.io');
+  script.setAttribute('issue-term', 'pathname');
+  script.setAttribute('theme', 'github-light');
+  script.setAttribute('label', 'utterances');
+  script.crossorigin = 'anonymous';
+  script.async = true;
+
+  container.appendChild(script);
+</script>
+  
+    
+  
+
+  
+
+
+
+
+
+
+
+<script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+
+
+
+<script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+
+
+
+<script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+
+</html>

@@ -467,8 +467,10 @@
 <li><strong>同一任务，两档难度</strong>：<strong>任务一</strong>是一个 4 个测试的小仓库，故意注入 3 个 bug（税率重复计算、缺失四舍五入、硬编码税率），起步状态 1 过 3 挂；<strong>任务二</strong>是多文件订单服务（<code>inventory.js</code>/<code>pricing.js</code>/<code>checkout.js</code>），注入 3 个 bug（折扣码大小写、缺库存检查、空订单不报错），其中”库存不足要报错”横跨两个文件，起步 3 过 3 挂。两档提示词完全一致：”修复 bug，让 npm test 全过，不改测试文件，跑测试确认。”</li>
 <li><strong>隔离环境</strong>：五款工具各自跑在<strong>独立的仓库副本</strong>里，避免”先跑完的改好了代码，后跑的捡现成”这种污染（第一轮我就踩了这个坑，五家共享一个目录，结果 Pi 8 秒修完后，其他家全在”验证已通过的代码”）。</li>
 <li><strong>版本与模型</strong>：Claude Code 2.1.3、Codex CLI 0.146.0、OpenCode 1.14.18、Pi 0.84.2、DSH 0.1.1-rc.2，<strong>五款全部使用同一个模型 deepseek-v4-flash</strong>——对比完全落在 harness 本身的差异上。Claude Code 是通过 DeepSeek 的 Anthropic 兼容端点（<code>https://api.deepseek.com/anthropic</code>）接入的，这本身就是”模型与 harness 解耦”的一个例证（详见 3.1 节）。token 数和成本虽然同模型，但各家计费口径与缓存策略不同，仍只宜做量级参考。</li>
+<li><strong>日期</strong>：所有 star 数、版本号、实测数据均为 2026-08-23 抓取，开源世界变化快，引用时请以当时为准。</li>
+<li><strong>坦白</strong>：作者深度使用 DSH（这篇文章就是在 DSH 里写的），文章尽量用解剖刀而不是滤镜；但如果你发现哪里偏了，欢迎在评论区指出来。</li>
 </ol>
-<p>把任务一的五家实测放到一张表里，方便对照：</p>
+<p>把两档任务的实测放到一起对照。先看任务一：</p>
 <table>
 <thead>
 <tr>
@@ -529,6 +531,14 @@
 <td>6.8 万（含缓存读）</td>
 </tr>
 <tr>
+<td>缓存命中率</td>
+<td>86%</td>
+<td>未上报</td>
+<td><strong>98%</strong></td>
+<td>91%</td>
+<td>81%</td>
+</tr>
+<tr>
 <td>成本（约）</td>
 <td>$0.216</td>
 <td>极低</td>
@@ -583,6 +593,14 @@
 <td>7.1 万（含缓存读）</td>
 </tr>
 <tr>
+<td>缓存命中率</td>
+<td>78%</td>
+<td>未上报</td>
+<td><strong>98%</strong></td>
+<td>93%</td>
+<td>82%</td>
+</tr>
+<tr>
 <td>成本（约）</td>
 <td>$0.197</td>
 <td>极低</td>
@@ -599,9 +617,7 @@
 <td>checkout+pricing</td>
 </tr>
 </tbody></table>
-<p><em>（任务二的 codex 与 dsh 是在无外层沙箱的正常环境下跑的——任务一里它们的 bash 沙箱启动失败是环境限制，不是能力问题，见 3.5 节。）</em>
-4. <strong>日期</strong>：所有 star 数、版本号、实测数据均为 2026-08-23 抓取，开源世界变化快，引用时请以当时为准。
-5. <strong>坦白</strong>：作者深度使用 DSH（这篇文章就是在 DSH 里写的），文章尽量用解剖刀而不是滤镜；但如果你发现哪里偏了，欢迎在评论区指出来。</p>
+<p><em>（任务二的 codex 与 dsh 是在无外层沙箱的正常环境下跑的——任务一里它们的 bash 沙箱启动失败是环境限制，不是能力问题，见 3.5 节。缓存命中率 = 缓存读取 token / 总 token，反映 harness 复用上下文的程度；首步必然冷启动，短任务里命中率主要由后续步骤决定。Codex 无头输出不提供缓存明细。）</em></p>
 <h2 id="六、结尾：鞍具的时代"><a href="#六、结尾：鞍具的时代" class="headerlink" title="六、结尾：鞍具的时代"></a>六、结尾：鞍具的时代</h2><p>写这篇文章的过程中，最触动我的数据是 Codex Harness 开源时的那个结果：<strong>两个 harness 设计改动，让同一个模型的成绩从 13.3% 涨到 38.3%，token 还省了 6 倍。</strong> 这意味着什么？</p>
 <p>意味着<strong>模型正在变成商品，鞍具正在变成差异。</strong> 当大模型的能力越来越同质化、价格越来越便宜，”选哪个模型”的答案会越来越不重要；而”怎么把模型的力气变成实际产出”——循环怎么设计、上下文怎么管理、安全边界怎么划、怎么扩展——会越来越值钱。2026 年回头看，这五款工具几乎在同一件事上押注，只是姿势不同：Anthropic 押服务与生态，OpenAI 押纪律与开源，OpenCode 押中立与社区，Pi 押极简与信任，DeepSeek 押插件化与可组合性。</p>
 <p>还有一件小事我想留作彩蛋：<strong>我这台机器上，五款工具现在跑着同一个引擎——deepseek-v4-flash。</strong> Claude Code 是通过 DeepSeek 的 Anthropic 兼容端点接入的，另外四家各有各的连法，但没有一行业务代码是为”某个模型”写的，全是 harness 在替我干活。这大概就是鞍具时代最好的注脚——<strong>马是谁不重要了，重要的是鞍具合不合手。</strong></p>

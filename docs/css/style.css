@@ -6,10 +6,22 @@
   font-weight: lighter;
   font-style: normal;
 }
-/* 强制代码块中的中文全角渲染，与 Latin 字符 1:1 等宽 */
-.post-content pre,
-.post-content code {
-  font-variant-east-asian: full-width;
+/* agent harness 五件套图的表格样式 */
+.harness-box {
+  border-collapse: collapse;
+  font-family: monospace;
+  font-size: 0.9em;
+  margin: 1.5em auto;
+  max-width: 600px;
+}
+.harness-box td {
+  border: 1px solid #666;
+  padding: 0.4em 0.8em;
+  vertical-align: top;
+}
+.harness-box td[colspan="2"] {
+  text-align: center;
+  background: #f8f8f8;
 }
 
 /*! normalize.css v3.0.2 | MIT License | git.io/normalize */

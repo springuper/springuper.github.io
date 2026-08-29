@@ -162,6 +162,10 @@ const App = () => (
 
 注意两个细节：中文按双倍宽度排版，70%/30% 在 60 列下被 Yoga 精确换算成 42/18 列；`gap`、`marginTop`、`borderStyle` 这些「前端属性」在终端里原样生效。这一段是真实运行结果，不是示意图。
 
+动起来是这样（把同一布局的渲染帧序列合成了一段 GIF，输入是脚本模拟的——真实的 `useInput` 在终端里就长这样）：
+
+![迷你 Claude Code 布局：输入与运行](/images/terminal-ui-layout.gif)
+
 ### Hooks：状态与输入
 
 Ink 支持完整的 React Hooks。除了 `useState`、`useEffect`，还提供了针对终端的专用 Hooks：
@@ -175,6 +179,22 @@ Ink 支持完整的 React Hooks。除了 `useState`、`useEffect`，还提供了
 ## 三、Ink 的架构：React 的另一种 renderer
 
 很多人好奇：Ink 到底是怎么把 React 画到终端里的？答案其实很直接：**Ink 是 React 的一个自定义 renderer**，和 `react-dom` 平级。React 负责调度和协调，renderer 负责把组件树「画」到宿主环境里。浏览器里是 DOM，终端里就是 stdout。
+
+### 终端渲染的两块基石：字符网格与 ANSI 转义
+
+在讲 Ink 怎么做之前，先花两分钟搞清楚「终端到底是怎么把字画出来的」。做 Web 的读者可能从来没想过这个问题——浏览器替你封装了一切，但终端里没有这样的封装。
+
+**终端是一张字符网格。** 终端模拟器（Terminal.app、iTerm2、VS Code 里的 xterm.js）维护一个「宽 × 高」的字符矩阵（比如 80 列 × 24 行），外加一个**光标位置**。程序往 stdout 输出的字节会被**按顺序填进网格**：字符写到光标处，光标右移一格；`\n` 让光标换行。没有「元素」、没有树、没有样式表——只有「当前位置 + 覆盖写」。所以终端程序想「更新界面」，手段只有三种：
+
+1. **覆盖写**：把光标移回去，用新字符盖住旧字符。最简单的例子是进度条——`\r`（回车但不换行）回到行首，重写这一行；
+2. **擦除重写**：`\x1b[2K` 擦掉当前行、`\x1b[2J` 清屏，然后把内容重新写一遍；
+3. **移动光标**：`\x1b[nA` / `\x1b[nB` 上下移 n 行，`\x1b[nC` / `\x1b[nD` 左右移，`\x1b[H` 回到左上角。
+
+这些 `\x1b[` 开头的字节序列就是 **ANSI 转义序列**（escape sequence）。颜色也是它：`\x1b[31m` 之后输出的字符变红，`\x1b[0m` 恢复默认。**这套字节协议就是终端的「API」**——没有 `document.querySelector`，没有 `textContent`，只有「把光标挪到某处，写一些字符」。
+
+对比一下你熟悉的世界：浏览器里改一个数字，`countEl.textContent = '1'`，浏览器只重绘那一处；终端里没有「那一处」的句柄，你只能**把光标移过去覆盖**，或者**擦掉整块重新画**。Ink 的核心工作，就是把你用 React 声明出来的画面，翻译成这一串 ANSI 指令。理解了这一点，后面看 Ink 为什么每次更新都「重新生成整帧」，就顺理成章了。
+
+> 提醒：这类带中文的 ASCII 线框图，在浏览器里是否对齐取决于代码块的字体是不是等宽 CJK 字体（本站主题已做处理）。如果在你那边看到线框错位，通常是字体回退导致的，不是图本身的问题——本文所有线框图都按「中文占 2 格、其他字符占 1 格」的规则逐行校验过。
 
 ### react-reconciler：同一套调度，不同的宿主
 
@@ -304,6 +324,10 @@ const Counter = () => {
 
 render(<Counter />);
 ```
+
+这段代码在真实终端里长这样（渲染帧序列合成的 GIF，每 100ms 数字 +1）：
+
+![Counter 原地更新](/images/terminal-ui-counter.gif)
 
 **首次渲染**（count = 0）：
 
@@ -451,6 +475,10 @@ const Loading = () => (
 render(<Loading />);
 ```
 
+实际效果：
+
+![Spinner 加载动画](/images/terminal-ui-spinner.gif)
+
 `Spinner` 内部用 `setInterval` 切换不同字符（如 `⠋` `⠙` `⠹` ...），触发 React 重绘，视觉上就是旋转。`type` 可选 `dots`、`line`、`arrow` 等，来自 [cli-spinners](https://github.com/sindresorhus/cli-spinners)。
 
 **进度条**：用 `Box` 的 `width` 配合百分比，就能模拟进度条宽度变化：
@@ -463,6 +491,10 @@ const ProgressBar = ({ percent = 50 }) => (
   </Box>
 );
 ```
+
+效果：
+
+![进度条](/images/terminal-ui-progress.gif)
 
 每次 `percent` 变化，Ink 会重绘，绿色区域「长」一截。这是很多 CLI（如 npm install）的常见模式。
 

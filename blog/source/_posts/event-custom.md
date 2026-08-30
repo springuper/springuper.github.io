@@ -7,7 +7,7 @@ status: publish
 tags: [YUI, Event, JavaScript]
 ---
 
-![DIY](/images/DIY.jpg)
+![DIY](../images/DIY.jpg)
 
 上一篇[文章](/2013/01/20/event-do/)中，简要介绍了YUI实现AOP的`Y.Do`对象。
 

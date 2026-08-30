@@ -6,7 +6,7 @@ status: publish
 tags: [Self, Metro]
 ---
 
-![Metro](/images/metro.png)
+![Metro](../images/metro.png)
 
 我叫尚春，来自美团网
 

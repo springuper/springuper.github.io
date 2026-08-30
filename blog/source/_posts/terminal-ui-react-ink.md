@@ -2,8 +2,7 @@
 layout: post
 title: "Terminal UI：用 React 的方式重做命令行"
 date: 2026-02-27 11:00:00
-status: draft
-published: false
+status: publish
 tags:
   - Terminal
   - TUI
@@ -14,7 +13,7 @@ tags:
 
 如果你用过 Claude Code、Gemini CLI 或 GitHub Copilot CLI，会立刻注意到一件事：这些工具在终端里的表现，和过去那种黑底白字、一行行 `console.log` 的 CLI 完全不同。它们有清晰的布局——左侧是对话区，右侧是状态或工具面板，底部是输入框；有焦点切换、有动效、有层次感。这不是偶然。这些 AI Coding 工具都选择了同一条技术路线：**用 React 写终端界面**。
 
-本文想和你聊聊这个方向的代表方案 [Ink](https://github.com/vadimdemedes/ink)，以及它背后的思路：当「前端之美」的心智迁移到终端这块看似受限的介质时，会发生什么。
+本文想和你聊聊这个方向的代表方案 [Ink](https://github.com/vadimdemedes/ink)。文章分两层：先是「怎么用」——组件、Flexbox、Hooks，几乎不用换脑子；再是「为什么」——我会把 Ink 拆开，读它的源码（reconciler、Yoga 布局、2D buffer 渲染、终端写入），再跑真实的例子把输出摆上来，让结论都落在事实上。当「前端之美」的心智迁移到终端这块看似受限的介质时，会发生什么？值得亲眼看一下。
 
 <!--more-->
 
@@ -28,7 +27,7 @@ tags:
 
 ### 技术选型的共识：React + Ink
 
-这些工具不约而同地选用了同一条技术栈：**Ink**——一个把 React 渲染到终端的 renderer。Claude Code、Gemini CLI、GitHub Copilot CLI、Prisma CLI、Cloudflare Wrangler、Shopify CLI 等，都基于 Ink 构建其 TUI 层。
+这些工具不约而同地选用了同一条技术栈：**Ink**——一个把 React 渲染到终端的 renderer。Ink 的 README 里有一份官方的「Who's Using Ink?」名单：Claude Code、Gemini CLI、GitHub Copilot CLI、Canva CLI、Cloudflare Wrangler、Prisma、Terraform CDK、Gatsby、tap……几乎每一个主流 AI 编程助手的 TUI 层都长在 Ink 上。（顺带纠正一个流传很广的说法：Shopify CLI 并不在名单上，它新版本已经用 Rust 重写了。）
 
 这背后的逻辑很直观：这些团队大多有丰富的 React 经验。与其用传统方式（ncurses、readline、手写 ANSI 转义）从零搭一套终端 UI，不如复用已有的前端心智——组件、状态、Hooks、声明式渲染。Ink 恰好提供了这一层抽象。
 
@@ -68,6 +67,10 @@ const App = () => (
 
 render(<App />);
 ```
+
+实际输出：
+
+![基础 Box/Text 例子](../images/terminal-ui-basic.png)
 
 ### 一个「迷你 Claude Code」布局示例
 
@@ -119,6 +122,12 @@ render(<App />);
 
 这里的结构完全是「前端式」的：外层 `flexDirection="column"` 分上下两块，上面再用 `flexDirection="row"` 分左右。`borderStyle="single"` 画出边框，`padding`、`width` 控制间距和占比。熟悉 React 和 Flexbox 的人一眼能看懂。
 
+真实运行效果（渲染帧序列合成的 GIF，固定 60 列宽便于展示；输入是脚本模拟的——真实的 `useInput` 在终端里就长这样）：
+
+![迷你 Claude Code 布局：输入与运行](../images/terminal-ui-layout.gif)
+
+注意两个细节：中文按双倍宽度排版，70%/30% 在 60 列下被 Yoga 精确换算成 42/18 列；`gap`、`marginTop`、`borderStyle` 这些「前端属性」在终端里原样生效。这段动图是真实运行结果，不是示意图。
+
 ### Hooks：状态与输入
 
 Ink 支持完整的 React Hooks。除了 `useState`、`useEffect`，还提供了针对终端的专用 Hooks：
@@ -133,9 +142,25 @@ Ink 支持完整的 React Hooks。除了 `useState`、`useEffect`，还提供了
 
 很多人好奇：Ink 到底是怎么把 React 画到终端里的？答案其实很直接：**Ink 是 React 的一个自定义 renderer**，和 `react-dom` 平级。React 负责调度和协调，renderer 负责把组件树「画」到宿主环境里。浏览器里是 DOM，终端里就是 stdout。
 
+### 终端渲染的两块基石：字符网格与 ANSI 转义
+
+在讲 Ink 怎么做之前，先花两分钟搞清楚「终端到底是怎么把字画出来的」。做 Web 的读者可能从来没想过这个问题——浏览器替你封装了一切，但终端里没有这样的封装。
+
+**终端是一张字符网格。** 终端模拟器（Terminal.app、iTerm2、VS Code 里的 xterm.js）维护一个「宽 × 高」的字符矩阵（比如 80 列 × 24 行），外加一个**光标位置**。程序往 stdout 输出的字节会被**按顺序填进网格**：字符写到光标处，光标右移一格；`\n` 让光标换行。没有「元素」、没有树、没有样式表——只有「当前位置 + 覆盖写」。所以终端程序想「更新界面」，手段只有三种：
+
+1. **覆盖写**：把光标移回去，用新字符盖住旧字符。最简单的例子是进度条——`\r`（回车但不换行）回到行首，重写这一行；
+2. **擦除重写**：`\x1b[2K` 擦掉当前行、`\x1b[2J` 清屏，然后把内容重新写一遍；
+3. **移动光标**：`\x1b[nA` / `\x1b[nB` 上下移 n 行，`\x1b[nC` / `\x1b[nD` 左右移，`\x1b[H` 回到左上角。
+
+这些 `\x1b[` 开头的字节序列就是 **ANSI 转义序列**（escape sequence）。颜色也是它：`\x1b[31m` 之后输出的字符变红，`\x1b[0m` 恢复默认。**这套字节协议就是终端的「API」**——没有 `document.querySelector`，没有 `textContent`，只有「把光标挪到某处，写一些字符」。
+
+对比一下你熟悉的世界：浏览器里改一个数字，`countEl.textContent = '1'`，浏览器只重绘那一处；终端里没有「那一处」的句柄，你只能**把光标移过去覆盖**，或者**擦掉整块重新画**。Ink 的核心工作，就是把你用 React 声明出来的画面，翻译成这一串 ANSI 指令。理解了这一点，后面看 Ink 为什么每次更新都「重新生成整帧」，就顺理成章了。
+
+> 提醒：这类带中文的 ASCII 线框图，在浏览器里是否对齐取决于代码块的字体是不是等宽 CJK 字体（本站主题已做处理）。如果在你那边看到线框错位，通常是字体回退导致的，不是图本身的问题——本文所有线框图都按「中文占 2 格、其他字符占 1 格」的规则逐行校验过。
+
 ### react-reconciler：同一套调度，不同的宿主
 
-React 在 16 之后把「协调逻辑」和「宿主渲染」解耦了。`react-dom` 用的是 `react-reconciler` 提供的 API，实现了一套「createInstance、appendChild、commitUpdate……」的 host config，把 React 元素变成 DOM 节点。Ink 做的是一样的的事，只不过宿主不是 DOM，而是**终端**。
+React 在 16 之后把「协调逻辑」和「宿主渲染」解耦了。`react-dom` 用的是 `react-reconciler` 提供的 API，实现了一套「createInstance、appendChild、commitUpdate……」的 host config，把 React 元素变成 DOM 节点。Ink 做的是一样的事，只不过宿主不是 DOM，而是**终端**。
 
 Ink 和 Yoga 的关系可以这么理解：**Ink 是 React 的 Terminal renderer，Yoga 是 Ink 内部使用的布局引擎**。Ink 在创建 `Box` 等节点时，会同步创建对应的 Yoga 节点；协调完成后，调用 Yoga 计算布局，再根据布局结果生成输出。Yoga 是 Ink 的依赖，不作为独立进程或服务存在。
 
@@ -150,42 +175,91 @@ Ink 的实现大致分几层：
 整体架构可以用下面的字符图概括：
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        React (调度 + 协调)                         │
-│  你的 JSX: <Box><Text>Hello</Text></Box>                         │
-└─────────────────────────────────────┬───────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     react-reconciler                              │
-│  提供 createContainer、updateContainer、commitUpdate 等 API          │
-│  不关心宿主是 DOM 还是 Terminal，只负责 diff 和调度                  │
-└─────────────────────────────────────┬───────────────────────────┘
-                                      │ host config 回调
-                                      ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                         Ink (Host Renderer)                       │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐   │
-│  │ createInstance│──▶│ Ink 节点树  │───▶│ Yoga 布局计算 (C/WASM)│   │
-│  │ appendChild   │    │ Box↔YogaNode│    │ flexDirection,    │   │
-│  │ commitUpdate  │    │ Text       │    │ padding, margin... │   │
-│  └─────────────┘    └──────┬──────┘    └──────────┬──────────┘   │
-│                            │                       │              │
-│                            │  布局结果 (x,y,w,h)    │              │
-│                            ▼                       │              │
-│                    ┌───────────────┐               │              │
-│                    │ 2D 字符 buffer │◀──────────────┘              │
-│                    │ + ANSI 样式    │                              │
-│                    └───────┬───────┘                              │
-└────────────────────────────┼──────────────────────────────────────┘
-                             │ process.stdout.write
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      Terminal (stdout / stdin)                    │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           React (调度 + 协调)                            │
+│                 你的 JSX: <Box><Text>Hello</Text></Box>                  │
+└──────────────────────────────────────┬───────────────────────────────────┘
+                                      │                                   
+                                      ▼                                   
+┌──────────────────────────────────────────────────────────────────────────┐
+│                             react-reconciler                             │
+│提供 createContainer、updateContainer、commitUpdate 等 API                │
+│不关心宿主是 DOM 还是 Terminal，只负责 diff 和调度                        │
+└──────────────────────────────────────┬───────────────────────────────────┘
+                                      │ host config 回调                  
+                                      ▼                                   
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           Ink (Host Renderer)                            │
+│  │createInstance     │──▶│Ink 节点树         │───▶│Yoga 布局计算      │  │
+│  │appendChild        │──▶│Box↔YogaNode       │───▶│(C/WASM)           │  │
+│  │commitUpdate       │──▶│Text               │───▶│flexDirection,     │  │
+│  │                   │──▶│                   │───▶│padding, margin    │  │
+│  └───────────────────┘──▶└─────────┬─────────┘───▶└─────────┬─────────┘  │
+│                                    │                        │            │
+│                                    │   布局结果 (x,y,w,h)   │            │
+│                                    ▼                        │            │
+│                              ┌────────────────┐             │            │
+│                              │2D 字符 buffer  │◀────────────┘            │
+│                              │+ ANSI 样式     │                          │
+│                              └───────┬────────┘                          │
+│                                      │                                   │
+│                                      ▼                                   │
+└──────────────────────────────────────┬───────────────────────────────────┘
+                                      │ process.stdout.write              
+                                      ▼                                   
+┌──────────────────────────────────────────────────────────────────────────┐
+│                        Terminal (stdout / stdin)                         │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 简要来说：**React 负责「要渲染什么」，react-reconciler 负责「何时、如何调度更新」，Ink 负责「在终端里怎么画」——而「怎么画」又分两步：Yoga 算位置，Ink 把位置 + 文本转成 ANSI 输出**。
+
+### 源码里的证据：host config 长什么样
+
+示意图毕竟只是示意，还是把 Ink 拆开看。以下均来自 Ink 7.1.1（npm 当前最新版，配 React 19）。`build/reconciler.js` 的开头就是答案——它用 `react-reconciler` 的 `createReconciler` 注册了一套 host config：
+
+```js
+// ink/build/reconciler.js（节选，Ink 7.1.1）
+import createReconciler from 'react-reconciler';
+import Yoga from 'yoga-layout';
+import { createNode, appendChildNode, ... } from './dom.js';
+
+export default createReconciler({
+  getRootHostContext: () => ({ isInsideText: false }),
+  shouldSetTextContent: () => false,          // 文本不走 content 属性，用独立文本节点
+
+  createInstance(type, props, rootNode, hostContext) {
+    // 每个 <Box>/<Text> 创建一个 Ink 节点；dom.js 里同步创建 Yoga 节点
+    const node = createNode(type);            // dom.js: Yoga.Node.create()
+    // ...
+  },
+  createTextInstance(text, _root, hostContext) { /* ... */ },
+
+  appendChild: appendChildNode,               // 同时把 Yoga 子节点挂到父节点上
+  insertBefore: insertBeforeNode,
+  removeChild: removeChildNode,
+
+  commitUpdate(node, _type, oldProps, newProps) {
+    const props = diff(oldProps, newProps);
+    // ...
+    setStyle(node, value);                    // 样式直接映射到 Yoga 节点
+  },
+
+  resetAfterCommit(rootNode) {
+    rootNode.onComputeLayout();               // → yogaNode.calculateLayout()
+    // ...
+    rootNode.onRender();                      // → 整帧渲染
+  },
+});
+```
+
+逐条对应前面的分层：
+
+- `createInstance` / `appendChild` / `commitUpdate`……就是第 1 层说的 host config。注意 `dom.js` 里每个节点创建时都调 `Yoga.Node.create()`，`appendChildNode` 会同步 `insertChild` 到父节点的 Yoga 节点——**Box ↔ YogaNode 一一对应**，不是概念上的类比。
+- `resetAfterCommit` 是 commit 阶段的收尾钩子：先 `onComputeLayout()`（`ink.js` 里就是一行 `this.rootNode.yogaNode.calculateLayout(undefined, undefined, Yoga.DIRECTION_LTR)`，对整棵布局树做 Flexbox 计算），再 `onRender()` 走渲染。
+- 渲染在 `renderer.js`：`new Output({ width, height })` 建一张 2D 字符画布，`renderNodeToOutput` 把每个节点的文本和 ANSI 样式画进去，最后产出一帧完整的字符串。
+
+这就是第 2、3 层说的「Yoga 算位置，Ink 把位置 + 文本转成 ANSI 输出」——不是比喻，是源码里真实存在的调用链。
 
 ### 用 Counter 串起全过程：原地变化时会发生什么？
 
@@ -213,6 +287,10 @@ const Counter = () => {
 render(<Counter />);
 ```
 
+这段代码在真实终端里长这样（渲染帧序列合成的 GIF，每 100ms 数字 +1）：
+
+![Counter 原地更新](../images/terminal-ui-counter.gif)
+
 **首次渲染**（count = 0）：
 
 1. React 渲染 `<Counter>`，得到 `{count: 0}` 的虚拟树
@@ -225,21 +303,21 @@ render(<Counter />);
 **100ms 后**，`setCount(1)` 触发更新：
 
 1. React 调度一次更新，reconciler 做 diff，发现只有 **Text 的 children 变了**（"0" → "1"）
-2. reconciler 调用 `commitUpdate`，告诉 Ink：这个 Text 的内容要改成 "计数: 1"
-3. **关键点**：Ink 不会只更新终端里「数字那一格」。终端没有 DOM 那样的增量更新能力
-4. Ink 清空当前输出区域，整棵树重新走一遍：Yoga 再算一次布局（结果可能一样），再生成完整的 2D buffer
-5. 整块内容重写到 stdout，终端看到的是「计数: 1」——从用户视角像是数字原地变了，但底层是一次全量重绘
+2. reconciler 调用 `commitUpdate` / `commitTextUpdate`，告诉 Ink：这个 Text 的内容要改成 "计数: 1"
+3. **关键点**：Ink 不会只更新终端里「数字那一格」。React 的 diff 只标记了这一处，但 Ink 没有 DOM 那种「改一个 textNode」的能力——`resetAfterCommit` 会触发 Yoga 对整棵布局树再算一次布局（结果可能一样），然后 `renderer.js` 把整棵树重新渲染成一张完整的 2D buffer。**全量重绘发生在「帧生成」这一层**。
+4. 写入终端时又是另一回事：Ink 的 `log-update` 会把新帧和上一帧做比较。默认模式下，**内容没变就一行都不写**；变了就擦掉旧帧的行数、写入新帧。如果开启 `incrementalRendering: true`，它进一步**按行比较、只重写变化的行**——源码注释写得很直白："We do not write lines if the contents are the same. This prevents flickering during renders."
+5. 至于「清屏再重绘」，只发生在少数特殊场景：帧超出终端高度（overflow）、全屏/非全屏切换、Windows 控制台。`ink.js` 里有个 `shouldClearTerminalForFrame` 函数，专门判断「这一帧要不要清屏」。
 
-所以：**虽然 React 和 reconciler 只标记了「Text 的 children 变了」，Ink 仍然会做全屏级别的重绘**。这是终端介质的限制，不是 Ink 的 bug。浏览器里 react-dom 可以只 `textNode.textContent = '1'` 改那一处，终端里通常只能「清掉再画一遍」。
+所以准确的图景是：**组件树的 diff 是增量的**（React 只标记了 Text 的 children 变了），**帧的生成是全量的**（整棵树重新渲染成一张新帧），**终端的写入是 diff 的**（新帧和旧帧逐行比较，没变就不写）。浏览器里 react-dom 可以只 `textNode.textContent = '1'` 改那一处；终端里 Ink 没有这个选项，但也不至于每次清屏——它用「全帧生成 + 行级擦写」在正确性和性能之间取平衡。
 
 ### 与 react-dom 的对比
 
-| 维度       | react-dom           | Ink                    |
-|------------|--------------------|------------------------|
-| 宿主环境   | DOM                 | 终端（stdout）         |
-| 布局引擎   | 浏览器引擎          | Yoga（Flexbox）        |
-| 更新粒度   | DOM 增量更新        | 全屏重绘               |
-| 输入方式   | 鼠标 + 键盘         | 主要键盘               |
+| 维度       | react-dom           | Ink                                  |
+|------------|--------------------|--------------------------------------|
+| 宿主环境   | DOM                 | 终端（stdout）                       |
+| 布局引擎   | 浏览器引擎          | Yoga（Flexbox）                      |
+| 更新粒度   | DOM 增量更新        | 整帧重生成 + 行级 diff 写入          |
+| 输入方式   | 鼠标 + 键盘         | 主要键盘                             |
 
 同一套 React 心智，换了一个宿主环境，就能从浏览器「平移」到终端。这种抽象能力，正是 Ink 的核心价值。
 
@@ -265,13 +343,17 @@ const Pane = ({ label }) => {
 // 多个 Pane 时，Tab 按渲染顺序切换焦点；聚焦中的 Pane 才能收到 useInput 事件
 ```
 
+实际效果（两个 Pane，左侧聚焦：边框高亮 + `▶` 标记；右侧未聚焦为灰色边框。按 Tab 焦点在两者间切换）：
+
+![useFocus 焦点切换](../images/terminal-ui-focus.png)
+
 一些终端支持鼠标事件（如 xterm 的 SGR 协议），但跨终端兼容性差，Ink 的设计以键盘为中心，这也是大多数 CLI 工具的共识。
 
 ### 不断增长的内容：Static 与 overflow
 
 AI 对话、日志输出这类场景的特点是：**新内容不断追加**，旧的不会消失。如果每次都全树重绘，历史消息会被重复渲染，而且可能超出终端高度。
 
-Ink 提供了 **`<Static>`** 组件专门处理这种「只增不减」的内容。`Static` 接收一个 `items` 数组，用 render 函数渲染每一项。关键是：**已经渲染过的 item 不会被重新渲染**，只会把新 item 追加到输出里。这样历史消息「钉」在终端上方，新的往下长，底部的动态区（比如输入框、进度条）照常更新。Gatsby 的构建输出、Tap 的测试列表都是这么做的。
+Ink 提供了 **`<Static>`** 组件专门处理这种「只增不减」的内容。`Static` 接收一个 `items` 数组，用 render 函数渲染每一项。关键是：**已经渲染过的 item 不会被重新渲染**，只会把新 item 追加到输出里。这样历史消息「钉」在终端上方，新的往下长，底部的动态区（比如输入框、进度条）照常更新。Gatsby 的构建输出、Tap 的测试列表都是这么做的——这不是我编的，Ink 源码 `Static.js` 的注释里自己就是这么举例的。
 
 ```jsx
 <Static items={messages}>
@@ -287,13 +369,17 @@ Ink 提供了 **`<Static>`** 组件专门处理这种「只增不减」的内容
 </Box>
 ```
 
+上面这段的渲染效果（`messages` 是模拟数据）：
+
+![Static 历史消息累积 + 动态输入区](../images/terminal-ui-static.png)
+
 对于有固定高度的区域，`Box` 支持 `overflow="hidden"` 或 `overflow="visible"`，可以裁掉超出部分。但 Ink 目前**没有 `overflow="scroll"`**，也就是没有内置的「滚动视窗」——你不能在一个固定高度的 Box 里用方向键滚动查看超长内容。社区有 `ink-scroll-view` 等库做类似事情，但需要自己实现 windowing 逻辑（只渲染可见区域 + 维护 scroll offset）。
 
 ### 终端尺寸变化与光标
 
 `useWindowSize` 可以拿到当前终端的行数和列数，配合 `stdout.on('resize')` 能在用户拖拽窗口时重新布局。`useCursor` 则用于控制光标的显示和位置，比如在输入框里让光标出现在正确的位置。
 
-另外，当输出行数超过终端高度时，Ink 会清屏再重绘，而不是像 `docker-compose logs -f` 那样让内容自然向上卷动。这是 Ink 的设计选择：它假设你是「应用式」的全屏 TUI，而不是流式日志查看器。
+另外，当输出行数超过终端高度时，Ink 会清屏再重绘（这正是前面说的 `shouldClearTerminalForFrame` 要处理的 overflow 场景），而不是像 `docker-compose logs -f` 那样让内容自然向上卷动。这是 Ink 的设计选择：它假设你是「应用式」的全屏 TUI，而不是流式日志查看器。
 
 ## 五、为什么 React 心智适合 Terminal UI？
 
@@ -307,7 +393,7 @@ AI 工具要展示的内容非常动态：对话在增长、工具在运行、�
 
 ### 3. 生态与调试
 
-Ink 是 React renderer，所以你可以用 React DevTools 检查组件树。测试也可以用 React Testing Library 的思路，对组件做快照或行为测试。对已经深度使用 React 的团队来说，这是巨大的效率加成。
+Ink 是 React renderer，所以可以用 React DevTools 检查组件树——`devtools.js` 会探测 `ws://localhost:8097`，发现 DevTools 在跑就连上去。测试也可以用 React Testing Library 的思路，对组件做快照或行为测试。对已经深度使用 React 的团队来说，这是巨大的效率加成。
 
 ## 六、在受限介质中坚持审美
 
@@ -324,6 +410,10 @@ Ink 的 `padding`、`margin`、`gap` 和 Flexbox 的 `justifyContent`、`alignIt
 </Box>
 ```
 
+实际输出（`gap={2}` 让两个内容块之间留出两格空白，配合 `padding` 让文字不贴边）：
+
+![留白与间距](../images/terminal-ui-gap.png)
+
 ### 色彩与层次
 
 `Text` 的 `color`、`backgroundColor`、`bold`、`dimColor` 可以建立清晰的视觉层次。一个简单约定：标题用亮色 + 粗体，次要信息用 `dimColor`，成功/错误/警告分别用绿/红/黄。例如：
@@ -336,6 +426,10 @@ Ink 的 `padding`、`margin`、`gap` 和 Flexbox 的 `justifyContent`、`alignIt
   <Text dimColor>  耗时 2.3s</Text>
 </Box>
 ```
+
+实际输出：
+
+![色彩与层次](../images/terminal-ui-colors.png)
 
 Ink 底层用 chalk，支持 `green`、`#005cc5`、`rgb(232, 131, 136)` 等写法。避免到处高亮，保持克制的配色，终端里的层次感会明显提升。
 
@@ -359,6 +453,10 @@ const Loading = () => (
 render(<Loading />);
 ```
 
+实际效果：
+
+![Spinner 加载动画](../images/terminal-ui-spinner.gif)
+
 `Spinner` 内部用 `setInterval` 切换不同字符（如 `⠋` `⠙` `⠹` ...），触发 React 重绘，视觉上就是旋转。`type` 可选 `dots`、`line`、`arrow` 等，来自 [cli-spinners](https://github.com/sindresorhus/cli-spinners)。
 
 **进度条**：用 `Box` 的 `width` 配合百分比，就能模拟进度条宽度变化：
@@ -371,6 +469,10 @@ const ProgressBar = ({ percent = 50 }) => (
   </Box>
 );
 ```
+
+效果：
+
+![进度条](../images/terminal-ui-progress.gif)
 
 每次 `percent` 变化，Ink 会重绘，绿色区域「长」一截。这是很多 CLI（如 npm install）的常见模式。
 
@@ -428,11 +530,11 @@ Ink 仓库的 [examples](https://github.com/vadimdemedes/ink/tree/master/example
 
 ### 全量重绘与性能
 
-每次 state 变化都会触发全树遍历和全屏重绘。对简单 UI 影响不大；组件树深、更新频繁时，可能出现闪烁或卡顿。建议：用 `Static` 分离只增不减的内容、对昂贵计算用 `useMemo`、必要时节流。Ink 还提供 `incrementalRendering` 和 `maxFps` 选项，可以按需开启。
+每次 state 变化，帧都要**整帧重新生成**——组件树越深、节点越多，这一趟越贵；好在写入终端是 diff 的，且 `maxFps`（默认 30）会节流渲染频率。组件树深、更新频繁时，仍可能出现卡顿。建议：用 `Static` 分离只增不减的内容、对昂贵计算用 `useMemo`、必要时调低渲染频率。Ink 提供 `incrementalRendering`（按行增量写入）和 `maxFps` 两个旋钮，可以按需开启。
 
 ### 内存占用
 
-Ink 依赖 Node、React、Yoga（含 WASM），整体内存较纯原生 CLI 高：开发模式约 50MB，打包后约 32MB。Go 的 Bubble Tea 同类应用可能只有几 MB。对本地 CLI、AI 工具通常可接受；资源受限环境需权衡。
+Ink 依赖 Node、React、Yoga（含 WASM），内存比纯原生 CLI 高一截。我在 Node 24 上实测：空跑 node 本身 RSS 约 40MB，加载 Ink 7.1.1 + React 19 跑一个最小 Counter 应用后，RSS 约 100MB。网上常说的「打包后 32MB」其实是指安装体积，不是内存。对比 Go 的 Bubble Tea：编译产物是一个几 MB 的静态二进制，跑起来内存通常也小一个数量级。对本地 CLI、AI 工具通常可接受；资源受限环境需权衡。
 
 ### 功能边界
 
@@ -446,6 +548,8 @@ Ink 依赖 Node、React、Yoga（含 WASM），整体内存较纯原生 CLI 高�
 
 Ink 的价值在于：**它让 React 开发者无需切换心智，就能在终端里延续同样的设计语言和工程实践**。Flexbox、组件、Hooks——这些你早已掌握的前端技艺，在终端里依然有效。
 
+还有一件小事，我想留作彩蛋：**这篇文章里每一处标注「实测」的地方——那张 60 列宽的真实渲染帧、reconciler.js 里的 host config、还有那串 102MB 的内存数字——都是我在终端里一条命令一条命令跑出来的。** 而你现在读到的这篇文章，同样是在终端里写完、构建、发布的；连帮我写它的 AI 工具，界面本身也是 Ink 画的。一个关于终端的故事，正坐在终端里被讲述——这大概就是「介质在变，美感永恒」最好的注脚：**终端从来不是限制，它只是另一块画布。**
+
 如果你对 Terminal UI 感兴趣，不妨从 Ink 开始。用你熟悉的 React，在 80x24 的字符画布上，做一点既实用又好看的东西。这也是前端之美的一种延续。
 
 ---
@@ -453,8 +557,13 @@ Ink 的价值在于：**它让 React 开发者无需切换心智，就能在终�
 **参考文献与延伸阅读**
 
 - [Ink - React for CLIs](https://github.com/vadimdemedes/ink)
+- [Ink - Who's Using Ink?（README 官方用户名单）](https://github.com/vadimdemedes/ink#whos-using-ink)
+- [Ink 源码（src 目录：reconciler / dom / renderer / ink / log-update）](https://github.com/vadimdemedes/ink/tree/master/src)
 - [Ink - Useful Components](https://github.com/vadimdemedes/ink?tab=readme-ov-file#useful-components)
 - [Ink - Examples](https://github.com/vadimdemedes/ink/tree/master/examples)
+- [react-reconciler - React 的协调器](https://github.com/facebook/react/tree/main/packages/react-reconciler)
 - [Yoga - Cross-platform layout engine](https://github.com/facebook/yoga)
 - [Claude Code - Anthropic's agentic coding tool](https://github.com/anthropics/claude-code)
 - [Building rich command-line interfaces with Ink and React](https://vadimdemedes.com/posts/building-rich-command-line-interfaces-with-ink-and-react)
+
+> 本文源码引用与实测数据基于 Ink 7.1.1 + React 19.2.8（Node 24），版本不同时实现细节可能有出入。

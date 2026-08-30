@@ -164,7 +164,7 @@ const App = () => (
 
 动起来是这样（把同一布局的渲染帧序列合成了一段 GIF，输入是脚本模拟的——真实的 `useInput` 在终端里就长这样）：
 
-![迷你 Claude Code 布局：输入与运行](/images/terminal-ui-layout.gif)
+![迷你 Claude Code 布局：输入与运行](../images/terminal-ui-layout.gif)
 
 ### Hooks：状态与输入
 
@@ -327,7 +327,7 @@ render(<Counter />);
 
 这段代码在真实终端里长这样（渲染帧序列合成的 GIF，每 100ms 数字 +1）：
 
-![Counter 原地更新](/images/terminal-ui-counter.gif)
+![Counter 原地更新](../images/terminal-ui-counter.gif)
 
 **首次渲染**（count = 0）：
 
@@ -477,7 +477,7 @@ render(<Loading />);
 
 实际效果：
 
-![Spinner 加载动画](/images/terminal-ui-spinner.gif)
+![Spinner 加载动画](../images/terminal-ui-spinner.gif)
 
 `Spinner` 内部用 `setInterval` 切换不同字符（如 `⠋` `⠙` `⠹` ...），触发 React 重绘，视觉上就是旋转。`type` 可选 `dots`、`line`、`arrow` 等，来自 [cli-spinners](https://github.com/sindresorhus/cli-spinners)。
 
@@ -494,7 +494,7 @@ const ProgressBar = ({ percent = 50 }) => (
 
 效果：
 
-![进度条](/images/terminal-ui-progress.gif)
+![进度条](../images/terminal-ui-progress.gif)
 
 每次 `percent` 变化，Ink 会重绘，绿色区域「长」一截。这是很多 CLI（如 npm install）的常见模式。
 

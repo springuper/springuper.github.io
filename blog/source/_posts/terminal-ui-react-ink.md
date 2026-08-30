@@ -68,6 +68,10 @@ const App = () => (
 render(<App />);
 ```
 
+实际输出：
+
+![基础 Box/Text 例子](../images/terminal-ui-basic.png)
+
 ### 一个「迷你 Claude Code」布局示例
 
 我们可以用 `Box` 和 `flexDirection` 快速搭出一个类似 Claude Code 的三栏布局：左侧主内容、右侧边栏、底部输入区。代码如下：
@@ -118,53 +122,11 @@ render(<App />);
 
 这里的结构完全是「前端式」的：外层 `flexDirection="column"` 分上下两块，上面再用 `flexDirection="row"` 分左右。`borderStyle="single"` 画出边框，`padding`、`width` 控制间距和占比。熟悉 React 和 Flexbox 的人一眼能看懂。
 
-这段代码跑起来到底是什么样？我把同一个布局用 `renderToString` 抓了一帧真实输出（固定 60 列宽便于展示，输入框里预置了文字）：
-
-```jsx
-// demo.js —— 用 renderToString 抓帧（esbuild 编译 JSX 后运行）
-const App = () => (
-  <Box flexDirection="column" width={60}>
-    <Box flexDirection="row">
-      <Box flexDirection="column" width="70%" padding={1} borderStyle="single">
-        <Text bold color="cyan">对话区</Text>
-        <Text color="gray">Assistant: 你好，有什么我可以帮忙的？</Text>
-      </Box>
-      <Box flexDirection="column" width="30%" padding={1} borderStyle="single">
-        <Text bold>工具面板</Text>
-        <Text color="green">Read, Edit, Bash...</Text>
-      </Box>
-    </Box>
-    <Box marginTop={1} padding={1} borderStyle="single">
-      <Text color="yellow">&gt; </Text>
-      <Text>npm test</Text>
-    </Box>
-  </Box>
-);
-```
-
-真实输出：
-
-```
-┌────────────────────────────────────────┐┌────────────────┐
-│                                        ││                │
-│ 对话区                                 ││ 工具面板       │
-│ Assistant: 你好，有什么我可以帮忙的？  ││ Read, Edit,    │
-│                                        ││ Bash...        │
-│                                        ││                │
-└────────────────────────────────────────┘└────────────────┘
-
-┌──────────────────────────────────────────────────────────┐
-│                                                          │
-│ > npm test                                               │
-│                                                          │
-└──────────────────────────────────────────────────────────┘
-```
-
-注意两个细节：中文按双倍宽度排版，70%/30% 在 60 列下被 Yoga 精确换算成 42/18 列；`gap`、`marginTop`、`borderStyle` 这些「前端属性」在终端里原样生效。这一段是真实运行结果，不是示意图。
-
-动起来是这样（把同一布局的渲染帧序列合成了一段 GIF，输入是脚本模拟的——真实的 `useInput` 在终端里就长这样）：
+真实运行效果（渲染帧序列合成的 GIF，固定 60 列宽便于展示；输入是脚本模拟的——真实的 `useInput` 在终端里就长这样）：
 
 ![迷你 Claude Code 布局：输入与运行](../images/terminal-ui-layout.gif)
+
+注意两个细节：中文按双倍宽度排版，70%/30% 在 60 列下被 Yoga 精确换算成 42/18 列；`gap`、`marginTop`、`borderStyle` 这些「前端属性」在终端里原样生效。这段动图是真实运行结果，不是示意图。
 
 ### Hooks：状态与输入
 
@@ -381,6 +343,10 @@ const Pane = ({ label }) => {
 // 多个 Pane 时，Tab 按渲染顺序切换焦点；聚焦中的 Pane 才能收到 useInput 事件
 ```
 
+实际效果（两个 Pane，左侧聚焦：边框高亮 + `▶` 标记；右侧未聚焦为灰色边框。按 Tab 焦点在两者间切换）：
+
+![useFocus 焦点切换](../images/terminal-ui-focus.png)
+
 一些终端支持鼠标事件（如 xterm 的 SGR 协议），但跨终端兼容性差，Ink 的设计以键盘为中心，这也是大多数 CLI 工具的共识。
 
 ### 不断增长的内容：Static 与 overflow
@@ -402,6 +368,10 @@ Ink 提供了 **`<Static>`** 组件专门处理这种「只增不减」的内容
   <Text>输入: {input}</Text>  {/* 动态区，每次更新都重绘 */}
 </Box>
 ```
+
+上面这段的渲染效果（`messages` 是模拟数据）：
+
+![Static 历史消息累积 + 动态输入区](../images/terminal-ui-static.png)
 
 对于有固定高度的区域，`Box` 支持 `overflow="hidden"` 或 `overflow="visible"`，可以裁掉超出部分。但 Ink 目前**没有 `overflow="scroll"`**，也就是没有内置的「滚动视窗」——你不能在一个固定高度的 Box 里用方向键滚动查看超长内容。社区有 `ink-scroll-view` 等库做类似事情，但需要自己实现 windowing 逻辑（只渲染可见区域 + 维护 scroll offset）。
 
@@ -440,6 +410,10 @@ Ink 的 `padding`、`margin`、`gap` 和 Flexbox 的 `justifyContent`、`alignIt
 </Box>
 ```
 
+实际输出（`gap={2}` 让两个内容块之间留出两格空白，配合 `padding` 让文字不贴边）：
+
+![留白与间距](../images/terminal-ui-gap.png)
+
 ### 色彩与层次
 
 `Text` 的 `color`、`backgroundColor`、`bold`、`dimColor` 可以建立清晰的视觉层次。一个简单约定：标题用亮色 + 粗体，次要信息用 `dimColor`，成功/错误/警告分别用绿/红/黄。例如：
@@ -452,6 +426,10 @@ Ink 的 `padding`、`margin`、`gap` 和 Flexbox 的 `justifyContent`、`alignIt
   <Text dimColor>  耗时 2.3s</Text>
 </Box>
 ```
+
+实际输出：
+
+![色彩与层次](../images/terminal-ui-colors.png)
 
 Ink 底层用 chalk，支持 `green`、`#005cc5`、`rgb(232, 131, 136)` 等写法。避免到处高亮，保持克制的配色，终端里的层次感会明显提升。
 

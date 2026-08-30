@@ -6,7 +6,7 @@ status: publish
 tags: [Y.Event, YUI]
 ---
 
-![mouse event](/images/mouse.png)
+![mouse event](../images/mouse.png)
 
 在介绍了由`Y.Do`、`Y.CustomEvent`、`Y.EventTarget`构建的自定义事件体系后，本篇文章将为大家介绍建立在这一体系之上，YUI对DOM事件的封装——`Y.Event`。
 

@@ -6,7 +6,7 @@ status: publish
 tags: [W3CTech, Meituan, YUI]
 ---
 
-![w3ctech in meituan](/images/w3ctech-meituan.jpg)
+![w3ctech in meituan](../images/w3ctech-meituan.jpg)
 
 很高兴能够作为东道主参加w3cTech。
 

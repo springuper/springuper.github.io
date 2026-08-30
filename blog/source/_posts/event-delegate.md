@@ -6,7 +6,7 @@ status: publish
 tags: [Y.delegate, YUI]
 ---
 
-![relay baton](/images/delegate.jpg)
+![relay baton](../images/delegate.jpg)
 
 在介绍了YUI自定义事件体系和对DOM事件的封装后，本篇文章重点阐述事件方面的一种常用技术——事件代理。事件代理（Event Delegation，又称事件委托）充分运用事件传播模型，用一种十分优雅的方式实现了批量节点事件监听。具体的原理和优点请移步zakas比较古老的一篇文章[Event delegation in JavaScript](http://www.nczonline.net/blog/2009/06/30/event-delegation-in-javascript/)。事件代理在YUI中的实现为`Y.delegate`。
 

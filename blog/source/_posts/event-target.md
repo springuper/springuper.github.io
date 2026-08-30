@@ -7,7 +7,7 @@ status: publish
 tags: [YUI, Event, JavaScript]
 ---
 
-![bubble girl](/images/bubble-girl.jpg)
+![bubble girl](../images/bubble-girl.jpg)
 
 上两篇文章[YUI事件体系之Y.Do](/event-do/)、[YUI事件体系之Y.CustomEvent](/event-custom/)中，分别介绍了YUI实现AOP的`Y.Do`对象，以及建立自定义事件机制的`Y.CustomEvent`对象。
 

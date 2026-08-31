@@ -57,7 +57,7 @@ tags:
 | 第 4–5 年 | 全额分红 |
 | 第 5 年结算 | 当年全额分红 + 一笔增值收益（内部股价涨幅 × 额度），随后**整批额度清零** |
 
-**TUP 不是资产，而是限时收益窗口**：它不像股票那样拿了就永远是你的，**每一批都有 5 年期限、到期清零**。想持续有收益，只能靠公司根据你**后续**的绩效不断授予新的一批。所以"躺平"的成本是渐进的：当年新授予立刻断档，但已授予的旧批次仍会按原计划继续兑现，随后一批接一批到期清零——短则一两年、长则五年，TUP 收入就会明显缩水甚至归零。（哪怕从第一年就躺平，已授予的那批也会按原计划兑现完整个 5 年周期——TUP 不会没收已到手的收益，它只是不再续约；"倒逼"对想要**持续**高收益的人才真正成立。）制度上因此不存在"吃老本"的稳态。华为当年推 TUP，正是为了治老员工靠早年攒下的持股"躺平"的病，同时让没钱认购、新入职、外籍的员工也能零门槛参与。
+**TUP 不是资产，而是限时收益窗口**：它不像股票那样拿了就永远是你的，**每一批都有 5 年期限、到期清零**。想持续有收益，只能靠公司根据你**后续**的绩效不断授予新的一批。所以"躺平"的成本是渐进的：当年新授予立刻断档，但已授予的旧批次仍会按原计划继续兑现，随后一批接一批到期清零——短则一两年、长则五年，TUP 收入就会明显缩水甚至归零。（哪怕从第一年就躺平，已授予的那批也会按原计划兑现完整个 5 年周期——TUP 不会没收已到手的收益，它只是不再续约；"倒逼"对想要**持续**高收益的人才真正成立。）制度上因此不存在"吃老本"的稳态，而且差距是复利式的：奋斗者逐年叠加新批次，躺平者只出不进，几年下来收入差距越拉越大——华为把这称为"让拉车人比坐车人拿得多"（[C114](https://www.c114.com.cn/news/126/a868472.html)）。华为当年推 TUP，正是为了治老员工靠早年攒下的持股"躺平"的病，同时让没钱认购、新入职、外籍的员工也能零门槛参与。
 
 胖东来是另一个把"分钱"做得很彻底的企业。2026 年 3 月，创始人于东来公布了胖东来约 40 亿元资产利润的分配标准：管理团队约 50%、员工约 50%（每年利润的一半给团队发奖金、一半归股东收益），创始人于东来个人在股本中的占比仅约 5%（[凤凰财经/第一财经](https://finance.ifeng.com/c/8rVbqqmxh97)）。于东来自己说，这是胖东来"已经持续二十多年的分配体制"，靠的是"制度和股份制的运营模式"。胖东来员工的工资长期显著高于当地零售业同行——不过于东来近年也坦言在薪资上"太溺爱员工"（[界面新闻](https://m.jiemian.com/article/14572778.html)），可见这个模式同样有它的争议和成本。
 
@@ -127,21 +127,22 @@ tags:
 1. 邓小平：《党和国家领导制度的改革》（1980 年 8 月 18 日）
 2. [马斯金：机制设计是理论，人单合一是实践（新浪财经）](https://finance.sina.cn/2019-04-30/detail-ihvhiewr9153516.d.html)
 3. [华为 ESOP、TUP 与饱和配股如何打造知识型企业命运共同体（华夏基石）](http://chnstone.com.cn/a/media/guanlizhihui/2026nian/2026/0702/6157.html)
-4. [任正非：三个人拿四个人的钱干五个人的活是公司的期望（钛媒体/TechWeb，2013）](https://people.techweb.com.cn/2013-07-19/1311136.shtml)
-5. ["40 亿资产利润分配给员工"，于东来再次回应（第一财经/凤凰财经，2026-03）](https://finance.ifeng.com/c/8rVbqqmxh97)
-6. [于东来称薪资上太溺爱员工，其实不值这么多钱（界面新闻）](https://m.jiemian.com/article/14572778.html)
-7. [衡量一个 CEO 是否伟大，就看他能否激发组织活力与个人潜能——林肯电气激励系统（搜狐财经）](https://www.sohu.com/a/932384192_122014422)
-8. [曾在仓库开堆高机，他 40 年后成好市多 CEO：善待员工就是最好的生意（Cheers）](https://www.cheers.com.tw/article/article.action?id=5105802)
-9. [对话海底捞 CEO：从张勇到杨利娟（凤凰网）](https://i.ifeng.com/c/8EzRcFtYZw3)
-10. [老苗撕营销｜"三个人拿四个人的钱干五个人的活"，咱能不扯吗？（销售与市场）](http://cmmo.cn/b/746871/817024.html)
-11. [Netflix 文化手册（Jobs at Netflix）](https://jobs.netflix.com/culture)；Patty McCord，《[How Netflix Reinvented HR](https://hbr.org/2014/01/how-netflix-reinvented-hr)》（Harvard Business Review，2014-01）
-12. [阿米巴经营带来企业持续发展（京瓷官网）](https://cn.kyocera.com/inamori/archive/lectures/amoeba.html)
-13. [人单合一：20 年的颠覆，20 年的坚守（海尔官网）](https://www.haier.com/press-events/news/20250922_271884.shtml)
-14. [从淘宝小店到互联网品牌生态运营集团：韩都衣舍（大众日报）](https://sd.dzwww.com/sdnews/201908/t20190814_19058968.htm)
-15. [传统企业转型案例之一：韩都衣舍——走近柔性供应链（界面新闻）](https://www.jiemian.com/article/1418917.html)
-16. [暂停流程以内建质检（自动化）——安灯机制（《丰田模式》节选）](https://www.pinzhi.org/forum.php?mod=viewthread&tid=57656)
-17. [双比萨团队（百度百科）](https://baike.baidu.com/item/双比萨团队/4293637)
-18. [微软自救绝招：放弃绩效评比制度（人民网，2013）](http://finance.people.com.cn/n/2013/1210/c348883-23795952.html)
-19. [没有 CEO 更没有管理层：它是全球最大的西红柿加工厂（界面新闻）](https://m.jiemian.com/article/1210056.html)
-20. [迪士尼度假俱乐部积分规则官方问答（planDisney）](https://plandisney.disney.go.com/question/banked-points-used-august-mean-book-something-august-stay-607721/)
-21. [从"海盗分金"聊聊：利益博弈中的生存法则（虎嗅）](https://pro.huxiu.com/article/476385.html)
+4. [任正非谈华为内部激励：让拉车人比坐车人拿得多（C114，2014）](https://www.c114.com.cn/news/126/a868472.html)
+5. [任正非：三个人拿四个人的钱干五个人的活是公司的期望（钛媒体/TechWeb，2013）](https://people.techweb.com.cn/2013-07-19/1311136.shtml)
+6. ["40 亿资产利润分配给员工"，于东来再次回应（第一财经/凤凰财经，2026-03）](https://finance.ifeng.com/c/8rVbqqmxh97)
+7. [于东来称薪资上太溺爱员工，其实不值这么多钱（界面新闻）](https://m.jiemian.com/article/14572778.html)
+8. [衡量一个 CEO 是否伟大，就看他能否激发组织活力与个人潜能——林肯电气激励系统（搜狐财经）](https://www.sohu.com/a/932384192_122014422)
+9. [曾在仓库开堆高机，他 40 年后成好市多 CEO：善待员工就是最好的生意（Cheers）](https://www.cheers.com.tw/article/article.action?id=5105802)
+10. [对话海底捞 CEO：从张勇到杨利娟（凤凰网）](https://i.ifeng.com/c/8EzRcFtYZw3)
+11. [老苗撕营销｜"三个人拿四个人的钱干五个人的活"，咱能不扯吗？（销售与市场）](http://cmmo.cn/b/746871/817024.html)
+12. [Netflix 文化手册（Jobs at Netflix）](https://jobs.netflix.com/culture)；Patty McCord，《[How Netflix Reinvented HR](https://hbr.org/2014/01/how-netflix-reinvented-hr)》（Harvard Business Review，2014-01）
+13. [阿米巴经营带来企业持续发展（京瓷官网）](https://cn.kyocera.com/inamori/archive/lectures/amoeba.html)
+14. [人单合一：20 年的颠覆，20 年的坚守（海尔官网）](https://www.haier.com/press-events/news/20250922_271884.shtml)
+15. [从淘宝小店到互联网品牌生态运营集团：韩都衣舍（大众日报）](https://sd.dzwww.com/sdnews/201908/t20190814_19058968.htm)
+16. [传统企业转型案例之一：韩都衣舍——走近柔性供应链（界面新闻）](https://www.jiemian.com/article/1418917.html)
+17. [暂停流程以内建质检（自动化）——安灯机制（《丰田模式》节选）](https://www.pinzhi.org/forum.php?mod=viewthread&tid=57656)
+18. [双比萨团队（百度百科）](https://baike.baidu.com/item/双比萨团队/4293637)
+19. [微软自救绝招：放弃绩效评比制度（人民网，2013）](http://finance.people.com.cn/n/2013/1210/c348883-23795952.html)
+20. [没有 CEO 更没有管理层：它是全球最大的西红柿加工厂（界面新闻）](https://m.jiemian.com/article/1210056.html)
+21. [迪士尼度假俱乐部积分规则官方问答（planDisney）](https://plandisney.disney.go.com/question/banked-points-used-august-mean-book-something-august-stay-607721/)
+22. [从"海盗分金"聊聊：利益博弈中的生存法则（虎嗅）](https://pro.huxiu.com/article/476385.html)

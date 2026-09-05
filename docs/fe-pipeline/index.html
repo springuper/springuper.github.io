@@ -217,6 +217,8 @@
 <p>或许对于很多后来人来说，并不觉得这有什么精巧独到之处。但在 NodeJS 刚刚开始流行的那个蛮荒年代，大多数人写的还是流水账一样的过程式代码，好一些的会去整理一些工具函数以供抽象和复用：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> srv = http.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  req.parsedBody = bodyParser(req);</span><br><span class="line">  req.parsedCookie = cookieParser(req);</span><br><span class="line">  session(req, res, <span class="function"><span class="keyword">function</span> (<span class="params">err</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      errorHandler(err);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// routes</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
+<span id="more"></span>
+
 <p>相比之下，我们可以明显看出 Middleware 的几个优势：</p>
 <ol>
 <li>代码简练、符合直觉。这是一个很重要的优势，因为代码的大部分生命周期内都是由程序员在维护，符合直觉的代码更容易被理解，在维护和定位问题时能够更有效率</li>

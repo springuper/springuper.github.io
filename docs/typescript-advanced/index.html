@@ -211,6 +211,8 @@
 <p><strong>问题 C：</strong>如何为工具方法 getProperty(obj, path) 添加合适的类型，从而使得 TypeScript 自行推断出最终的返回结果的类型？</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> person = &#123; </span><br><span class="line">  <span class="attr">name</span>: <span class="string">&#x27;Simon&#x27;</span>, </span><br><span class="line">  <span class="attr">school</span>: &#123; <span class="attr">name</span>: <span class="string">&#x27;MIT&#x27;</span>, <span class="attr">graduated</span>: <span class="number">2018</span> &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 第二个参数 path 应对应第一个对象参数的属性路径</span></span><br><span class="line"><span class="keyword">const</span> graduatedYear = getProperty(person, <span class="string">&#x27;school.graduated&#x27;</span>);</span><br></pre></td></tr></table></figure>
 
+<span id="more"></span>
+
 <p>如果你对自己的 TypeScript 技能有信心，不妨在继续阅读之前挑战下这几个问题。</p>
 <h2 id="进阶知识点"><a href="#进阶知识点" class="headerlink" title="进阶知识点"></a>进阶知识点</h2><p><strong>类型参数推断（Type argument inference）</strong></p>
 <p>在使用泛型时，每次都必须显式地标明实例化类型是非常低效的，譬如：</p>

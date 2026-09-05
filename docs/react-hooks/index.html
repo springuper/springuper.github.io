@@ -213,6 +213,8 @@
 </blockquote>
 <p>换言之，React 本身非常函数式的设计哲学， <img src="../images/react-hooks-01.jpg" alt="fn(data) = UI"> ，并没有被当前组件类模式很好地表达。</p>
 <p>为了彻底解决这一问题，在 React 团队的 Sebastian 等人的带领下，经过参考和探索诸如 <a target="_blank" rel="noopener" href="https://github.com/reactjs/react-future/blob/master/07%20-%20Returning%20State/01%20-%20Stateful%20Functions.js">Stateful Functions</a>、<a target="_blank" rel="noopener" href="http://displayscript.org/introduction.html">DisplayScript</a>、<a target="_blank" rel="noopener" href="https://github.com/ocamllabs/ocaml-effects-tutorial#2-effectful-computations-in-a-pure-setting">Algebraic effects in Multicore OCaml</a> 等方案后，给出了 React Hooks 方案。</p>
+<span id="more"></span>
+
 <h2 id="Hooks-实现的准备工作"><a href="#Hooks-实现的准备工作" class="headerlink" title="Hooks 实现的准备工作"></a>Hooks 实现的准备工作</h2><p>在这个小节中，让我们一起从零开始实现一个极简版本的 React，一方面为接下来的 Hooks 实现做准备，另一方面，也更深入地理解 React 的基本原理。</p>
 <p><strong>虚拟 DOM</strong></p>
 <p>React 是一个声明式 UI library，读入 data 和组件，处理后输出 UI。为了实现差量更新以降低 DOM 操作成本，React 引入了虚拟 DOM，让 UI 以一种”虚拟“的表现形式被保存于内存中，并通过如 ReactDOM 等类库使之与“真实的” DOM 同步。</p>

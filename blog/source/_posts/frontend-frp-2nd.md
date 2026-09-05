@@ -47,6 +47,8 @@ const searchByValue = (value) => {
 
 主要改动如下：
 
+<!--more-->
+
 - 根据`response.ok`判断后端请求是否成功，相比之前简单依赖`fetch`来判断请求成功[更准确](https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API/Using_Fetch)些
 - 在`response.ok`为`false`时调用 RxJS 的 [throwError](https://rxjs.dev/api/index/function/throwError) 运算符抛出封装了错误信息的 Observable
 - 调用 [catchError](https://www.learnrxjs.io/learn-rxjs/operators/error_handling/catch) 运算符来捕获失败 Observable 的错误消息，并包装为`{ error }`的形式方便后续 UI 逻辑统一处理

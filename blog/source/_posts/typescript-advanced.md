@@ -44,6 +44,8 @@ const person = {
 const graduatedYear = getProperty(person, 'school.graduated');
 ```
 
+<!--more-->
+
 如果你对自己的 TypeScript 技能有信心，不妨在继续阅读之前挑战下这几个问题。
 
 ## 进阶知识点

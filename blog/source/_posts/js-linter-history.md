@@ -42,6 +42,8 @@ var varstatement = function varstatement(prefix) {
 };
 ```
 
+<!--more-->
+
 如果设定了 `onevar` 规则，即同一作用域下只能用一个 `var` 声明所有变量，那么在每个包含 `var` 的语句解析时都会进行该规则的检查，如果发现之前同一作用域已经有 `var` 语句，则报告一个 “Too many var statements.” 的 warnning。
 
 毫无疑问，JSLint 的出现，以及接下来蝴蝶书的问世，让广大前端工程师在如果用好 JS 的 Good Parts 方面受益匪浅。

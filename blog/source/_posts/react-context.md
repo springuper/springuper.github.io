@@ -61,6 +61,8 @@ export default function App() {
 }
 ```
 
+<!--more-->
+
 *完整代码见 [Codesandbox](https://codesandbox.io/s/naive-context-2gw55c?file=/src/App.js)。*
 
 在该应用中，通过使用`useContext`， `Greeting、PersonFirstName`、`PersonFamilyName`三个组件都订阅了`PersonContext`的更新：

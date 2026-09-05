@@ -24,12 +24,6 @@
   background: #f8f8f8;
 }
 
-/* 强制代码块中的中文全角渲染，与 Latin 字符 1:1 等宽 */
-.post-content pre,
-.post-content code {
-  font-variant-east-asian: full-width;
-}
-
 /*! normalize.css v3.0.2 | MIT License | git.io/normalize */
 /**
  * 1. Set default font family to sans-serif.
@@ -775,7 +769,7 @@ h6 {
   width: 100%;
   margin-bottom: 20px;
   overflow: auto;
-  border: 3px double rgb(95.6395173454%, 93.7707390649%, 88.1644042232%);
+  border: 3px double rgb(243.8807692308, 239.1153846154, 224.8192307692);
 }
 .post .post-content table {
   width: 100%;
@@ -788,7 +782,7 @@ h6 {
 }
 .post .post-content table th, .post .post-content table td {
   padding: 5px 15px;
-  border: 1px double rgb(95.6395173454%, 93.7707390649%, 88.1644042232%);
+  border: 1px double rgb(243.8807692308, 239.1153846154, 224.8192307692);
 }
 .post .post-content code, .post .post-content pre {
   padding: 7px;
@@ -823,8 +817,8 @@ h6 {
   padding: 2px 7px;
   font-size: 13px;
   font-weight: bold;
-  color: rgb(69.2156862745%, 69.2156862745%, 69.2156862745%);
-  background: rgb(95.6395173454%, 93.7707390649%, 88.1644042232%);
+  color: rgb(176.5, 176.5, 176.5);
+  background: rgb(243.8807692308, 239.1153846154, 224.8192307692);
   content: "Code";
 }
 .post .post-content .highlight.html > table::after {
@@ -1032,8 +1026,8 @@ h6 {
   padding: 2px 7px;
   font-size: 13px;
   font-weight: bold;
-  color: rgb(69.2156862745%, 69.2156862745%, 69.2156862745%);
-  background: rgb(95.6395173454%, 93.7707390649%, 88.1644042232%);
+  color: rgb(176.5, 176.5, 176.5);
+  background: rgb(243.8807692308, 239.1153846154, 224.8192307692);
   z-index: 20;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -1354,10 +1348,10 @@ h6 {
   transform: translateX(4px);
 }
 .archive .archive-post:hover .archive-post-time {
-  color: rgb(44.1176470588%, 44.1176470588%, 44.1176470588%);
+  color: rgb(112.5, 112.5, 112.5);
 }
 .archive .archive-post:hover .archive-post-title .archive-post-link {
-  color: rgb(63.1421365227%, 27.3142950126%, 22.3480595558%);
+  color: rgb(161.0124481328, 69.6514522822, 56.9875518672);
 }
 
 @media screen and (max-width: 800px) {

@@ -190,10 +190,91 @@
   </header>
 
   
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Middleware-Pipeline"><span class="toc-number">1.</span> <span class="toc-text">Middleware Pipeline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stream-Pipeline"><span class="toc-number">2.</span> <span class="toc-text">Stream Pipeline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Promise-Pipeline"><span class="toc-number">3.</span> <span class="toc-text">Promise Pipeline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ramda-Pipeline"><span class="toc-number">4.</span> <span class="toc-text">Ramda Pipeline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">5.</span> <span class="toc-text">结语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BD%A9%E8%9B%8B"><span class="toc-number">6.</span> <span class="toc-text">彩蛋</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">7.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </div>
+  
 
   <div class="post-content">
     
-    <p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/28561932">前端中的 Pipeline</a> 查看全文。</p>
+    <p>计算机领域的 Pipeline 通常认为起源于 Unix。最初 Douglas Mcllroy 发现很多时候人们会将 shell 命令的输出传递给另外一个 shell 命令，因此就提出了 Pipeline 这一概念。后来同在贝尔实验室的大牛 Ken Thompson 在 1973 年将其实现，并使用 | 作为 pipe 的语法符号：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ls -l | grep key | less</span><br></pre></td></tr></table></figure>
+
+<p>如此优雅而又实用的 Pipeline 很快在各种操作系统中传播开来。</p>
+<p>简单来说，Pipeline 一般具有如下特点：</p>
+<ol>
+<li>各个子过程高内聚，专注于解决特定问题，Simple &amp; Sharp</li>
+<li>所有子过程具有一致的接口，例如从标准输入读取数据，正常结果输出到标准输出，异常结果输出到标准错误</li>
+<li>能够通过一定形式将子过程组合起来解决复杂问题，例如 pipe</li>
+</ol>
+<p>事实上，Pipeline 作为化整为零、去繁就简的重要手段，在前端中也有诸多应用。</p>
+<h2 id="Middleware-Pipeline"><a href="#Middleware-Pipeline" class="headerlink" title="Middleware Pipeline"></a>Middleware Pipeline</h2><p>NodeJS 框架 Express 在 1.0 版本中引入的 Middleware Pipeline 可以说为 Express 的流行居功至伟。透过下面简单几行代码，你就能感受到它散发的优雅气息：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">express()</span><br><span class="line">  .use(bodyParser.json())</span><br><span class="line">  .use(cookieParser())</span><br><span class="line">  .use(session(sessionOptions))</span><br><span class="line">  .use(<span class="string">&#x27;api&#x27;</span>, apiRoutes)</span><br><span class="line">  .use(errorHandler);</span><br></pre></td></tr></table></figure>
+
+<p>或许对于很多后来人来说，并不觉得这有什么精巧独到之处。但在 NodeJS 刚刚开始流行的那个蛮荒年代，大多数人写的还是流水账一样的过程式代码，好一些的会去整理一些工具函数以供抽象和复用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> srv = http.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  req.parsedBody = bodyParser(req);</span><br><span class="line">  req.parsedCookie = cookieParser(req);</span><br><span class="line">  session(req, res, <span class="function"><span class="keyword">function</span> (<span class="params">err</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      errorHandler(err);</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// routes</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>相比之下，我们可以明显看出 Middleware 的几个优势：</p>
+<ol>
+<li>代码简练、符合直觉。这是一个很重要的优势，因为代码的大部分生命周期内都是由程序员在维护，符合直觉的代码更容易被理解，在维护和定位问题时能够更有效率</li>
+<li>合理的错误处理。任意 Middleware 出现问题，会越过后续所有普通 Middleware，直接由 Error Middleware 进行处理</li>
+</ol>
+<p>事实上，还有一个更为重要的优势：标准化，为解决高层次问题提供了良好基础。这一点在迷思专栏的 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/20691649">再谈 API 的撰写 - 架构</a> 这篇文章中得到了充分的诠释：通过将 API 执行路径上的各个环节抽象为中间件，然后再将中间件划分为通用逻辑（Pre-processing / Post-processing 等）和开发者需要关注的逻辑（Processing）等类别，并提供精细化的控制，最终得到一个流程清晰、功能完善、标准统一的 API 开发方案。</p>
+<p>Middleware Pipeline 还有一个值得提及的独特之处：由于本质是是一种递归调用，因此整个调用过程更像是一个环环相扣的洋葱：
+<img src="../images/fe-pipeline-01.jpg"></p>
+<p>有兴趣了解其实现的同学，可以查看早期 Express 所使用的 <a target="_blank" rel="noopener" href="https://github.com/senchalabs/connect/blob/3.6.3/index.js">connect</a> 或者 Koa 的 <a target="_blank" rel="noopener" href="https://github.com/koajs/compose">compose</a>。</p>
+<h2 id="Stream-Pipeline"><a href="#Stream-Pipeline" class="headerlink" title="Stream Pipeline"></a>Stream Pipeline</h2><p>Stream 是 NodeJS 的一个核心功能，使得快速、高效处理数据成为了可能。例如读写大文件、处理高并发网络请求等。</p>
+<p>建立在 Stream 之上的 Pipeline 非常自然而形象：数据像水流一样依次经过不同的处理流程，并最终得到期望的结果。下面这张 <a target="_blank" rel="noopener" href="https://github.com/osscafe/gulp-cheatsheet">Gulp Cheet Sheet</a> 中的图片能够形象地说明这一比喻：
+<img src="../images/fe-pipeline-02.png"></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">gulp.task(<span class="string">&#x27;js&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> gulp.src(<span class="string">&#x27;./js/src/*.coffee&#x27;</span>)</span><br><span class="line">    .pipe(coffee())</span><br><span class="line">    .pipe(uglify())</span><br><span class="line">    .pipe(gulp.dest(<span class="string">&#x27;./js/&#x27;</span>));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>凭借对 Stream 惟妙惟肖地运用，Gulp 在与配置为主的 Grunt 的竞争中迅速取得了领先优势。</p>
+<p>另一个必须提及的例子是 substack 的 <a target="_blank" rel="noopener" href="http://browserify.org/">Browserify</a>。作为 <a target="_blank" rel="noopener" href="https://github.com/substack/stream-handbook">Stream Handbook</a> 的作者，substack 对 Stream 的理解可谓深刻。于是在 Browserify 的实现中，我们可以看到下面这段核心逻辑：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> pipeline = splicer.obj([</span><br><span class="line">  <span class="string">&#x27;record&#x27;</span>, [ <span class="built_in">this</span>._recorder() ],</span><br><span class="line">  <span class="string">&#x27;deps&#x27;</span>, [ <span class="built_in">this</span>._mdeps ],</span><br><span class="line">  <span class="string">&#x27;json&#x27;</span>, [ <span class="built_in">this</span>._json() ],</span><br><span class="line">  <span class="string">&#x27;unbom&#x27;</span>, [ <span class="built_in">this</span>._unbom() ],</span><br><span class="line">  <span class="string">&#x27;unshebang&#x27;</span>, [ <span class="built_in">this</span>._unshebang() ],</span><br><span class="line">  <span class="string">&#x27;syntax&#x27;</span>, [ <span class="built_in">this</span>._syntax() ],</span><br><span class="line">  <span class="string">&#x27;sort&#x27;</span>, [ depsSort(dopts) ],</span><br><span class="line">  <span class="string">&#x27;dedupe&#x27;</span>, [ <span class="built_in">this</span>._dedupe() ],</span><br><span class="line">  <span class="string">&#x27;label&#x27;</span>, [ <span class="built_in">this</span>._label(opts) ],</span><br><span class="line">  <span class="string">&#x27;emit-deps&#x27;</span>, [ <span class="built_in">this</span>._emitDeps() ],</span><br><span class="line">  <span class="string">&#x27;debug&#x27;</span>, [ <span class="built_in">this</span>._debug(opts) ],</span><br><span class="line">  <span class="string">&#x27;pack&#x27;</span>, [ <span class="built_in">this</span>._bpack ],</span><br><span class="line">  <span class="string">&#x27;wrap&#x27;</span>, []</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+
+<p>Browserify 的设计目标是将 CommonJS 模块组织的 JS 代码打包为可以在浏览器中运行的代码。实现这一目标所需要做的工作非常复杂，因此 Browserify 将其拆解为职责单一的多个子过程，例如分析依赖、拓扑排序、模块去重、打包合并等，并通过 Stream Pipeline 打通整个流程。这使得整个代码的架构异常清晰，对将来的维护和优化提供了良好基础。</p>
+<p>点睛之笔在于，这个基于 <a target="_blank" rel="noopener" href="https://github.com/browserify/labeled-stream-splicer">labeled-stream-splicer</a> 实现的 pipeline 还支持动态修改和扩展，而且不仅在内部实现中多处应用，还暴露为外部接口方便调用方进行定制。下面这个示例展示了将 deps 子过程输出结果的 source 属性改为大写的逻辑：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pipeline.get(<span class="string">&#x27;deps&#x27;</span>).push(through.obj(<span class="function"><span class="keyword">function</span> (<span class="params">row, enc, next</span>) </span>&#123;</span><br><span class="line">  row.source = row.source.toUpperCase();</span><br><span class="line">  <span class="built_in">this</span>.push(row);</span><br><span class="line">  next();</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>Browserify 众多的 Plugin 也大多利用了这一特性进行功能的增强。例如编译 TypeScript 的插件 <a target="_blank" rel="noopener" href="https://github.com/TypeStrong/tsify/blob/v3.0.3/index.js#L46">Tsify</a> 就是在 record 这一子过程之后插入一个遍历所有输入文件并进行编译的过程：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b.pipeline.get(<span class="string">&#x27;record&#x27;</span>).push(gatherEntryPoints());</span><br></pre></td></tr></table></figure>
+
+<p>毫不夸张的说，这是笔者从业以来所见到过最为优秀的设计，没有之一。在为一个使用 SeaJS 的团队设计组件化方案时，由于各种限制并不能直接应用 Browserify，因此就借（chao）鉴（xi）它的设计思路，完成了一个简单的组件打包工具 <a target="_blank" rel="noopener" href="https://github.com/springuper/tiler/blob/master/index.js#L44">Tiler</a>，并受用至今。</p>
+<h2 id="Promise-Pipeline"><a href="#Promise-Pipeline" class="headerlink" title="Promise Pipeline"></a>Promise Pipeline</h2><p>由 Promise 组成的 Pipeline 与 Middleware Pipeline 有一些相通之处，例如都支持异步，错误处理也有异曲同工之妙。但毫无疑问 Promise 天生就在异步处理上更加得心应手，而且在函数式编程中具有一席之地，有人专门证明了下，<a target="_blank" rel="noopener" href="https://gist.github.com/briancavalier/3296186">Promise 属于 Monad</a>（感兴趣的可以看下蝴蝶书的作者 Douglas Crockford 这个专门介绍 Monad 的讲座：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=dkZFtimgAcM">Monads and Gonads</a>）。有了理论上的保证，我们总是可以通过 Promise.resolve/Promise.reject 将非 promise 的值转换为 promise，而 promise.then/promise.catch 也总是返回一个新的 promise 从而方便链式调用。</p>
+<p>此外，Promise 还有一个 Killer Feature：一旦有一个 promise 出现异常，那么会忽视后面所有的 then 直到第一个 catch。这样的错误处理机制和先前介绍的 Middleware Pipeline 非常类似，但却更为强大，例如 catch 后还可以在做必要的处理后再次返回一个正常的 promise，实现优雅降级等业务需求。</p>
+<p>下面是笔者在实现 VPAID Player 时的核心逻辑：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">client.prototype.playAd = <span class="function"><span class="keyword">function</span> (<span class="params">vastXMLString</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> constructResponseFromString(vastXMLString)</span><br><span class="line">    .then(<span class="built_in">this</span>.loadAdUnit)</span><br><span class="line">    .then(<span class="built_in">this</span>.handshake)</span><br><span class="line">    .then(<span class="built_in">this</span>.initAd)</span><br><span class="line">    .then(<span class="built_in">this</span>.bindEvents)</span><br><span class="line">    .then(<span class="built_in">this</span>.startAd)</span><br><span class="line">    .then(<span class="built_in">this</span>.finish)</span><br><span class="line">    .catch(<span class="built_in">this</span>.handleError);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>通过将播放广告的逻辑划分为构建返回值对象、加载第三方 JS、初始化广告等各个小而精的细分子过程，然后串联成 Promise Pipeline，并在最后做统一的错误处理，使得整体逻辑十分流畅清晰，提高了代码的可维护性。</p>
+<h2 id="Ramda-Pipeline"><a href="#Ramda-Pipeline" class="headerlink" title="Ramda Pipeline"></a>Ramda Pipeline</h2><p>最后，让我们再看一个函数式编程领域中的 Pipeline：<a target="_blank" rel="noopener" href="http://ramdajs.com/">Ramda</a> Pipeline。</p>
+<p>假设我们需要解决这个问题：将如下对象转换为 query 字符串</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  <span class="attr">foo</span>: <span class="string">&#x27;bar&#x27;</span>,</span><br><span class="line">  <span class="attr">baz</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">qux</span>: <span class="number">3.1415</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>先来看下 Lodash 的解法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> objToQueryStr = <span class="function">(<span class="params">obj</span>) =&gt;</span></span><br><span class="line">  _.join(_.map(_.toPairs(obj), <span class="function">(<span class="params">kvs</span>) =&gt;</span> _.join(kvs, <span class="string">&#x27;=&#x27;</span>)), <span class="string">&#x27;=&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>再来看下 Ramda 的解法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> objToQueryStr = R.pipe(</span><br><span class="line">  R.toPairs,</span><br><span class="line">  R.map(R.join(<span class="string">&#x27;=&#x27;</span>)),</span><br><span class="line">  R.join(<span class="string">&#x27;&amp;&#x27;</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，Ramda 在如下两个方面更加出色：</p>
+<ol>
+<li>借助 currying 和数据后置，Ramda 并不需要显式创建新函数，代码更简练</li>
+<li>顺序执行，容易理解（虽然很多函数式编程的童鞋们更喜欢 R.compose）</li>
+</ol>
+<p>因此，在推崇函数式编程的团队中，Ramda 基本已成为必需品。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>前端中的 Pipeline 远不止本文介绍的这几种，比较知名的还有 RxJS 等等。从表面上看，它们每个都有着不同的目标问题域和因此而设计的特性，不过从本质上来讲，基本都遵循了 Unix Pipeline 的基本思路：化整为零 + 灵活组合。希望我们前端工程师们再接再厉，将这种精神发扬光大，更好地解决实际问题，不断推动前端的发展。</p>
+<h2 id="彩蛋"><a href="#彩蛋" class="headerlink" title="彩蛋"></a>彩蛋</h2><p>macOS 中的 workflow 定制工具 Automator 应用的图标是一个机器人，它的手上拿着的正是一根管子（Pipe）：
+<img src="../images/fe-pipeline-03.jpg"></p>
+<p>怎么样，非常的可爱吧~</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Pipeline_(Unix)">Pipeline (Unix)</a></li>
+<li><a target="_blank" rel="noopener" href="https://dzone.com/articles/understanding-middleware-pattern-in-expressjs">Understanding the Middleware Pattern in Express.js - DZone Web Dev</a></li>
+<li><a target="_blank" rel="noopener" href="https://gist.github.com/domenic/3889970">You’re Missing the Point of Promises</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/toastal/Curried-Functional-Pipelines-and-Ramda-Slides">Pipelines &amp; Ramda</a></li>
+</ol>
 
     
   </div>

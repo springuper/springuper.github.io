@@ -74,6 +74,8 @@ jobs:
             echo "docs/ 已是最新，无需提交。"
           else
             git commit -m "chore: rebuild site from blog/ changes"
+            # 丢弃构建产生的未跟踪文件以外的杂项改动（如 hexo 缓存），避免阻塞 pull --rebase
+            git checkout -- .
             git pull --rebase
             git push
           fi

@@ -10,5 +10,6 @@ npm-debug.log
 testReports/
 .sass-cache
 blog/public
+blog/db.json
 .*
 !.github/

@@ -81,7 +81,7 @@
   
   <title>Shang Chun</title>
 
-<meta name="generator" content="Hexo 5.4.2"></head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body>
   <div class="scrollPercentage"></div>
@@ -170,6 +170,44 @@
           <section id="posts" class="posts">
   
   
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
+      <a class="post-link" href="/continuation/">Continuation 在 JS 中的应用</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2020-05-05
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+
+    
+    <p>请移步知乎“前端之美”专栏 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/94611888">Continuation 在 JS 中的应用</a> 查看全文。</p>
+
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
   
   <article class="post">
   <header class="post-header">
@@ -525,7 +563,7 @@
 <li>promise：代表一个 Promise 实例。</li>
 </ul>
 <h3 id="基础实现"><a href="#基础实现" class="headerlink" title="基础实现"></a>基础实现</h3><p>为了增加代入感，本文从最为基础的一个应用实例开始探索：通过异步请求获取用户id，然后做一些处理。在平时大家都是习惯用回调或者事件来处理，下面我们看下 Promise 的处理方式：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 例1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getUserId</span>(<span class="params"></span>) &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="keyword">function</span> (<span class="params">resolve</span>) &#123;</span><br><span class="line">		<span class="comment">// 异步请求</span></span><br><span class="line">		Y.<span class="title function_">io</span>(<span class="string">&#x27;/userid&#x27;</span>, &#123;</span><br><span class="line">			<span class="attr">on</span>: &#123;</span><br><span class="line">				<span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">id, res</span>) &#123;</span><br><span class="line">					<span class="title function_">resolve</span>(<span class="title class_">JSON</span>.<span class="title function_">parse</span>(res).<span class="property">id</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">getUserId</span>().<span class="title function_">then</span>(<span class="keyword">function</span> (<span class="params">id</span>) &#123;</span><br><span class="line">	<span class="comment">// do sth with id</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 例1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getUserId</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="keyword">function</span> (<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">		<span class="comment">// 异步请求</span></span><br><span class="line">		Y.io(<span class="string">&#x27;/userid&#x27;</span>, &#123;</span><br><span class="line">			<span class="attr">on</span>: &#123;</span><br><span class="line">				<span class="attr">success</span>: <span class="function"><span class="keyword">function</span> (<span class="params">id, res</span>) </span>&#123;</span><br><span class="line">					resolve(<span class="built_in">JSON</span>.parse(res).id);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getUserId().then(<span class="function"><span class="keyword">function</span> (<span class="params">id</span>) </span>&#123;</span><br><span class="line">	<span class="comment">// do sth with id</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 <p><a target="_blank" rel="noopener" href="http://jsbin.com/kebigicu/1/embed?js,console">JS Bin</a></p>
     <div class="read-more">
       <a href="/promise-insight/" class="read-more-link">Read more..</a>
@@ -581,54 +619,6 @@
     <div class="read-more">
       <a href="/yui3-event-default-action/" class="read-more-link">Read more..</a>
     </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/diff-great-software-engineer-from-a-good/">[译]优秀与伟大程序员的区别</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2013-10-19
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-
-    
-    <div class="preface">
-    <p>在程序员的职业生涯中，总有一些理念让你眼前一亮，犹如夜空中一颗颗明亮的星，指引你不断前行。Quora上Russel Simmons的这个答案就是曾让我深受触动的三个理念，翻译出来给E文一般的童鞋。E文好的童鞋请移步，原著更加准确生动些。</p>
-    <em>原文链接：<a href="http://www.quora.com/Software-Engineering/What-distinguishes-a-good-software-engineer-from-a-great-one/answer/Russel-Simmons?srid=mo0" target="_blank">Software Engineering: What distinguishes a good software engineer from a great one?</a></em>
-</div>
-
-<p>我并不打算给出一个全面的答案，不过我已注意到几个伟大程序员具备却不常被提及的特质：</p>
-<ul>
-<li><strong>能够平衡实效与完美</strong>。伟大工程师具备进行娴熟、快速而粗略的hack，和设计优雅、精炼、健壮的解决方案的两种能力，以及，根据给定问题选择恰当方式的智慧。一些稍普通的程序员们看起来缺乏对问题关键细节的极致关注，另一些人则太过坚持完美主义。</li>
-<li><strong>不排斥调试代码和修复bug</strong>。平庸的程序员害怕、厌恶调试，甚至对自己的代码也是如此。伟大程序员会以丘吉尔般顽强的精神潜心钻研。如果问题被证明不在他们的代码中，伟大程序员会有些不愉快，他们会最终找出问题所在。</li>
-<li><strong>合理质疑</strong>。优秀程序员会找到看似可行的解决办法并一直沿用。伟大程序员则倾向于质疑自己的代码，直到测试完备。而这一过程往往需要大量的数据分析和系统管理。一般程序员可能看到一个似乎没什么危害的细微异常，然后忽略掉了它。如果换作伟大程序员，他们会怀疑这可能是一个更大问题的线索，并投入精力研究透彻。伟大程序员乐于做更多的交叉校验和完备性检查，通过这种方式发现隐含的问题。</li>
-</ul>
-
     
     
   </div>

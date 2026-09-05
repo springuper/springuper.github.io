@@ -1,0 +1,24 @@
+// ==============================
+// Custom style
+// ==============================
+// You can override the variables in _variables.scss to customize the style
+
+/* agent harness 五件套图的表格样式 */
+.harness-box {
+  border-collapse: collapse;
+  font-family: monospace;
+  font-size: 0.9em;
+  margin: 1.5em auto;
+  max-width: 600px;
+
+  td {
+    border: 1px solid #666;
+    padding: 0.4em 0.8em;
+    vertical-align: top;
+  }
+
+  td[colspan="2"] {
+    text-align: center;
+    background: #f8f8f8;
+  }
+}

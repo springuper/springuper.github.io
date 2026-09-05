@@ -1,0 +1,86 @@
+# 博客自动发布工作流
+#
+# 触发条件：master 分支上有新的 commits。
+# 行为：先检查本次提交是否变更了 blog/ 目录下的内容；
+#   - 没有变更：直接跳过，不触发发布流程；
+#   - 有变更：重新构建 Hexo 站点（生成 docs/），把生成的 docs/ 同步回 master，
+#     并通过 peaceiris/actions-gh-pages 将 docs/ 发布到 gh-pages 分支（GitHub Pages 部署源）。
+#
+# 说明：本工作流把生成的 docs/ 提交回 master 后，会再次触发本工作流及 main.yml，
+#   但此时 diff 只剩 docs/ 的变更（blog/ 未变），会命中"跳过"分支，不会无限循环；
+#   main.yml 会重复部署相同内容，幂等无害。
+
+name: Deploy Blog to GitHub Pages
+
+on:
+  push:
+    branches: [ master ]
+
+# GITHUB_TOKEN 需要写权限：提交 docs/ 到 master + 推送到 gh-pages
+permissions:
+  contents: write
+
+# 串行化执行，避免连续的 blog 提交并发构建/部署互相冲突
+concurrency:
+  group: deploy-blog
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # fetch-depth: 2 保证能拿到 HEAD^，用于对比本次提交与上一次 master 状态的差异
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 检查 blog/ 是否有变更
+        id: blog
+        run: |
+          if git diff --name-only HEAD^ HEAD | grep -q '^blog/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "检测到 blog/ 下有变更，开始构建并发布。"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "本次提交未变更 blog/，跳过发布流程。"
+          fi
+
+      - name: 安装 Node.js
+        if: steps.blog.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: blog/package-lock.json
+
+      - name: 安装 blog 依赖
+        if: steps.blog.outputs.changed == 'true'
+        working-directory: blog
+        run: npm ci
+
+      - name: 构建静态站点（hexo generate -> docs/）
+        if: steps.blog.outputs.changed == 'true'
+        run: bash scripts/build.sh
+
+      - name: 将生成的 docs/ 提交回 master
+        if: steps.blog.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "docs/ 已是最新，无需提交。"
+          else
+            git commit -m "chore: rebuild site from blog/ changes"
+            git pull --rebase
+            git push
+          fi
+
+      - name: 发布到 GitHub Pages
+        if: steps.blog.outputs.changed == 'true'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs

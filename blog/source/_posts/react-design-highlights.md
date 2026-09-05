@@ -55,6 +55,8 @@ Todos.TodosListController = Ember.ArrayController.extend({
 });
 ```
 
+<!--more-->
+
 *注：完整可执行代码见 [TodoMVC 1.3.0 - EmberJS](https://github.com/tastejs/todomvc/tree/1.3.0/architecture-examples/emberjs)。*
 
 这种实现存在以下几个问题：

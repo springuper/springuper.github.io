@@ -52,6 +52,8 @@ const store = configureStore({
 });
 ```
 
+<!--more-->
+
 然后，定义 UI 组件并在其中调用 Redux 相关方法获取数据：
 
 ```js

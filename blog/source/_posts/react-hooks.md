@@ -24,6 +24,8 @@ Dan 在 React Conf 2018 大会上介绍完这几个问题后，也再进一步�
 
 为了彻底解决这一问题，在 React 团队的 Sebastian 等人的带领下，经过参考和探索诸如 [Stateful Functions](https://github.com/reactjs/react-future/blob/master/07%20-%20Returning%20State/01%20-%20Stateful%20Functions.js)、[DisplayScript](http://displayscript.org/introduction.html)、[Algebraic effects in Multicore OCaml](https://github.com/ocamllabs/ocaml-effects-tutorial#2-effectful-computations-in-a-pure-setting) 等方案后，给出了 React Hooks 方案。
 
+<!--more-->
+
 ## Hooks 实现的准备工作
 
 在这个小节中，让我们一起从零开始实现一个极简版本的 React，一方面为接下来的 Hooks 实现做准备，另一方面，也更深入地理解 React 的基本原理。

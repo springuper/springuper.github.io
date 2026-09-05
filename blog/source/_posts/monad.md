@@ -62,6 +62,8 @@ const expr: Expr = {
 };
 ```
 
+<!--more-->
+
 ## **第一版`evaluate`**
 
 只处理除法，而且抽象语法树非常清晰，`evaluate`大家几乎都可以立马写出：

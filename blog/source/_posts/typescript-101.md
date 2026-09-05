@@ -50,6 +50,8 @@ const foo: Foo = new Foo(); // Okay.
 const bar: Bar = new Foo(); // Okay.
 ```
 
+<!--more-->
+
 啊哈，没有任何错误发生。究其原因，TypeScript 比较的并不是类型定义本身，而是类型定义的形状（Shape），即各种约束条件：
 
 > One of TypeScript’s core principles is that type checking focuses on the *shape *that values have. This is sometimes called “duck typing” or “structural subtyping”.  

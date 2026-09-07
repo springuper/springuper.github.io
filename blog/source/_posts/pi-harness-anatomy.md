@@ -102,6 +102,28 @@ Pi 的做法是把这一层彻底抽成一个独立包：**pi-ai**（`@earendil-
 
 Provider 是"运行时单位"，拥有自己的模型目录、认证方式和流式行为；但 provider 之间共享的是同一套 **wire 协议实现**——整个 pi-ai 只认识十种"方言"（`KnownApi`）：openai-completions、openai-responses、anthropic-messages、bedrock、google-generative-ai、vertex…… 以及一个它自己的 **pi-messages**。也就是说："Anthropic 的模型走 anthropic-messages 方言；xAI/Groq/Cerebras/OpenRouter 这群 OpenAI 兼容的，全共享 openai-completions 方言；DeepSeek 也是，只是 baseUrl 不同。"
 
+那么"抹平"具体是怎么发生的？把它想成一层**翻译**：上层只认识统一的 Model / Context / 事件流，真正的方言差异全部被关在"驱动（driver）"里。每个驱动只做两件事——把统一消息翻译成该方言的报文（`toWire`），再把 provider 吐回来的原始字节翻译成统一事件（`toEvent`）：
+
+```ts
+// 示意：pi-ai 的"翻译层"思路（非逐字源码）
+async function* stream(model, context, options) {
+  const driver = getApiDriver(model.api);   // 按 wire 方言取驱动（10 选 1）
+  const wire = driver.toWire({              // 统一输入 → 该方言的报文
+    system: context.systemPrompt,
+    messages: context.messages,             // 统一消息模型
+    tools: context.tools,
+    cacheRetention: options.cacheRetention, // none | short | long
+    sessionId: options.sessionId,
+    compat: model.compat,                   // 该模型的兼容开关矩阵
+  });
+  for await (const raw of driver.rawStream(wire)) {
+    yield driver.toEvent(raw);              // provider 原始字节 → 统一事件
+  }
+}
+```
+
+各家差异（缓存怎么打点、thinking 叫什么名字、哪些参数不能发）全都落在这 `toWire` / `toEvent` 两步里——这正是 2.3 节要说的 compat 开关矩阵的用武之地。
+
 ### 2.2 消息不是字符串，是结构化的"内容块"
 
 前端工程师都熟悉"把界面数据化"的好处；Pi 把"对话数据化"做到了同样的程度。消息只有三种角色：`UserMessage`、`AssistantMessage`、`ToolResultMessage`——**没有 system 消息类型**（系统提示是 Context 的一部分，不混进历史）。而 assistant 的正文不是一大段字符串，而是一组**内容块（content blocks）**：
@@ -114,6 +136,17 @@ AssistantMessage.content: Array<
 >
 UserMessage.content 还可以带 ImageContent（图片）
 ```
+
+这些内容块在走向各家协议时，会被翻译成各自的样子（示意，以各家当时的协议为准）：
+
+```
+          pi 统一消息      Anthropic          OpenAI 系             Google
+思考     ThinkingContent → thinking 块      reasoning_content    thought
+工具调用 ToolCall        → tool_use 块      tool_calls           functionCall
+图片     ImageContent    → image 块         image_url            inlineData
+```
+
+注意翻译的方向永远是"以 pi 的统一模型为准"，而不是"迁就最强的那个方言"——所以 pi 里可以有 Anthropic 没有的抽象（比如把思考单独分级），翻译不了就降级、能翻译就带走。
 
 **思考（thinking）在 Pi 里是一等公民**：有独立的 `ThinkingLevel`（minimal/low/medium/high/xhigh/max），由 `Model.thinkingLevelMap` 翻译成各家协议里不同的字段。这意味着 harness 可以把"模型的推理过程"和"对外说的话"分开处理——压缩时可以只留结论、渲染时可以折叠思考块、计费时可以分开算。
 
@@ -129,7 +162,24 @@ start
 done / error
 ```
 
-delta 事件带 `contentIndex` 和一份共享的"累积消息"，所以下游既可以做逐字渲染，也可以等流结束取最终消息。最妙的是这个流容器**既是 AsyncIterable，又承诺一个 `result()`**——"你既可以把它当流消费，也可以把它当 Promise 等"。`stopReason` 也比常见的多两个值：除了 `stop / length / toolUse / error / aborted`，还有 `pending`（流式中）和 `deferred`（异步响应）。设计者显然在想：未来模型可能不是一个同步流，而是"先给你一个任务号，稍后回传结果"——Pi 在协议层面就为这种世界留好了位置。
+delta 事件带 `contentIndex` 和一份共享的"累积消息"，所以下游既可以做逐字渲染，也可以等流结束取最终消息。最妙的是这个流容器**既是 AsyncIterable，又承诺一个 `result()`**——"你既可以把它当流消费，也可以把它当 Promise 等"。光说抽象没感觉，看一段真实消费它的样子（示意，API 形状以当时文档为准）：
+
+```ts
+// 同一件事的两种吃法
+const stream = await models.stream(model, context, { cacheRetention: "short" });
+
+// 吃法一：当流，逐字渲染（顺便把 thinking 和正文分开显示）
+for await (const ev of stream) {
+  if (ev.type === "text_delta")      ui.appendText(ev.delta);
+  if (ev.type === "thinking_delta")  ui.appendThinking(ev.delta);
+}
+
+// 吃法二：当 Promise，等最终消息（usage、stopReason 都在上面）
+const message = await stream.result();
+console.log(message.usage.cost.total); // token 花了多少、缓存命中多少，全程透明
+```
+
+`stopReason` 也比常见的多两个值：除了 `stop / length / toolUse / error / aborted`，还有 `pending`（流式中）和 `deferred`（异步响应）。设计者显然在想：未来模型可能不是一个同步流，而是"先给你一个任务号，稍后回传结果"——Pi 在协议层面就为这种世界留好了位置。
 
 > 抽象不损失细节。pi-ai 为每个模型维护一个 **compat 开关矩阵**：`cacheControlFormat`、`supportsLongCacheRetention`、`supportsStore`、`supportsReasoningEffort`…… 抽象抹平的是"方言"，不是"能力差异"。
 
@@ -268,11 +318,93 @@ coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、f
 
 - **Extensions（扩展）**：一个 TypeScript 模块 `export default function (pi: ExtensionAPI) {}`，通过 jiti 免编译加载。`ExtensionAPI` 提供 **36 个事件钩子**（input、每轮 LLM 请求前的 `context`、`before_provider_request`、工具执行的 `tool_call`/`tool_result`、回合的 `turn_start`/`turn_end`、`session_before_compact`、`session_before_fork/tree`……）+ 注册 API（registerTool / registerCommand / registerProvider / registerShortcut）+ 动作（sendMessage / appendEntry / setModel……）。放在项目 `.pi/extensions/` 或 `~/.pi/agent/extensions/` 下即可，`/reload` 热加载；
 - **Skills（技能）**：遵循 [Agent Skills](https://agentskills.io) 开放标准（SKILL.md + frontmatter），以 **渐进式披露**注入——上下文里只常驻技能清单与一句话描述，全文按需读取，避免把每个技能的完整说明都塞进窗口；
-- **Prompt Templates / Themes**，以及把扩展、技能、模板、主题打包分发的 **Pi Packages**（npm 或 git 安装）——pi.dev 的生态页上已有五千多个第三方包（2026-09-06 抓取）。
+- **Prompt Templates / Themes**，以及把扩展、技能、模板、主题打包分发的 **Pi Packages**（npm 或 git 安装）——pi.dev 的生态页上已有 5,271 个带 `pi-package` 标签的第三方包（2026-09-07 抓取）。
+
+扩展到底长什么样？一个扩展就是一个 TS 文件，写法上很像中间件。官方 `examples/extensions/` 目录里躺着几十个可以直接抄的示例；先看最小骨架（与官方示例的写法一致，MIT 许可，此处略作删减与译注）：
+
+```ts
+// my-extension.ts —— 一个扩展的三种典型动作
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
+
+export default function (pi: ExtensionAPI) {
+  // ① 拦截/改写：危险命令先问人
+  pi.on("tool_call", async (event, ctx) => {
+    if (event.toolName === "bash" && event.input.command?.includes("rm -rf")) {
+      const ok = await ctx.ui.confirm("危险操作", "允许执行 rm -rf 吗？");
+      if (!ok) return { block: true, reason: "被用户拒绝" };
+    }
+  });
+
+  // ② 注册新工具：立刻变成模型的"手脚"
+  pi.registerTool({
+    name: "greet",
+    description: "生成一句问候",
+    parameters: Type.Object({ name: Type.String() }),
+    async execute(toolCallId, params) {
+      return { content: [{ type: "text", text: `你好，${params.name}!` }], details: {} };
+    },
+  });
+
+  // ③ 注册斜杠命令
+  pi.registerCommand("hello", {
+    description: "打招呼",
+    handler: async (args, ctx) => ctx.ui.notify("Hello!", "info"),
+  });
+}
+```
+
+加载方式两种皆可：
+
+```bash
+pi --extension path/to/my-extension.ts      # 一次性加载
+cp my-extension.ts ~/.pi/agent/extensions/  # 放进目录：自动发现，/reload 热加载
+```
+
+两个值得抄进自己扩展里的细节（官方 Key Patterns）：一是字符串参数的枚举要写成 `StringEnum([...])` 而不是 `Type.Union([...])`——否则 Google 系模型不兼容；二是**工具的状态存进 `details` 字段**随会话持久化，这样会话被 fork 时，你的工具状态也会一并被带走、可无损重建。积木要拼得稳，靠的就是这些小规矩。
 
 消费入口共享同一个内核，README 里数了一下是四种模式：交互式 TUI；`print`（一次性批处理，可选 `json` 事件流输出）；`rpc`（stdin/stdout 上的严格 LF JSONL 协议，给非 Node 的 IDE/工具集成）；以及 SDK（`createAgentSession()` 把你的循环嵌进自家应用）。**同一个循环，四个出口，无数种驾驶舱**——这又一次印证了"库化"的架构观。
 
-### 4.5 订阅 OAuth：把"订阅"变成 API
+### 4.5 别人都是怎么拼的：官方示例与社区实践速览
+
+光有"积木"和说明书，新手还是容易站在一堆原语前不知所措。给你三条"照着抄"的路径：先抄官方 examples，再装社区现成的积木，最后是几乎零成本的"技能直拷"。（本节生态与热度数据抓取于 2026-09-07，都会随时间变化。）
+
+**① 官方 examples：几十个"照着抄"的样板。** 仓库里的 `packages/coding-agent/examples/extensions/` 就是官方拼积木的图鉴（MIT，可直接抄），挑几个有代表性的：
+
+| 示例 | 它示范了什么 |
+|---|---|
+| `permission-gate.ts` | 危险 bash（rm -rf / sudo）先弹 UI 确认——"你要的权限系统"20 分钟版 |
+| `protected-paths.ts` / `dirty-repo-guard.ts` | 保护 .env/.git/node_modules 不被写；有未提交改动时阻止会话继续 |
+| `dynamic-tools.ts` | 运行期（甚至通过斜杠命令）动态注册工具，带 promptSnippet 与工具级指南 |
+| `structured-output.ts` | 一个返回 `terminate: true` 的收尾工具，让 agent"干完就自己停" |
+| `plan-mode/` | 自己拼一个只读 `/plan` 计划模式（对应官方那个 "No plan mode"） |
+| `todo.ts` | `/todos` 列表工具 + 状态持久化（对应 "No built-in to-dos"） |
+| `subagent/` | 派生独立上下文的子代理去跑任务（对应 "No sub-agents"） |
+| `ssh.ts` | 把内置工具整体委托到远程机器执行（可插拔 operations 的示范） |
+| `custom-compaction.ts` | 把摘要模型换成更便宜/更合适的模型，自定义压缩策略 |
+| `custom-provider-gitlab-duo/` | 复用 pi-ai 内置流，几百行自成一个 provider |
+
+看出规律了吗：**Pi 的每一个 "No"，官方都配了对应的 "Yes，你自己拼" 的样板。**
+
+**② 社区积木：装包即用。** pi.dev 的 packages 画廊是官方托管的社区包目录——任何 npm 包只要带上 `pi-package` keyword 就能上架，安装统一是 `pi install npm:<包名>`。画廊与社区里几个高热度、有代表性的：
+
+| 包/项目 | 类型 | 解决什么问题 |
+|---|---|---|
+| [`pi-mcp-adapter`](https://github.com/nicobailon/pi-mcp-adapter) | MCP 支持 | 官方说 "No MCP"？社区直接补一个 token 高效的 MCP 客户端，把 MCP server 映射成 Pi 原生工具（1.4k★） |
+| [`pi-subagents`](https://github.com/nicobailon/pi-subagents) | 子代理 | 异步子代理委派：独立上下文、结果截断、会话共享，也支持脚本化多代理工作流（3.5k★） |
+| [`@narumitw/pi-plan-mode`](https://github.com/narumiruna/pi-extensions) | 计划模式 | Codex 式只读 `/plan` 协作模式，先出方案、确认后再动手 |
+| [`@plannotator/pi-extension`](https://github.com/backnotprop/plannotator) | PR 工作流 | 计划/规格/Markdown 批注评审 + PR review，把评审意见喂回 agent——"人在环"工作流的范本（8.5k★） |
+| JetBrains [`thinkrail`](https://github.com/JetBrains/thinkrail) | IDE 客户端 | 进程内跑 Pi + Monaco 编辑器 + git worktree 工作区的桌面客户端，回答"怎么把 Pi 接进 IDE"（419★） |
+| [`awesome-pi-agent`](https://github.com/thevibeworks/awesome-pi-agent) | 生态清单 | 现役最全的 Pi 扩展/技能/前端/桥接清单（接棒已退役的 qualisero 版，1k★） |
+
+**③ 最省事的一招：技能直拷。** Pi 完整实现了 Agent Skills 开放标准（agentskills.io），扫描 `~/.agents/skills/`（全局）和 `.agents/skills/`（项目，需信任），也可以用 settings.json 的 `skills` 数组指向任意目录（包括 `~/.claude/skills`）。这意味着**别人按标准写好的技能，拷进来就能用**：
+
+- [anthropics/skills](https://github.com/anthropics/skills)（约 17.5 万★）：Agent Skills 的官方参考实现，含 docx/pdf/pptx/xlsx 文档处理、webapp-testing（Playwright 测试）、skill-creator 等十几个技能。把 `skills/<名字>/` 目录拷进 `~/.agents/skills/`，Pi 自动发现，`/skill:pdf` 这类命令直接可用；
+- [badlogic/pi-skills](https://github.com/badlogic/pi-skills)（2.5k★）：Pi 作者自己的技能收藏——web 搜索、浏览器自动化、Google 系 CLI（Gmail/日历/网盘）、语音转录等，README 声明与 Claude Code / Codex CLI 兼容，放进 `~/.agents/skills` 即可。
+
+一句话总结这一节：**想知道"Pi 能拼成什么样"，答案是——你想要的功能大概率已经有人拼好了；没有的话，官方图鉴里也躺着能抄的样板。** 这正是"积木，而非成品"真正成立的地方：原语 + 图鉴 + 社区，三者缺一不可。（提示：第三方包与技能质量参差，装之前先看 README 与 star；跨工具技能若依赖别的工具的专属能力，需要自测。）
+
+### 4.6 订阅 OAuth：把"订阅"变成 API
 
 还有一个很多人津津乐道的特性：`/login`。Pi 内置了各家订阅账号的 OAuth 流程——Claude Pro/Max（PKCE）、ChatGPT/Codex、GitHub Copilot（device-code）、xAI、Kimi For Coding、OpenRouter……凭证加密存在 `~/.pi/agent/auth.json`。于是你可以**用自己已经付费的 ChatGPT/Claude Pro 订阅，去驱动一个开源、可完全掌控的 harness**。"马"是订阅来的，"鞍具"是自己的——这个组合在当前订阅通胀的时代，杀伤力极大。
 
@@ -302,7 +434,23 @@ SessionEntry {
 
 这个设计让你意识到：**"重写历史"在 Pi 里不是修改，而是开新枝**。就像 git 一样——历史不可变，想走另一条路就 branch。对 agent 来说这太重要了：你 fork 出去让模型试一个激进方案，不满意，切回原来的叶子继续——**两边的记忆都还在**，互不污染。
 
-构建"模型看到的上下文"时，SessionManager 从当前叶子沿着 parentId 一路走回根（buildContextEntries），遇到最近的压缩条目则特殊处理（见下）。前端读者应该会心一笑：这跟不可变状态 + 时间旅行调试是同一套审美——**把"状态的变化"存成数据，把"回到过去"变成一次指针操作**。
+构建"模型看到的上下文"时，SessionManager 从当前叶子沿着 parentId 一路走回根（buildContextEntries），遇到最近的压缩条目则特殊处理。这段回溯的规则其实很朴素（示意）：
+
+```ts
+// 示意：从叶子向根构建模型看到的上下文
+let cursor = leaf;
+const kept: Message[] = [];
+while (cursor) {
+  if (cursor.type === "compaction") {
+    kept.unshift(summaryAsMessage(cursor.summary)); // 最近的压缩摘要放最前
+    break; // 更早的历史交给"档案"（会话文件），不再进窗口
+  }
+  kept.unshift(cursor.message);
+  cursor = cursor.parentId ? entries[cursor.parentId] : null;
+}
+```
+
+前端读者应该会心一笑：这跟不可变状态 + 时间旅行调试是同一套审美——**把"状态的变化"存成数据，把"回到过去"变成一次指针操作**。
 
 ### 5.2 压缩：不是删历史，是给历史写摘要
 
@@ -312,7 +460,23 @@ SessionEntry {
 
 拆开看，它有四个关键机制：
 
-**① 触发：一个公式 + 三种原因。** 阈值判定是 `contextTokens > contextWindow - reserveTokens`。默认 `reserveTokens = 16384`（预留的余量），`keepRecentTokens = 20000`（压缩后保留的近期内容预算）。触发原因有三种：`manual`（你按 `/compact`）、`threshold`（接近上限）、`overflow`（**真的溢出了**——这种情况会把出问题的响应记为错误，压缩后带标记重试同一次生成，是回合中途的兜底）。触发时机永远在"一步 settle 之后、下一次 LLM 调用之前"，所以压缩不会打断正在进行的生成。
+**① 触发：一个公式 + 三种原因。** 阈值判定是 `contextTokens > contextWindow - reserveTokens`。默认 `reserveTokens = 16384`（预留的余量），`keepRecentTokens = 20000`（压缩后保留的近期内容预算）。触发原因有三种：`manual`（你按 `/compact`）、`threshold`（接近上限）、`overflow`（**真的溢出了**——这种情况会把出问题的响应记为错误，压缩后带标记重试同一次生成，是回合中途的兜底）。触发时机永远在"一步 settle 之后、下一次 LLM 调用之前"，所以压缩不会打断正在进行的生成。判定与切点的逻辑，概念上就这两小段（示意）：
+
+```ts
+// 示意：什么时候该压
+function shouldCompact(ctxTokens, contextWindow, s) {
+  return s.enabled && ctxTokens > contextWindow - s.reserveTokens; // reserve 默认 16384
+}
+
+// 示意：从哪里切——从最新往旧累计 token，够 keepRecentTokens 就切
+function findCutPoint(entries, keepRecentTokens) {
+  let acc = 0;
+  for (let i = entries.length - 1; i >= 0; i--) {
+    acc += estimateTokens(entries[i]);
+    if (acc >= keepRecentTokens) return snapUpToValidCut(i); // 上移到合法切点：绝不在 toolResult 上
+  }
+}
+```
 
 **② 切点：宁可不压，不能切坏。** 从最新往旧累计 token，凑够 `keepRecentTokens` 就切——但切点必须落在合法类型上（user/assistant/bash 等），**绝不允许切在 toolResult 上**：工具调用和它的结果必须语义连续，否则模型会看到"调了工具但没结果"。如果某个超长回合必须被腰斩，Pi 会**先单独把回合前缀再摘一次要**（split turn），保证上下文里永远没有半截对话。
 
@@ -361,7 +525,15 @@ SessionEntry {
 
 ### 6.2 Pi 把缓存做成了协议层的一等公民
 
-回看 pi-ai 的设计，你会发现缓存不是"某个 provider 的补丁"，而是贯穿始终的抽象：
+回看 pi-ai 的设计，你会发现缓存不是"某个 provider 的补丁"，而是贯穿始终的抽象。缓存命中的本质是**两次请求的前缀完全一致**：
+
+```
+第 1 次请求: [system][工具 schema][user1][assistant: 调工具][toolResult1]
+第 2 次请求: [system][工具 schema][user1][assistant: 调工具][toolResult1][user2…]
+             └──────────────── 前缀一字不差 → 命中缓存，只付"搬运费" ────────────────┘
+```
+
+所以 harness 的缓存功课，和前端工程师压榨 HTTP 缓存是同一件事：**让请求前缀尽量稳定、可命中，并在请求里正确地打缓存标记**。下面每条设计都在为这件事服务：
 
 - **usage 里 `cacheRead` / `cacheWrite` 是独立计量字段**，成本按每家 provider 的缓存价单独算（连 Anthropic 1 小时缓存写入按输入 2 倍计费这种细节都建模了）。**命中多少、省了多少钱，对 harness 全程透明**；
 - 请求级 `cacheRetention: "none" | "short" | "long"`，**默认 "short"——缓存默认开启**；`sessionId` 同时充当"会话缓存标识"；
@@ -415,4 +587,4 @@ SessionEntry {
 - 第三方解读：[walkinglabs 的 harness 工程设计系列（Pi 篇）](https://walkinglabs.github.io/learn-harness-engineering/zh-TW/harness-designs/pi/)
 - 真实会话数据集：[badlogicgames/pi-mono on Hugging Face](https://huggingface.co/datasets/badlogicgames/pi-mono)（作者公开自己的真实工作会话，并呼吁大家也分享）
 
-> **版本与核实说明**：本文基于仓库 HEAD `9767ba2`（各包版本 0.85.1，2026-09-06 抓取）与公开文档撰写；star 数、版本号、生态数据随时间变化，引用请以当时为准。文中对"当前产品行为（经典 API）"与"演进方向（harness 运行时）"做了区分；凡涉及第三方解读处均已注明。如果发现哪里有偏，欢迎在评论区指出来。
+> **版本与核实说明**：本文基于仓库 HEAD `9767ba2`（各包版本 0.85.1，2026-09-06 抓取）与公开文档撰写；生态与社区数据（包数量、star、技能集）抓取于 2026-09-07；star 数、版本号、生态数据随时间变化，引用请以当时为准。文中对"当前产品行为（经典 API）"与"演进方向（harness 运行时）"做了区分；凡涉及第三方解读处均已注明。如果发现哪里有偏，欢迎在评论区指出来。

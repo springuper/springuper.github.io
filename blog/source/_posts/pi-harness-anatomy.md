@@ -11,9 +11,9 @@ tags:
   - TypeScript
 ---
 
-上一篇文章《给大脑配一副好鞍具》，我把五款 agent harness 放在同一套"五件套"框架下做了解剖和实测。那一轮实测里，Pi 交出的成绩单是这样的：**9 秒修完 3 个 bug、3375 个 token、成本 0.00007 美元**——五家里最快，也最便宜，便宜到约等于免费。当时我给它的画像是一句玩笑话："极客的改装车，车是自己焊的，默认不装安全带。"
+上一篇文章《给大脑配一副好鞍具》，我把五款 agent harness 放在同一套"五件套"框架下做了解剖和实测。那一轮实测里，Pi 交出的成绩单是这样的：**9 秒修完 3 个 bug、3375 个 token、成本 0.00007 美元**——五家里最快，也最便宜，便宜到约等于免费。当时我给它的画像是一句玩笑话："极客的改装车手：一切自己动手、自己说了算。"
 
-这篇文章想做的一件事：把这台改装车开进修理厂，**把引擎盖掀开，逐层拆给你看**——它为什么能跑这么快、这么省？它那些"别人都有而它偏不做"的设计，到底是偷懒还是深思？以及最关键的：**在一众大同小异的 agent harness 里，Pi 真正独到和精妙的地方到底是什么？**
+这篇文章想做的一件事：不再满足于上篇那句结论，而是**把 Pi 从底层到界面逐层拆开来看**——它为什么能跑这么快、这么省？它那些"别人都有而它偏不做"的设计，到底是偷懒还是深思？以及最关键的：**在一众大同小异的 agent harness 里，Pi 真正独到和精妙的地方到底是什么？**
 
 先给结论，再拆给你看：
 
@@ -22,7 +22,7 @@ tags:
 
 <!--more-->
 
-## 一、先认识这台车
+## 一、先认识 Pi
 
 ### 1.1 身份卡
 
@@ -45,7 +45,7 @@ Pi 的官方仓库在 [github.com/earendil-works/pi](https://github.com/earendil
 | **当前版本** | 0.85.1（2026-09-06 抓取；我 8-23 实测时是 0.84.2） |
 | **npm 包家族** | `@earendil-works/pi-ai`、`pi-agent-core`、`pi-coding-agent`、`pi-tui`、`chord`、`pi-telemetry`、`pi-session-backend-sqlite-node` 等 |
 
-它的产品 README 里有一段话，几乎就是整台车的设计宣言：
+它的产品 README 里有一段话，几乎就是整个项目的设计宣言：
 
 > Pi is a minimal terminal coding harness. **Adapt pi to your workflows, not the other way around**, without having to fork and modify pi internals.
 
@@ -277,7 +277,7 @@ coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、f
 
 这段话是代码内嵌的，不依赖任何远程下发；整份 system prompt 在本地拼装：工具清单 → 行为准则 → **一段特殊的"Pi 文档"**……
 
-### 4.2 自举的精妙：把文档装进车里，让 agent 自己读
+### 4.2 自举的精妙：让 agent 自己读自己的说明书
 
 那个"特殊的 Pi 文档"是什么？系统提示词里会告诉模型：**本仓库随包安装了 Pi 自己的 README、docs 和 examples，当用户问起 Pi 本身时，你可以自己用 read 工具去查阅它们**。也就是说——**你可以直接问 Pi 它是怎么工作的，它会翻开自己的说明书回答你。**
 
@@ -367,9 +367,9 @@ cp my-extension.ts ~/.pi/agent/extensions/  # 放进目录：自动发现，/rel
 
 ### 4.5 别人都是怎么拼的：官方示例与社区实践速览
 
-光有"积木"和说明书，新手还是容易站在一堆原语前不知所措。给你三条"照着抄"的路径：先抄官方 examples，再装社区现成的积木，最后是几乎零成本的"技能直拷"。（本节生态与热度数据抓取于 2026-09-07，都会随时间变化。）
+光有"积木"和说明书，新手还是容易站在一堆原语前不知所措。第一次用 Pi 的人常问：它连 MCP、子代理、权限弹窗都不做，是不是"啥都没有"？答案是分三步的：**官方其实给每个 "No" 都配了"自己拼"的样板；拼好的积木，社区还会上架分享；而最常用的一类积木——技能——连拼都不用拼，拷进来就能跑。** 下面按这三步走。（本节生态与热度数据抓取于 2026-09-07，都会随时间变化。）
 
-**① 官方 examples：几十个"照着抄"的样板。** 仓库里的 `packages/coding-agent/examples/extensions/` 就是官方拼积木的图鉴（MIT，可直接抄），挑几个有代表性的：
+**第 1 步，官方图鉴：每个 "No" 旁边，都配了"自己拼"的样板。** 仓库里的 `packages/coding-agent/examples/extensions/` 就是官方拼积木的图鉴（MIT，可直接抄）：说 "No permission popups"，这里躺着 `permission-gate.ts`；说 "No plan mode"，这里有 `plan-mode/`。挑几个有代表性的：
 
 | 示例 | 它示范了什么 |
 |---|---|
@@ -384,9 +384,9 @@ cp my-extension.ts ~/.pi/agent/extensions/  # 放进目录：自动发现，/rel
 | `custom-compaction.ts` | 把摘要模型换成更便宜/更合适的模型，自定义压缩策略 |
 | `custom-provider-gitlab-duo/` | 复用 pi-ai 内置流，几百行自成一个 provider |
 
-看出规律了吗：**Pi 的每一个 "No"，官方都配了对应的 "Yes，你自己拼" 的样板。**
+看出规律了吗：**这些 "No" 不是功能缺失，而是产品主动让出的决策空间**——于是问题自然来到第二步：拼好的积木，怎么给别人用？
 
-**② 社区积木：装包即用。** pi.dev 的 packages 画廊是官方托管的社区包目录——任何 npm 包只要带上 `pi-package` keyword 就能上架，安装统一是 `pi install npm:<包名>`。画廊与社区里几个高热度、有代表性的：
+**第 2 步，社区货源：你想要的功能，大概率已经被拼好、上架了。** pi.dev 的 packages 画廊就是官方托管的"积木商店"——任何 npm 包只要带 `pi-package` keyword 就能上架，统一用 `pi install npm:<包名>` 安装。画廊与社区里几个高热度、有代表性的：
 
 | 包/项目 | 类型 | 解决什么问题 |
 |---|---|---|
@@ -397,12 +397,12 @@ cp my-extension.ts ~/.pi/agent/extensions/  # 放进目录：自动发现，/rel
 | JetBrains [`thinkrail`](https://github.com/JetBrains/thinkrail) | IDE 客户端 | 进程内跑 Pi + Monaco 编辑器 + git worktree 工作区的桌面客户端，回答"怎么把 Pi 接进 IDE"（419★） |
 | [`awesome-pi-agent`](https://github.com/thevibeworks/awesome-pi-agent) | 生态清单 | 现役最全的 Pi 扩展/技能/前端/桥接清单（2026 年中接棒已退役的 qualisero 版——旧清单约 1.1k★，新清单仍在维护） |
 
-**③ 最省事的一招：技能直拷。** Pi 完整实现了 Agent Skills 开放标准（agentskills.io），扫描 `~/.agents/skills/`（全局）和 `.agents/skills/`（项目，需信任），也可以用 settings.json 的 `skills` 数组指向任意目录（包括 `~/.claude/skills`）。这意味着**别人按标准写好的技能，拷进来就能用**：
+**第 3 步，轮到你自己：技能连拼都不用拼，拷进来就能跑。** 前面 4.4 的最小骨架已经让你看到，"写一个扩展"其实是 10 分钟级别的事；而更省的一档是**连代码都不用写**——Pi 完整实现了 Agent Skills 开放标准（agentskills.io），扫描 `~/.agents/skills/`（全局）和 `.agents/skills/`（项目，需信任），也可以用 settings.json 的 `skills` 数组指向任意目录（包括 `~/.claude/skills`）。别人按标准写好的技能，拷进来就能用：
 
 - [anthropics/skills](https://github.com/anthropics/skills)（约 17.5 万★）：Agent Skills 的官方参考实现，含 docx/pdf/pptx/xlsx 文档处理、webapp-testing（Playwright 测试）、skill-creator 等十几个技能。把 `skills/<名字>/` 目录拷进 `~/.agents/skills/`，Pi 自动发现，`/skill:pdf` 这类命令直接可用；
 - [badlogic/pi-skills](https://github.com/badlogic/pi-skills)（2.5k★）：Pi 作者自己的技能收藏——web 搜索、浏览器自动化、Google 系 CLI（Gmail/日历/网盘）、语音转录等，README 声明与 Claude Code / Codex CLI 兼容，放进 `~/.agents/skills` 即可。
 
-一句话总结这一节：**想知道"Pi 能拼成什么样"，答案是——你想要的功能大概率已经有人拼好了；没有的话，官方图鉴里也躺着能抄的样板。** 这正是"积木，而非成品"真正成立的地方：原语 + 图鉴 + 社区，三者缺一不可。（提示：第三方包与技能质量参差，装之前先看 README 与 star；跨工具技能若依赖别的工具的专属能力，需要自测。）
+走完这三步再回头看 Pi 的 "No" 清单，你会有完全不同的理解：**它不是"什么都没有"，而是"把做什么的决定权还给了你"**——想要现成的功能，去第 2 步的商店里装；想照着学，第 1 步的图鉴管够；连写都不想写，第 3 步的技能拷进来就跑。这就是"积木，而非成品"真正成立的地方。（提示：第三方包与技能质量参差，装之前先看 README 与 star；跨工具技能若依赖别的工具的专属能力，需要自测。）
 
 ### 4.6 订阅 OAuth：把"订阅"变成 API
 
@@ -549,17 +549,31 @@ function findCutPoint(entries, keepRecentTokens) {
 
 > Minimal terminal UI framework with differential rendering and synchronized output for flicker-free interactive CLI applications.
 
-**Differential Rendering：只更新变化的行或视口区域。** 这不就是终端世界的"虚拟 DOM diff"？配合 CSI 2026 同步输出（终端先攒够一帧再一次性渲染，杜绝闪烁），体验非常顺滑。它区分主屏（保留回滚历史）和备屏（viewport 由应用自己管理滚动），内置 Text/Input/Editor/Markdown/ScrollView 等组件；平台相关的"小助手"（剪贴板、修饰键等）用原生代码预编译成 .node 放进仓库。
+**Differential Rendering：只更新变化的行或视口区域。** 把整块屏幕当成一帧来管理，每帧只把"变了的那几行"写出去（示意）：
+
+```
+重绘派：把整个区域重新写一遍       Pi：只更新变化的行
+┌──────────────────┐            ┌──────────────────┐
+│  aaaaa           │            │  aaaaa           │
+│  bbbbb           │            │  bbbbb   ← 没变，不动
+│  ccccc → CCCCC   │            │  CCCCC   ← 只发这一行
+│  ddddd           │            │  ddddd           │
+└──────────────────┘            └──────────────────┘
+```
+
+配合 CSI 2026 同步输出（终端先把一整帧攒齐、再一次渲染，杜绝"半帧闪烁"），体验非常顺滑。它区分主屏（保留回滚历史）与备屏（viewport 由应用自己管理滚动），内置 Text/Input/Editor/Markdown/ScrollView 等十几类组件；平台相关的"小助手"（剪贴板、修饰键等）用原生代码预编译成 .node 放进仓库。
+
+为什么放着成熟的方案不用，要自己写一套？市面上最流行的路线是 **Ink——把 React 搬进终端**（Claude Code 的 TUI 就是它写的，上一篇文章提过）：组件化、hooks、生态大，代价是"界面 = React 组件树"这整套心智与依赖。pi-tui 走的是另一条路：**面向帧的极简引擎**——不引入组件树，不跑 diff 算法，只承诺"变化行级"的更新和一次写入的同步输出。对 Pi 这种"能省则省"的项目，这不只是性能选择，也是哲学选择：**它连 UI 都不想替你决定心智模型。** 想用组件树那一套？自己拼——官方示例里的 message-renderer / rainbow-editor 就是给你照着写的。
 
 值得玩味的是**渲染与执行被刻意解耦**：工具执行的 UI 渲染放在独立 renderer 层，这样 RPC / JSON 模式根本不会加载那 ~17MB 的 UI 依赖。交互模式的主循环本身朴素得惊人——`while(true) { 读一行输入; session.prompt(input); }`，所有界面更新都靠订阅 session 事件驱动重渲染。前端的"单向数据流"审美在这里得到了完整的复刻。
 
-作者是游戏圈出身（libGDX 的作者），这套"快"的执念——只渲染变化的部分、攒帧再上屏、能少加载就少加载——全是游戏渲染管线的老手艺。传说组件里还藏着 Doom 之类的彩蛋，程序员的小浪漫，懂的都懂。
+作者是游戏圈出身（libGDX 的作者），这套"快"的执念——只渲染变化的部分、攒帧再上屏、能少加载就少加载——全是游戏渲染管线的老手艺：主循环驱动刷新、每帧只画"脏区域"、双缓冲避免撕裂——放到终端里就变成了"diff 行 + CSI 2026"。仓库里甚至有用它跑 DOOM 的示例（在 overlay 里以 35 FPS 实时渲染）——一个终端 UI 引擎能当游戏引擎用，大概是这套渲染哲学最好的注脚。
 
-## 八、演进方向：把 harness 变成一座可以远程驾驶的车
+## 八、演进方向：把 agent 循环搬上网络，让会话可以被多方共享
 
 解剖完"现在的 Pi"，再看一眼"它正在变成什么"。仓库里 `packages/agent/src/harness/**` 躺着一套与经典 `runLoop` **同源但重写**的运行时：**AgentHarness / AgentLane**——把"循环"显式建模成可持久化的状态机：每次运行被拆成可落盘的 operation（run/compaction/navigation），调用方反复 `drive()` 推进，进程死了重启后可以**从断点恢复继续跑**；会话升级成 v4 格式：一棵不可变 Entry 树 + 命名分支指针 + 一次 commit 批量写入，`fork` 就是把一条路径复制成带 `parentSession` 的新会话。配套的还有可插拔存储（内存 / JSONL / **SQLite** 三实现共享同一套 conformance 测试）以及新引入的 **chord**（应用组装运行时：服务、复制状态、增量同步）和 **protocol / server / client** 三个包——目标是让**一个会话可以被多个驾驶舱同时 attach**（本地 TUI、远程 Web UI……），UI 通过复制状态订阅转录。
 
-需要诚实交代：这套新运行时目前被 coding-agent 的 `experimental/` 路线使用，**默认 CLI 仍是经典 API**，部分 slice 还抛着 "NotImplemented" 的占位；官网文档也以经典 API 为主。写这篇文章时它的定位是"演进方向"，不是"当前行为"。但方向本身已经足够说明问题：**Pi 正在把"agent 循环"从进程内的函数，变成可以跨进程恢复、可以被远程驾驶、可以被多个客户端共享的服务。**
+需要诚实交代：这套新运行时目前被 coding-agent 的 `experimental/` 路线使用，**默认 CLI 仍是经典 API**，部分 slice 还抛着 "NotImplemented" 的占位；官网文档也以经典 API 为主。写这篇文章时它的定位是"演进方向"，不是"当前行为"。但方向本身已经足够说明问题：**Pi 正在把"agent 循环"从进程内的函数，变成可以跨进程恢复、可以被远程接入、可以被多个客户端共享的服务。**
 
 ## 九、该警惕的地方
 
@@ -585,7 +599,7 @@ function findCutPoint(entries, keepRecentTokens) {
 
 回到开头那道题：Pi 的独到与精妙到底是什么？
 
-我的答案是四个字：**库化与数据化**。它把 harness 切成可以单独取用的库（模型层 / 循环层 / 产品层 / UI 层），所以 CLI 只是众多驾驶舱之一，你甚至可以请 agent 读自己的源码来解释自己；它把会话、分支、压缩、token、缓存全部变成数据，所以历史可以被 fork、被摘要、被续跑、被分享——这棵树长在哪里、怎么修剪，选择权都在你手里。再配上"敢不做"的减法（不做权限弹窗、不做 plan mode）和游戏程序员对"快"的偏执（差分渲染、攒帧上屏、能少加载就少加载），一台把"轻"和"快"做到极致、把边界决定权还给你的车，就这么出厂了。
+我的答案是四个字：**库化与数据化**。它把 harness 切成可以单独取用的库（模型层 / 循环层 / 产品层 / UI 层），所以 CLI 只是众多驾驶舱之一，你甚至可以请 agent 读自己的源码来解释自己；它把会话、分支、压缩、token、缓存全部变成数据，所以历史可以被 fork、被摘要、被续跑、被分享——这棵树长在哪里、怎么修剪，选择权都在你手里。再配上"敢不做"的减法（不做权限弹窗、不做 plan mode）和游戏程序员对"快"的偏执（差分渲染、攒帧上屏、能少加载就少加载），一套把"轻"和"快"做到极致、把边界决定权留给你的积木，就这么齐了——**怎么拼，看你。**
 
 它不是给所有人准备的——如果你要的是"开箱即用的安全与周全"，Claude Code 们更合适。但如果你想**亲手掌控自己那副鞍具的每一颗螺丝**，Pi 是这个品类里把选择权还给你还得最彻底的一个。上一篇文章结尾我说"马是谁不重要了，重要的是鞍具合不合手"；这篇的结尾想补一句：**最好的鞍具，是你随时能拆开、能续上、还能请马自己讲讲它怎么跑的那一副。**
 

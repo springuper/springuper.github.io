@@ -179,7 +179,7 @@ const message = await stream.result();
 console.log(message.usage.cost.total); // token 花了多少、缓存命中多少，全程透明
 ```
 
-`stopReason` 也比常见的多两个值：除了 `stop / length / toolUse / error / aborted`，还有 `pending`（流式中）和 `deferred`（异步响应）。设计者显然在想：未来模型可能不是一个同步流，而是"先给你一个任务号，稍后回传结果"——Pi 在协议层面就为这种世界留好了位置。
+`stopReason` 也比常见的多两个值：除了 `stop / length / toolUse / error / aborted`，还有 `pending`（流式中）和 `deferred`（异步响应）。这两个取值像是在为未来留位置：万一模型不再是一个同步流，而是"先给你一个任务号、稍后回传结果"，协议层也已经放得下。
 
 > 抽象不损失细节。pi-ai 为每个模型维护一个 **compat 开关矩阵**：`cacheControlFormat`、`supportsLongCacheRetention`、`supportsStore`、`supportsReasoningEffort`…… 抽象抹平的是"方言"，不是"能力差异"。
 
@@ -285,7 +285,7 @@ coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、f
 
 ### 4.3 权限：把"不设防"做成明确的设计
 
-这是 Pi 最激进、也最容易被误解的一个决定。仓库 README 的 Permissions 一节写得很直白：
+这是 Pi 最激进、也最容易被误解的一个决定。上一篇横评里我们只给了结论——五家里唯一默认不设防的；这篇把"为什么它敢这么设计"的论证补上。仓库 README 的 Permissions 一节写得很直白：
 
 > Pi does not include a built-in permission system for restricting filesystem, process, network, or credential access. By default, it runs with the permissions of the user and process that launched it.
 
@@ -316,7 +316,7 @@ coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、f
 
 如果说核心是那几块精心打磨的"积木"，这套扩展体系就是让你拼积木的工作台。把"不做清单"变成"可补清单"的，是下面这些机制：
 
-- **Extensions（扩展）**：一个 TypeScript 模块 `export default function (pi: ExtensionAPI) {}`，通过 jiti 免编译加载。`ExtensionAPI` 提供 **36 个事件钩子**（input、每轮 LLM 请求前的 `context`、`before_provider_request`、工具执行的 `tool_call`/`tool_result`、回合的 `turn_start`/`turn_end`、`session_before_compact`、`session_before_fork/tree`……）+ 注册 API（registerTool / registerCommand / registerProvider / registerShortcut）+ 动作（sendMessage / appendEntry / setModel……）。放在项目 `.pi/extensions/` 或 `~/.pi/agent/extensions/` 下即可，`/reload` 热加载；
+- **Extensions（扩展）**：一个 TS 模块 `export default function (pi: ExtensionAPI) {}`，jiti 免编译加载。`ExtensionAPI` 提供 **36 个事件钩子**（input、每轮 LLM 请求前的 `context`、`tool_call`/`tool_result`、`turn_start`/`turn_end`、`session_before_compact`……），加上注册 API（registerTool / registerCommand / registerProvider / registerShortcut）与动作（sendMessage / appendEntry / setModel……）。放项目 `.pi/extensions/` 或 `~/.pi/agent/extensions/` 即可，`/reload` 热加载；
 - **Skills（技能）**：遵循 [Agent Skills](https://agentskills.io) 开放标准（SKILL.md + frontmatter），以 **渐进式披露**注入——上下文里只常驻技能清单与一句话描述，全文按需读取，避免把每个技能的完整说明都塞进窗口；
 - **Prompt Templates / Themes**，以及把扩展、技能、模板、主题打包分发的 **Pi Packages**（npm 或 git 安装）——pi.dev 的生态页上已有 5,271 个带 `pi-package` 标签的第三方包（2026-09-07 抓取）。
 
@@ -395,7 +395,7 @@ cp my-extension.ts ~/.pi/agent/extensions/  # 放进目录：自动发现，/rel
 | [`@narumitw/pi-plan-mode`](https://github.com/narumiruna/pi-extensions) | 计划模式 | Codex 式只读 `/plan` 协作模式，先出方案、确认后再动手 |
 | [`@plannotator/pi-extension`](https://github.com/backnotprop/plannotator) | PR 工作流 | 计划/规格/Markdown 批注评审 + PR review，把评审意见喂回 agent——"人在环"工作流的范本（8.5k★） |
 | JetBrains [`thinkrail`](https://github.com/JetBrains/thinkrail) | IDE 客户端 | 进程内跑 Pi + Monaco 编辑器 + git worktree 工作区的桌面客户端，回答"怎么把 Pi 接进 IDE"（419★） |
-| [`awesome-pi-agent`](https://github.com/thevibeworks/awesome-pi-agent) | 生态清单 | 现役最全的 Pi 扩展/技能/前端/桥接清单（接棒已退役的 qualisero 版，1k★） |
+| [`awesome-pi-agent`](https://github.com/thevibeworks/awesome-pi-agent) | 生态清单 | 现役最全的 Pi 扩展/技能/前端/桥接清单（2026 年中接棒已退役的 qualisero 版——旧清单约 1.1k★，新清单仍在维护） |
 
 **③ 最省事的一招：技能直拷。** Pi 完整实现了 Agent Skills 开放标准（agentskills.io），扫描 `~/.agents/skills/`（全局）和 `.agents/skills/`（项目，需信任），也可以用 settings.json 的 `skills` 数组指向任意目录（包括 `~/.claude/skills`）。这意味着**别人按标准写好的技能，拷进来就能用**：
 
@@ -572,11 +572,24 @@ function findCutPoint(entries, keepRecentTokens) {
 
 ## 十、结尾：马是谁不重要，鞍具怎么造才重要
 
+先把前面拆开的东西收进一张表，方便和上一篇的五件套横向表对照：
+
+| 五件套 | Pi 的配法 | 精妙机关 |
+|---|---|---|
+| **① 循环** | 可 import 的 `runLoop`，以 turn 为单位驱动 | 无轮次硬上限；工具可 `terminate: true` 喊停；`continue()` 是官方重试原语；steering / follow-up 双队列 |
+| **② 工具** | 内置 8 个，默认只开 4 个 | schema 用 TypeBox 描述；description + promptSnippet 双轨喂给模型；渲染与执行解耦 |
+| **③ 记忆** | 会话文件 = 一棵 entry 树 | `/tree`、`/fork`、`/clone` 原地分支；压缩 = 写摘要 entry 而非删历史 |
+| **④ 权限** | 无内置权限系统（明文设计） | 边界画在容器层（Gondolin / Docker / OpenShell）；拦截挂到扩展 `tool_call` 事件 |
+| **⑤ 界面** | 自研差分渲染 TUI | 主/备屏 + CSI 2026 攒帧上屏；print / json / rpc / SDK 共享同一个循环 |
+| **扩展** | 36 事件钩子 + Skills + Pi 包 | 每个 "No" 都有官方样板；标准技能拷进 `~/.agents/skills` 即用 |
+
 回到开头那道题：Pi 的独到与精妙到底是什么？
 
 我的答案是四个字：**库化与数据化**。它把 harness 切成可以单独取用的库（模型层 / 循环层 / 产品层 / UI 层），所以 CLI 只是众多驾驶舱之一，你甚至可以请 agent 读自己的源码来解释自己；它把会话、分支、压缩、token、缓存全部变成数据，所以历史可以被 fork、被摘要、被续跑、被分享——这棵树长在哪里、怎么修剪，选择权都在你手里。再配上"敢不做"的减法（不做权限弹窗、不做 plan mode）和游戏程序员对"快"的偏执（差分渲染、攒帧上屏、能少加载就少加载），一台把"轻"和"快"做到极致、把边界决定权还给你的车，就这么出厂了。
 
 它不是给所有人准备的——如果你要的是"开箱即用的安全与周全"，Claude Code 们更合适。但如果你想**亲手掌控自己那副鞍具的每一颗螺丝**，Pi 是这个品类里把选择权还给你还得最彻底的一个。上一篇文章结尾我说"马是谁不重要了，重要的是鞍具合不合手"；这篇的结尾想补一句：**最好的鞍具，是你随时能拆开、能续上、还能请马自己讲讲它怎么跑的那一副。**
+
+想亲自上手验证这篇里的论断，最快的一条路是：装上 Pi（官网有 quickstart），把官方 `examples/extensions/` 目录翻一遍、照着抄一个自己的扩展，再把 anthropics/skills 拷进 `~/.agents/skills` 跑一次 `/skill:pdf`——这比读十篇解剖文章都管用。别忘了上篇的提醒：给工具用独立的目录副本，别让它们互相"剧透"。
 
 附上相关资源，供想继续深入的读者：
 

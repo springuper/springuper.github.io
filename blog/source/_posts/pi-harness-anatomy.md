@@ -47,6 +47,8 @@ Pi 的官方仓库在 [github.com/earendil-works/pi](https://github.com/earendil
 | **当前版本** | 0.85.1（2026-09-06 抓取；我 8-23 实测时是 0.84.2） |
 | **npm 包家族** | `@earendil-works/pi-ai`、`pi-agent-core`、`pi-coding-agent`、`pi-tui`、`chord`、`pi-telemetry`、`pi-session-backend-sqlite-node` 等 |
 
+顺带讲个名字的掌故。翻到 2025-08-09 的第一个 commit，`pi` 这个名字最初属于 monorepo 里的一个部署工具——"在 GPU pod 上自动配置 vLLM、跑 agentic 模型"的 CLI（README 原话：*"Deploy and manage LLMs on GPU pods with automatic vLLM configuration for agentic workloads."*，用法是 `pi start Qwen/Qwen2.5-Coder-32B-Instruct`）。那时的三件套是：pi-tui（差分渲染终端库）、pi-agent（带会话持久化的 agent 库）、以及这个叫 pi 的 pod 工具。后来编码 agent 越长越大，反过来继承了 "Pi" 这个名字——所以别问它是不是圆周率，它更像"某台跑模型的机器"的昵称（官方从没解释过名字，这是我的考古推测）。自我定位也是后来才长齐的：2025 年底它还自称 "a radically simple and opinionated coding agent"，2026 年初才改成 "minimal terminal coding harness / Adapt pi to your workflows"，直到 2026-05-07 的 README 才写下今天的大标题 "# Pi Agent Harness"。
+
 它的产品 README 里有一段话，几乎就是整个项目的设计宣言：
 
 > Pi is a minimal terminal coding harness. **Adapt pi to your workflows, not the other way around**, without having to fork and modify pi internals.
@@ -300,6 +302,8 @@ coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、f
 > **This is intentional.** Pi is designed to operate on local source trees… A partial in-process sandbox would be easy to misunderstand as a security boundary… Real isolation needs to come from the operating system or a virtualization/container boundary.
 
 注意它的论证：**"一个进程内的半吊子沙箱，容易被误当成真正的安全边界"**——所以与其给一个让你误以为安全的假边界，不如明说"没有边界，边界请到操作系统/容器层面去画"。这不是偷懒，是一种清醒：in-process 沙箱在对抗"模型被提示词操纵去执行恶意命令"这件事上，本来就靠不住。
+
+补个掌故：官方自己其实也开过这个玩笑。2025-11~12 的 README 里，这一节的标题就叫 **"No Permission System (YOLO Mode)"**，理由和今天几乎一字不差——"权限系统只会增加摩擦，还很容易被绕过"（原话 *"Permission systems add friction while being easily circumvented"*）。后来它换成了今天这种严肃的表述，但"信任用户、把边界交给环境"的立场，从 YOLO 时代到今天没变过。
 
 它提供的安全方案在**进程外面**，三选一（见 [containerization 文档](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/containerization.md)）：
 
@@ -617,6 +621,8 @@ function findCutPoint(entries, keepRecentTokens) {
 
 想亲自上手验证这篇里的论断，最快的一条路是：装上 Pi（官网有 quickstart），把官方 `examples/extensions/` 目录翻一遍、照着抄一个自己的扩展，再把 anthropics/skills 拷进 `~/.agents/skills` 跑一次 `/skill:pdf`——这比读十篇解剖文章都管用。别忘了上篇的提醒：给工具用独立的目录副本，别让它们互相"剧透"。
 
+最后一个彩蛋：2026 年 1 月，Pi 官网的 logo 还链在一个叫 **shittycodingagent.ai** 的域名上——作者的自嘲：功能不多，全靠你自己拼。后来域名换成了现在的 pi.dev（由 exe.dev 友情捐赠，这句致谢至今还写在 README 页脚里）。一个敢把自己官网叫"烂编码 agent"的项目，大概也配得上"克制"这两个字。
+
 附上相关资源，供想继续深入的读者：
 
 - 仓库：[earendil-works/pi](https://github.com/earendil-works/pi)（[pi.dev](https://pi.dev) 官网与文档）
@@ -626,4 +632,4 @@ function findCutPoint(entries, keepRecentTokens) {
 - 第三方解读：[walkinglabs 的 harness 工程设计系列（Pi 篇）](https://walkinglabs.github.io/learn-harness-engineering/zh-TW/harness-designs/pi/)
 - 真实会话数据集：[badlogicgames/pi-mono on Hugging Face](https://huggingface.co/datasets/badlogicgames/pi-mono)（作者公开自己的真实工作会话，并呼吁大家也分享）
 
-> **版本与核实说明**：本文基于仓库 HEAD `9767ba2`（各包版本 0.85.1，2026-09-06 抓取）与公开文档撰写；生态与社区数据（包数量、star、技能集）抓取于 2026-09-07；star 数、版本号、生态数据随时间变化，引用请以当时为准。文中对"当前产品行为（经典 API）"与"演进方向（harness 运行时）"做了区分；凡涉及第三方解读处均已注明。如果发现哪里有偏，欢迎在评论区指出来。
+> **版本与核实说明**：本文基于仓库 HEAD `9767ba2`（各包版本 0.85.1，2026-09-06 抓取）与公开文档撰写；生态与社区数据（包数量、star、技能集）抓取于 2026-09-07；star 数、版本号、生态数据随时间变化，引用请以当时为准。文中对"当前产品行为（经典 API）"与"演进方向（harness 运行时）"做了区分；凡涉及第三方解读处均已注明。名字来历、YOLO Mode、官网域名等掌故，均按仓库 git 历史考古核验（首提交 2025-08-09 起）。如果发现哪里有偏，欢迎在评论区指出来。

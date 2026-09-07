@@ -20,6 +20,8 @@ tags:
 - **它的独到之处，一半藏在"敢不做"里**——这个品类里用 **harness（马具）** 自称的项目不多，而把 harness 做成"库"而不是"产品"这件事，它做得最彻底：模型层、循环层、产品层、UI 层严格单向分层，CLI 只是其中一个驾驶舱；
 - **另一半藏在"把一切做成数据"里**——会话是一棵可以原地分支的树，压缩是给历史写摘要而不是删历史，token 与缓存是消息上的一等计量单位。因为一切都数据化了，它才可以被拆开、被续跑、被分享、甚至被 agent 自己读源码来向你解释。
 
+拆到最后一层你会发现，Pi 的这些"克制"其实都指向同一个词：**选择权**。模型你随便换，历史怎么存由数据说了算，安全边界由你画，连"要不要子代理"都由你自己拼。好，开工。
+
 <!--more-->
 
 ## 一、先认识 Pi
@@ -72,7 +74,7 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的"No"
 1. **它把"层"切在了哪里？为什么这样切？（架构观）**
 2. **它把什么东西做成了"数据"而不是"代码"？（数据观）**
 
-下面按 monorepo 的依赖方向，从下往上逐层拆。
+下面带着这两个问题，按 monorepo 的依赖方向**从下往上逐层拆**——先看最底下的"模型层"：
 
 ```
    pi-tui（自研终端 UI：差分渲染）
@@ -102,7 +104,7 @@ Pi 的做法是把这一层彻底抽成一个独立包：**pi-ai**（`@earendil-
 
 Provider 是"运行时单位"，拥有自己的模型目录、认证方式和流式行为；但 provider 之间共享的是同一套 **wire 协议实现**——整个 pi-ai 只认识十种"方言"（`KnownApi`）：openai-completions、openai-responses、anthropic-messages、bedrock、google-generative-ai、vertex…… 以及一个它自己的 **pi-messages**。也就是说："Anthropic 的模型走 anthropic-messages 方言；xAI/Groq/Cerebras/OpenRouter 这群 OpenAI 兼容的，全共享 openai-completions 方言；DeepSeek 也是，只是 baseUrl 不同。"
 
-那么"抹平"具体是怎么发生的？把它想成一层**翻译**：上层只认识统一的 Model / Context / 事件流，真正的方言差异全部被关在"驱动（driver）"里。每个驱动只做两件事——把统一消息翻译成该方言的报文（`toWire`），再把 provider 吐回来的原始字节翻译成统一事件（`toEvent`）：
+你可能脱口而出：给每个模型写个适配器不就行了？——难的不是写适配器，而是让几十个适配器不失控。Pi 的答案是把它想成一层**翻译**，而且翻译只有两步：上层只认识统一的 Model / Context / 事件流，真正的方言差异全部被关在"驱动（driver）"里。每个驱动只做两件事——把统一消息翻译成该方言的报文（`toWire`），再把 provider 吐回来的原始字节翻译成统一事件（`toEvent`）：
 
 ```ts
 // 示意：pi-ai 的"翻译层"思路（非逐字源码）
@@ -189,6 +191,8 @@ console.log(message.usage.cost.total); // token 花了多少、缓存命中多�
 
 这件事看似小，其实是大工程的分水岭：**当"模型"可以被一个确定性脚本替代，整个循环的测试就从"碰运气"变成了"可复现"。** 前端同行看到这里会心一笑——这不就是"用 mock 数据驱动开发 UI"在 agent 世界的翻版么？后面讲压缩、讲缓存时你会再见到 faux 的妙用。
 
+**一句话带走：** pi-ai 的全部工作，就是让 N 种"模型方言"变成 1 种"事件流"——上层从此只认识一个形状；连测试用的假模型，吐出来的都是这个形状。
+
 ## 三、pi-agent-core：循环只是一个函数
 
 ### 3.1 控制反转：把 agent 从产品降格为库
@@ -230,7 +234,7 @@ async function runTurn(model, context, tools) {
 
 ### 3.3 精妙之处：它把"什么时候停"变成了一组显式规则
 
-模型不会自己喊停，循环得知道什么时候收手。Pi 的停止判定散落在几个明确的位置，值得逐条看：
+模型不会自己喊停，循环得知道什么时候收手。先别急着看答案——猜猜最朴素的循环会在真实世界翻哪些车？至少三个：**① 模型可能永远在要工具，谁来踩刹车？② 输出被截断成半截，参数还要不要执行？③ 出错了怎么办，把整段对话从头重放一遍？** Pi 的停止判定散落在几个明确的位置，正好是这三问的护栏：
 
 1. **自然停**：该条 assistant 消息没有 toolCall，也没有排队中的输入 → 内层退出；
 2. **工具喊停**：一个工具执行完可以返回 `terminate: true`，当**一批工具全员 terminate** 时，本轮强制结束——这是"工具主动说够了"的通道；
@@ -238,7 +242,7 @@ async function runTurn(model, context, tools) {
 4. **出错即停**：`stopReason === "error" | "aborted"` 时不执行任何工具，直接结束回合；
 5. **截断保护**：`stopReason === "length"`（输出被 token 上限截断）时**同样不执行任何工具、全部判错让模型重发**——防止一段被腰斩的参数被半执行。这个细节很见功力：宁可不干活，也不能干一半。
 
-另外，**循环没有"最大轮次"的硬上限**——唯一的硬打断是 AbortSignal。Pi 把"不限制轮次"当作特性：限制该由宿主（你）决定，而不是由循环自作主张。
+注意第 ① 问的答案很 Pi：它没有用"最大轮次"这种一刀切，而是把刹车分散交给各方——工具可以返回 `terminate: true` 喊停，宿主可以随时用 `AbortSignal` 打断，钩子可以用 `shouldStopAfterTurn` 收尾。**循环本身没有"最大轮次"的硬上限**，因为"什么时候该停"只有正在干活的工具和最了解语境的宿主知道，不该由循环自作主张。
 
 ### 3.4 出错怎么办：continue 是官方重试原语
 
@@ -265,13 +269,15 @@ async function runTurn(model, context, tools) {
 
 同样是"运行中追加输入"，一个插在"还在干活时"，一个插在"正要收工时"——**这两种时机对应完全不同的产品体验**（打断 vs 追加），Pi 把它们建模成了两个队列。这就是"把边界条件显式化"的回报：上层想怎么用，都能找到对应的把手。
 
+**一句话带走：** 循环本身几十行就能写完；Pi 的功夫，是把"停、错、续、插话"这些边界条件全部摆到明面上，并且把决定权留给工具与宿主。
+
 ## 四、产品层：敢不做权限，靠扩展自我生长
 
 ### 4.1 8 个内置工具，默认只开 4 个
 
 coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、find、ls（外加 Windows 的 powershell），**默认激活的只有 read / bash / edit / write 四个**。每个工具的 schema 用 TypeBox 描述，工具定义里同时带三样东西：给循环用的执行函数、给模型看的 description、以及**合进系统提示词里的 promptSnippet**。grep 背后是 rg、find 背后是 fd——如果本机没有，Pi 会自动补装。
 
-工具的 schema 极其朴素，比如 bash 就一个 `{ command: string; timeout?: number }`——**任意命令，没有 allowlist**。它的系统提示词第一句是：
+工具的 schema 极其朴素，比如 bash 就一个 `{ command: string; timeout?: number }`——**任意命令，没有 allowlist**。（这个"吓人"的细节先记下，4.3 会解释它为什么是故意的。）它的系统提示词第一句是：
 
 > You are an expert coding assistant operating inside pi, a coding agent harness. You help users by reading files, executing commands, editing code, and writing new files.
 
@@ -285,7 +291,7 @@ coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、f
 
 ### 4.3 权限：把"不设防"做成明确的设计
 
-这是 Pi 最激进、也最容易被误解的一个决定。上一篇横评里我们只给了结论——五家里唯一默认不设防的；这篇把"为什么它敢这么设计"的论证补上。仓库 README 的 Permissions 一节写得很直白：
+读到这里，你可能已经在心里报警了：没有权限系统？Pi 是不是在"裸奔"？——这是 Pi 最激进、也最容易被误解的一个决定。上一篇横评里我们只给了结论——五家里唯一默认不设防的；这篇把"为什么它敢这么设计"的论证补上。先听它自己的说法，仓库 README 的 Permissions 一节写得很直白：
 
 > Pi does not include a built-in permission system for restricting filesystem, process, network, or credential access. By default, it runs with the permissions of the user and process that launched it.
 
@@ -314,7 +320,7 @@ coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、f
 
 ### 4.4 扩展点：36 个事件钩子 + 技能 + Pi 包
 
-如果说核心是那几块精心打磨的"积木"，这套扩展体系就是让你拼积木的工作台。把"不做清单"变成"可补清单"的，是下面这些机制：
+如果说核心是那几块精心打磨的"积木"，这套扩展体系就是让你拼积木的工作台。（先别被 36 个钩子吓到——日常你常用的不超过五个：拦个工具、加个命令、改改提示词、压缩前插一手。下面的骨架你一看就懂。）把"不做清单"变成"可补清单"的，是下面这些机制：
 
 - **Extensions（扩展）**：一个 TS 模块 `export default function (pi: ExtensionAPI) {}`，jiti 免编译加载。`ExtensionAPI` 提供 **36 个事件钩子**（input、每轮 LLM 请求前的 `context`、`tool_call`/`tool_result`、`turn_start`/`turn_end`、`session_before_compact`……），加上注册 API（registerTool / registerCommand / registerProvider / registerShortcut）与动作（sendMessage / appendEntry / setModel……）。放项目 `.pi/extensions/` 或 `~/.pi/agent/extensions/` 即可，`/reload` 热加载；
 - **Skills（技能）**：遵循 [Agent Skills](https://agentskills.io) 开放标准（SKILL.md + frontmatter），以 **渐进式披露**注入——上下文里只常驻技能清单与一句话描述，全文按需读取，避免把每个技能的完整说明都塞进窗口；
@@ -408,13 +414,15 @@ cp my-extension.ts ~/.pi/agent/extensions/  # 放进目录：自动发现，/rel
 
 还有一个很多人津津乐道的特性：`/login`。Pi 内置了各家订阅账号的 OAuth 流程——Claude Pro/Max（PKCE）、ChatGPT/Codex、GitHub Copilot（device-code）、xAI、Kimi For Coding、OpenRouter……凭证加密存在 `~/.pi/agent/auth.json`。于是你可以**用自己已经付费的 ChatGPT/Claude Pro 订阅，去驱动一个开源、可完全掌控的 harness**。"马"是订阅来的，"鞍具"是自己的——这个组合在当前订阅通胀的时代，杀伤力极大。
 
+**一句话带走：** Pi 的产品观，是把"该有什么功能"这个问题从官方手里移交给你——官方只负责把积木与图鉴做精，剩下的由你拼。
+
 ## 五、记忆：会话是一棵树，压缩是给树写摘要
 
 这一节是 Pi 最"精妙"的地方，也是它与众不同的工程深度所在。先立一个前提：**上下文窗口是 agent 唯一的"工作台"，而它又小又贵**。那么 harness 的记忆功课只有三问：往窗口里放什么？放不下时怎么办？会话结束后怎么续？
 
 ### 5.1 会话是一个文件，文件里是一棵树
 
-Pi 的每个会话是一个 JSONL 文件：`~/.pi/agent/sessions/--<cwd>--/<timestamp>_<uuid>.jsonl`。第一行是 header（session id、版本、cwd 等），之后**每一行是一个 entry**。关键是 entry 的结构：
+先问一个你迟早会遇到的真实问题：**同一个任务试错试出了三条路，你想把它们都留住**——但大多数工具的"历史"是一条线，改了就没了，换方案只能从头再来。Pi 的答案是：把会话做成树。它的每个会话是一个 JSONL 文件：`~/.pi/agent/sessions/--<cwd>--/<timestamp>_<uuid>.jsonl`。第一行是 header（session id、版本、cwd 等），之后**每一行是一个 entry**。关键是 entry 的结构：
 
 ```
 SessionEntry {
@@ -458,7 +466,7 @@ while (cursor) {
 
 > During a multi-turn agent run, Pi checks this threshold after tools finish and their results are appended, before starting the next assistant response. If the threshold is crossed, Pi compacts **inside the same agent run** and resumes with the summary and retained messages.
 
-拆开看，它有四个关键机制：
+拆开看之前，先替你把最自然的问题问出来：**既然要压缩，为什么不干脆全压成摘要、只留最近几句原文？** 因为摘要会丢细节，更因为工具调用与结果一旦被拆开，模型就会看到"调了工具却没结果"。Pi 的压缩目标从来不是"删旧的"，而是"**留尾巴、压老的**"——下面四个机制全在为这个平衡服务：
 
 **① 触发：一个公式 + 三种原因。** 阈值判定是 `contextTokens > contextWindow - reserveTokens`。默认 `reserveTokens = 16384`（预留的余量），`keepRecentTokens = 20000`（压缩后保留的近期内容预算）。触发原因有三种：`manual`（你按 `/compact`）、`threshold`（接近上限）、`overflow`（**真的溢出了**——这种情况会把出问题的响应记为错误，压缩后带标记重试同一次生成，是回合中途的兜底）。触发时机永远在"一步 settle 之后、下一次 LLM 调用之前"，所以压缩不会打断正在进行的生成。判定与切点的逻辑，概念上就这两小段（示意）：
 
@@ -515,6 +523,8 @@ function findCutPoint(entries, keepRecentTokens) {
 { "compaction": { "enabled": true, "reserveTokens": 16384, "keepRecentTokens": 20000 } }
 ```
 
+**一句话带走：** 上下文是工作台，历史是档案，摘要是交接班记录——Pi 把这三者的边界都管成了数据，所以一段对话才能被 fork、被回退、被续跑。
+
 ## 六、为什么它跑得又快又省：缓存经济学
 
 ### 6.1 一个前提：重复读是便宜的
@@ -533,7 +543,7 @@ function findCutPoint(entries, keepRecentTokens) {
              └──────────────── 前缀一字不差 → 命中缓存，只付"搬运费" ────────────────┘
 ```
 
-所以 harness 的缓存功课，和前端工程师压榨 HTTP 缓存是同一件事：**让请求前缀尽量稳定、可命中，并在请求里正确地打缓存标记**。下面每条设计都在为这件事服务：
+所以 Pi 的每一条缓存设计，都只有一个目标：**让"前缀一致"这件事尽量多地发生**。下面逐条看它怎么做到的：
 
 - **usage 里 `cacheRead` / `cacheWrite` 是独立计量字段**，成本按每家 provider 的缓存价单独算（连 Anthropic 1 小时缓存写入按输入 2 倍计费这种细节都建模了）。**命中多少、省了多少钱，对 harness 全程透明**；
 - 请求级 `cacheRetention: "none" | "short" | "long"`，**默认 "short"——缓存默认开启**；`sessionId` 同时充当"会话缓存标识"；
@@ -572,6 +582,8 @@ function findCutPoint(entries, keepRecentTokens) {
 ## 八、演进方向：把 agent 循环搬上网络，让会话可以被多方共享
 
 解剖完"现在的 Pi"，再看一眼"它正在变成什么"。仓库里 `packages/agent/src/harness/**` 躺着一套与经典 `runLoop` **同源但重写**的运行时：**AgentHarness / AgentLane**——把"循环"显式建模成可持久化的状态机：每次运行被拆成可落盘的 operation（run/compaction/navigation），调用方反复 `drive()` 推进，进程死了重启后可以**从断点恢复继续跑**；会话升级成 v4 格式：一棵不可变 Entry 树 + 命名分支指针 + 一次 commit 批量写入，`fork` 就是把一条路径复制成带 `parentSession` 的新会话。配套的还有可插拔存储（内存 / JSONL / **SQLite** 三实现共享同一套 conformance 测试）以及新引入的 **chord**（应用组装运行时：服务、复制状态、增量同步）和 **protocol / server / client** 三个包——目标是让**一个会话可以被多个驾驶舱同时 attach**（本地 TUI、远程 Web UI……），UI 通过复制状态订阅转录。
+
+为什么会冒出这么重的工程？因为**在"一机一进程"的模型下，Pi 永远只是你电脑里的一个 CLI**；而把循环变成可恢复、可共享的服务后，它有机会成为整个团队共用的引擎——"库化"的下一个形态，是"服务化"。
 
 需要诚实交代：这套新运行时目前被 coding-agent 的 `experimental/` 路线使用，**默认 CLI 仍是经典 API**，部分 slice 还抛着 "NotImplemented" 的占位；官网文档也以经典 API 为主。写这篇文章时它的定位是"演进方向"，不是"当前行为"。但方向本身已经足够说明问题：**Pi 正在把"agent 循环"从进程内的函数，变成可以跨进程恢复、可以被远程接入、可以被多个客户端共享的服务。**
 

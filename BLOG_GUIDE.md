@@ -56,8 +56,35 @@ tags:
 - `layout`: 固定为 `post`
 - `title`: 文章标题（使用中文引号）
 - `date`: 发布日期，格式：`YYYY-MM-DD HH:mm:ss`
-- `status`: 固定为 `publish`（如果设为 `draft` 则不会发布）
+- `status`: 固定为 `publish`
+  <p style="margin: 0 0 0.2rem 0">
+  ⚠️ **注意：`status` 只是给人看的标记，Hexo 并不会读取它。** 把 `status` 设成 `draft` 依然会被正常构建和发布。
+  要真正暂缓发布一篇文章，必须额外加上 `published: false`（详见下方[暂缓发布（草稿）](#暂缓发布草稿)）。
+  </p>
 - `tags`: 标签列表，每行一个，使用 `-` 开头
+
+### 暂缓发布（草稿）
+
+如果你想先把文章写进 `_posts/` 但**不**发布到线上，必须在 front matter 里加 `published: false`：
+
+```yaml
+---
+layout: post
+title: "文章标题"
+date: 2026-01-18 11:00:00
+status: draft
+published: false
+tags:
+  - Tag1
+---
+```
+
+几点说明：
+
+- **只有 `published: false` 起作用。** Hexo 5 的 post processor 只判断 `published` 字段，`status` 完全不被读取（在此仓库实测验证过）；
+- 加了这个字段后，`hexo generate` 不会为它生成页面，`public/` 里不会有对应目录。本地预览时该文章也不可见；
+- 文章内容依然会保存在仓库里，随时把 `published: false` 删掉即可发布；
+- 不要只写 `status: draft` 就以为万事大吉——那样文章会照常发布。
 
 ### 文章内容
 
@@ -241,7 +268,7 @@ git push
 ### Q: 文章发布后看不到？
 
 **A:** 检查以下几点：
-1. 确认 `status` 字段为 `publish`（不是 `draft`）
+1. 确认**没有** `published: false`（注意：`status: draft` 不生效，Hexo 只认 `published`）
 2. 检查 GitHub Actions 构建是否成功
 3. 等待几分钟让 GitHub Pages 更新（通常 1-5 分钟）
 4. 清除浏览器缓存后重试

@@ -47,9 +47,10 @@ tags:
 
 因为解释直接决定了下一步行动。如果你认定问题在外面，那么逻辑上的必然结论就是"我无需改变"——这个结论在短期内非常舒服，它保护了自尊，也省去了面对自身短板的痛苦。但代价是长久的：**你把自己人生的遥控器，拱手交了出去。** 从此你的情绪起伏、成败得失，全部由外部环境和他人言行决定。
 
-我在知乎上看到过一句很扎心的总结，讲的是历史上两位大人物的分野：
+我在知乎上看到过一段很扎心的总结，作者拿毛泽东和蒋介石做对比，讲的是同一件事：
 
 > 外归因最省力：出事先找替罪羊，过错全推给外界，短期心理平衡，不用跟自己的短处较劲。但代价是永久丧失进化的可能——既然问题都在外面，自己自然无需改变。
+> ——知乎答主[「起风了」](https://www.zhihu.com/question/525200257/answer/2072798775140160515)
 
 与之相对的，是另一个同样朴素的道理：
 
@@ -59,6 +60,8 @@ tags:
 ## 外归因的几种变体
 
 回到那几位同事，我发现外归因其实有很多精巧的变体，值得逐一拆开看，因为它们全都披着"客观陈述"的外衣。
+
+这个领域其实早有现成的归纳。在《The Oz Principle》里，作者用"水平线"（the line）来区分两种状态：线以上的人对结果负责，做法是"看到它、认领它、解决它、完成它"；线以下的人则把精力用在推责上——"这不是我的工作"、指责他人、坐等指令、坐等观望，都是它的典型面孔。你会发现这些面孔和我下面要列的几乎一一对应——**外归因从来不是一个孤立的念头，而是一整套行为模式。**
 
 **第一种：「这不归我管」。** 没有 ticket 就没法开发——事实层面也许成立，流程确实有缺失。但从"缺一个 ticket"跳到"这件事做不了"，中间那个跳跃没有依据。缺 ticket 本身就是一个可以被推动解决的问题；而主动把模糊需求补成清晰 ticket 的人，本质上已经在做超出自己职级的事了。同理，跨时区的信息也不是等来的：文档、异步沟通、主动约个 1:1，这些都是个体可用的手段。这里缺的从来不是信息，而是获取信息的主动性。
 
@@ -184,7 +187,7 @@ AI coding 工具普及之后，我观察到一个挺反讽的现象：工具把�
 - [Habit 1: Be Proactive - FranklinCovey](https://www.franklincovey.co.nz/habit-1/)
 - [Understanding the Circle of Influence and the Circle of Concern](https://franklincovey.vn/en/resources/article/the-circle-of-influence-and-the-circle-of-concern)
 - [The Oz Principle: Getting Results Through Individual and Organizational Accountability](https://www.supersummary.com/the-oz-principle/summary/)
-- [The Drama Triangle - Psychology Today](https://www.psychologytoday.com/us/blog/the-power-of-prime/201410/the-drama-triangle)
+- [什么是顶级的思维？- 知乎答主「起风了」](https://www.zhihu.com/question/525200257/answer/2072798775140160515)
 - [在单位感到委屈和不公平，是时候改变"归因模式"了](https://zhuanlan.zhihu.com/p/1983589119364985133)
 - [职场人最该戒掉的认知：过度反思自己](https://zhuanlan.zhihu.com/p/1931407639830594999)
 - [项目三年换了四任领导，作为员工该如何应对频繁的领导变动？](https://www.zhihu.com/question/2054674234270540737/answer/2075892057466578222)

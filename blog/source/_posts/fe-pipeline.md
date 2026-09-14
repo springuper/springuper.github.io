@@ -3,7 +3,7 @@ layout: post
 title: "前端中的 Pipeline"
 date: 2017-10-05 21:35
 status: publish
-tags: [FrontEnd, Pipeline, Middleware, Stream, Promise]
+tags: [Frontend, Pipeline, Middleware, Stream, Promise]
 ---
 
 计算机领域的 Pipeline 通常认为起源于 Unix。最初 Douglas Mcllroy 发现很多时候人们会将 shell 命令的输出传递给另外一个 shell 命令，因此就提出了 Pipeline 这一概念。后来同在贝尔实验室的大牛 Ken Thompson 在 1973 年将其实现，并使用 | 作为 pipe 的语法符号：

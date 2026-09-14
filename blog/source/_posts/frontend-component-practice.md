@@ -5,7 +5,7 @@ date: 2015-06-29 11:07
 comments: true
 status: publish
 author: springuper@gmail.com
-tags: [front-end, component, reduce, turbo]
+tags: [Frontend, component, reduce, turbo]
 ---
 
 ### 前言

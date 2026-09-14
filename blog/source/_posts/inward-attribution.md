@@ -1,9 +1,8 @@
 ---
 layout: post
-title: "向内归因"
-date: 2026-09-12 18:30:00
-status: draft
-published: false
+title: "向内归因的人，手里永远多出几个选项"
+date: 2026-09-14 10:35:00
+status: publish
 tags:
   - Management
   - Growth

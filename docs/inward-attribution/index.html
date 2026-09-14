@@ -211,9 +211,9 @@
 <h2 id="我看到的几种状态"><a href="#我看到的几种状态" class="headerlink" title="我看到的几种状态"></a>我看到的几种状态</h2><p>先说让我决定写下这篇文章的那些事。</p>
 <p>大部分人的产出都在往上走，但也有人原地踏步，个别甚至有所回落。我留意到的信号通常是这几样：不主动同步进展，一件事推一下动一下。坐下来聊原因，听到的说法大致是这几类：</p>
 <ul>
-<li>需求连个工单都没有，没法开工</li>
-<li>海外团队那边的情况，我怎么可能知道</li>
-<li>有时差在，重要的事情本来就轮不到我；既然不重要，那也不着急</li>
+<li>没有工单就没办法开始开发，而且工单里的需求必须非常明确</li>
+<li>决策都在美国那边，自己不在场，拿到的信息也不完整</li>
+<li>受时差和协作方式的限制，重要的事情本来就轮不到自己；既然不重要，那也就不着急</li>
 </ul>
 <p>这些说法单拎出来，每一条都不算离谱。但合在一起，就构成了一个完整的、自洽的、几乎无法反驳的世界模型：<strong>问题都在外面，我没什么可做的。</strong></p>
 <p>还有一类不满，是关于自己的发展速度，常见于两种处境：</p>
@@ -280,9 +280,9 @@
 </blockquote>
 <p>外归因有不少精巧的变体，不妨逐一拆开看，因为它们全都披着”客观陈述”的外衣。在《The Oz Principle》里，作者用”水平线”区分两种状态：线以上的人对结果负责，线以下的人则把精力用在推责上，比如”这不是我的工作”、指责他人、坐等指令、坐等观望。这些面孔和我下面要列的，倒也几乎一一对应。</p>
 <p>第一种，「这不归我管」。没有工单就没法开发：流程确实有缺失，但从”缺一个工单”跳到”这件事做不了”，中间那个跳跃没有依据。</p>
-<p>第二种，「我怎么会知道」。潜台词是：信息应该被分发给我。但在分布式团队里，信息从来是需要被争取的。</p>
+<p>第二种，「我怎么会知道」。潜台词是：信息应该被分发给我。但在分布式团队里，信息不会自动落到每个人手上，要么自己去争，要么推到能建通道的人那里。</p>
 <p>第三种，「反正不重要，那就不着急」。这是最危险的一种，因为它把外部的不可控，直接用来给自己的投入程度背书，于是形成一个自我实现的闭环：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">① 觉得「反正不会给我重要任务」</span><br><span class="line">     │</span><br><span class="line">     │ 于是不全力投入</span><br><span class="line">     ▼</span><br><span class="line">② 确实拿不出重要产出</span><br><span class="line">     │</span><br><span class="line">     │ 于是更确信</span><br><span class="line">     ▼</span><br><span class="line">③ 更确信「不会给我重要任务」</span><br><span class="line">     │</span><br><span class="line">     └────────────────► 回到 ①，闭环成立</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">① 觉得「重要的事反正轮不到自己」</span><br><span class="line">     │</span><br><span class="line">     │ 于是不全力投入</span><br><span class="line">     ▼</span><br><span class="line">② 确实拿不出重要产出</span><br><span class="line">     │</span><br><span class="line">     │ 于是更确信</span><br><span class="line">     ▼</span><br><span class="line">③ 更确信「轮不到自己」</span><br><span class="line">     │</span><br><span class="line">     └────────────────► 回到 ①，闭环成立</span><br></pre></td></tr></table></figure>
 
 <p>这个闭环一旦形成，别人再想给机会也接不住了。它和”时差”没有关系，这件事两边都有责任。后面我会专门说管理者的那一半。</p>
 <p>第四种，「不公平」。这种要格外小心，因为它可能是真的。评价体系确实会青睐某些能力（比如沟通、跨部门影响力），而冷落另一些能力（比如把支撑性的服务做深做透），这对当事人来说确实构成结构性的不利。承认这一点，是讨论的前提。但关键在于，别卡在”不公平”这个结论上不动。这种委屈里其实藏着一道判断题，我在下一节说。</p>
@@ -404,7 +404,7 @@
 <ol>
 <li><strong>做一次语言转换。</strong> 外归因有非常明显的语言特征：”都是因为……”、”如果不是他……”、”这个公司就是……”。内归因的特征同样鲜明：”在这件事里，我的责任是什么？”、”我能从中学到什么？”、”在我能控制的范围里，我能先做哪一件事？”不用强迫自己改变想法，先改变造句方式就行。语言会倒逼思维。</li>
 <li><strong>主动同步。</strong> 每周更新一次进展、卡点和下一步，写下遇到的困难，也写下你打算怎么处理。在分布式团队里，可见度本身就是产出的一部分。很多人把汇报当负担，其实它是最低成本的存在感投资。</li>
-<li><strong>从约束里挑一件小事做完。</strong> 不要等条件齐全才动手。缺工单，就先写一版草稿需求；跨时区信息拿不到，就先整理一份已知信息发出去请人补充。完成一件小事带来的信任额度，比十次抱怨管用。</li>
+<li><strong>从约束里挑一件小事做完。</strong> 不要等条件齐全才动手。缺工单，就先写一版草稿需求；跨时区信息拿不到，就主动去找参与过前序讨论的人把背景补齐，或者先把整理好的已知信息发出去请人补充。完成一件小事带来的信任额度，比十次抱怨管用。</li>
 <li><strong>每个季度做一次”工单审计”。</strong> 回头数一数：过去三个月我做的事里，有多少是别人派的，有多少是我自己找的？这个数字很粗糙，但它是唯一能衡量的东西：衡量你还在积累资产，还是只是在原地执行。</li>
 <li><strong>重要任务要争取，不要等。</strong> 这类事很少是被分配的，绝大多数得靠自己争取。争取的方式是先做一件超出预期的小事，换来一点信任额度，再靠它去拿更大的机会。</li>
 <li><strong>把锚点放在成果上，别放在某个人身上。</strong> 老板会走，你在流程文档、项目成果、可迁移能力上留下的痕迹不会走。</li>

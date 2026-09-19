@@ -82,37 +82,108 @@ tags:
 
 ## 二、一次请求的旅程
 
-### 2.1 这行 prompt 变成了什么
+还是那条命令。按下回车之后，我们跟着这行字走一趟，看它每一步变成了什么。
 
-上一篇实测用的是这条命令：
+### 2.1 它把 prompt 变成了什么
 
-```bash
-pi -p "修复这个仓库里的 bug，让 npm test 全部通过" --provider deepseek --model deepseek/deepseek-v4-flash
+第一件事，是把这行字变成一份发给模型的东西。我把这一份抓出来看了，实际内容如下。它是用 pi 自己的 prompt 构造函数和工具定义生成的，不是我照着文档手抄的：
+
+```
+You are an expert coding assistant operating inside pi, a coding agent harness. You help users by reading files, executing commands, editing code, and writing new files.
+
+Available tools:
+- read: Read file contents
+- bash: Execute bash commands (ls, grep, find, etc.)
+- edit: Make precise file edits with exact text replacement, including multiple disjoint edits in one call
+- write: Create or overwrite files
+
+In addition to the tools above, you may have access to other custom tools depending on the project.
+
+Guidelines:
+- Use bash for file operations like ls, rg, find
+- Be concise in your responses
+- Show file paths clearly when working with files
+
+Pi documentation (read only when the user asks about pi itself, its SDK, extensions, themes, skills, or TUI):
+- Main documentation: <安装目录>/pi-coding-agent/README.md
+- Additional docs: <安装目录>/pi-coding-agent/docs
+- Examples: <安装目录>/pi-coding-agent/examples (extensions, custom tools, SDK)
+- When reading pi docs or examples, resolve docs/... under Additional docs and examples/... under Examples, not the current working directory
+- When asked about: extensions (docs/extensions.md, examples/extensions/), themes (docs/themes.md), skills (docs/skills.md), prompt templates (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers (docs/custom-provider.md), adding models (docs/models.md), pi packages (docs/packages.md), environment variables (docs/environment-variables.md)
+- When working on pi topics, read the docs and examples, and follow .md cross-references before implementing
+- Always read pi .md files completely and follow links to related docs (e.g., tui.md for TUI API details)
+Current working directory: /tmp/demo-repo
 ```
 
-`-p` 是非交互模式，跑完就退出。按下回车之后，第一件事是把这行字变成一份发给模型的请求。pi-ai 里这份请求叫 `Context`，只有三样东西：system prompt、消息列表、工具 schema。
+就这么短。24 行，1900 个字符，其中工具清单占 4 行，行为准则占 3 行。剩下的绝大部分是一串路径，指向**已安装包里的文档**。这一点到 4.2 还会再提一次，它是 Pi 最有趣的设计之一。（路径里的安装目录是我这台机器上的位置，在你机器上指向你自己 node_modules 里的那个包。）
 
-消息不是字符串，是一组结构化的内容块：用户的输入可以是文本或图片，assistant 的正文可以是普通文本、思考、或一次工具调用，工具结果单独占一个角色。
+一份请求在 pi-ai 里叫 `Context`，只有三样东西：上面这段 system prompt、一份消息列表、一份工具 schema。此刻消息列表里只有一条：
 
-这里有一个不太起眼但很重要的设计：**没有 system 消息类型**。系统提示是 `Context` 的一个独立字段，不混进历史。好处是历史可以原样存下来、原样续跑，换一份 system prompt 也不会污染会话文件。
+```json
+[
+  {
+    "role": "user",
+    "content": "修复这个仓库里的 bug，让 npm test 全部通过",
+    "timestamp": 1789795481937
+  }
+]
+```
 
-模型看到的除了历史，还有一份工具清单。coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、find、ls，外加一个可选、文档标注为 Windows 用的 powershell。默认激活的只有 read、bash、edit、write 四个。
+工具 schema 也一样朴素。四个默认工具里，bash 就两个字段：
 
-每个工具的说明在系统提示词里占一行，这个字段叫 `promptSnippet`，和执行函数、给模型看的 description 并列放在同一份工具定义里。所以模型拿到的不是一份 API 文档，而是四句话：你现在有什么手脚，大概能干什么。
+```json
+{
+  "type": "object",
+  "required": ["command"],
+  "properties": {
+    "command": { "type": "string", "description": "Shell command to execute" },
+    "timeout": { "type": "number", "description": "Timeout in seconds (optional, no default timeout)" }
+  }
+}
+```
 
-bash 的 schema 朴素到只有两个字段，命令字符串和一个可选的超时。任意命令，没有 allowlist。这个“吓人”的细节先记下，4.3 会解释它为什么是故意的。
+任意命令，没有白名单。这个“吓人”的细节先记下，4.3 会解释它为什么是故意的。
 
-### 2.2 请求怎么发出去
+这里有两个设计选择值得单独说。一是没有 system 消息类型，系统提示是 `Context` 的一个独立字段，不混进历史，所以历史可以原样存下来、原样续跑。二是这段提示词是代码里写死的，本地拼装，不依赖任何远程下发。
 
-接下来要把这份统一的 `Context` 翻译成某一家的方言，再把对方吐回来的流译成统一事件。pi-ai 一共认十种方言，对外只承诺两个函数 `stream` 和 `streamSimple`，各家差异全部关在方言模块内部。
+### 2.2 它怎么发出去
 
-举几个例子。DeepSeek 走 openai-completions，只是 baseUrl 不同。xAI 走 openai-responses。Anthropic 走 anthropic-messages。同一家厂商还可能按模型分流，OpenRouter 就以 `anthropic/` 前缀为准，开头走 anthropic-messages，其余走 openai-completions。
+同一份东西，到了 Anthropic 那边长这样。我用一个假的 fetch 把它拦了下来，没有真的发网络请求：
 
-统一模型不等于抹平差异。pi-ai 为每个模型留了一份兼容开关，记录这个模型支不支持长缓存保留、思考参数该叫什么名字、哪些参数发过去会报错。抽象抹掉的是方言，不是能力。
+```json
+POST https://api.anthropic.com/v1/messages?beta=true
 
-思考是最好的例子。Pi 把思考做成了一等公民：它有独立的等级，minimal 到 max 一共六档，再由模型上的 `thinkingLevelMap` 翻译成各家协议里不同的字段。这样 harness 才能把“模型的推理过程”和“对外说的话”分开处理，压缩时可以只保留结论，渲染时可以折叠，计费也能单独算。
+{
+  "model": "claude-sonnet-4-5",
+  "system": [
+    { "type": "text", "text": "You are an expert coding assistant operating inside pi, ...",
+      "cache_control": { "type": "ephemeral" } }
+  ],
+  "tools": [
+    { "name": "bash", "description": "Execute a bash command ...",
+      "input_schema": { "type": "object", "required": ["command"], "properties": { ... } },
+      "cache_control": { "type": "ephemeral" } }
+  ],
+  "messages": [
+    { "role": "user", "content": "修复这个仓库里的 bug，让 npm test 全部通过" },
+    { "role": "assistant", "content": [
+      { "type": "tool_use", "id": "call_1", "name": "bash", "input": { "command": "npm test" } } ] },
+    { "role": "user", "content": [
+      { "type": "tool_result", "tool_use_id": "call_1", "content": "3 failing", "is_error": false,
+        "cache_control": { "type": "ephemeral" } } ] }
+  ],
+  "max_tokens": 8192,
+  "stream": true
+}
+```
 
-读回来的东西被规约成一条类型化事件流，一共 12 个变体：
+这一层干了两件事。
+
+一是翻译。 pi 的 `toolCall` 变成了 Anthropic 的 `tool_use`，工具结果变成了一条 `role: "user"` 消息里的 `tool_result` 块。各家协议不一样，但差异全部在这里消化掉，上一层的循环对此一无所知。第 2.1 节那份 `Context` 是全篇通用的，这层之后就各说各话了。
+
+二是打缓存断点。 注意那三处 `cache_control` 的位置：system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
+
+请求发出去之后，回来的是一条统一的事件流：
 
 ```
 start
@@ -123,30 +194,11 @@ start
  └── error
 ```
 
-中间三条各自单独成流，思考、正文、每个工具调用都有自己的增量。
-
-这个流容器有个好处：它既是 AsyncIterable，又承诺一个 `result()`。同一段流，既可以逐字渲染，也可以等它给出最终消息。
-
-```ts
-// 同一件事的两种吃法
-const stream = models.stream(model, context, { cacheRetention: "short" });
-
-// 吃法一：当流，逐字渲染（顺便把 thinking 和正文分开显示）
-for await (const ev of stream) {
-  if (ev.type === "text_delta")      ui.appendText(ev.delta);
-  if (ev.type === "thinking_delta")  ui.appendThinking(ev.delta);
-}
-
-// 吃法二：当 Promise，等最终消息（usage、stopReason 都在上面）
-const message = await stream.result();
-console.log(message.usage.cost.total); // token 花了多少、缓存命中多少，全程透明
-```
-
-这段代码里有个参数先记一下：`cacheRetention: "short"`，它默认开着。第三章会说它值多少钱。
+一共 12 个变体。中间三条各自单独成流，思考、正文、每个工具调用都有自己的增量。这个流容器既是 AsyncIterable，又承诺一个 `result()`，所以同一段流既可以逐字渲染，也可以等它给出最终消息。
 
 ### 2.3 模型开口要工具
 
-模型说的话里出现了一段 `toolcall` 事件，意思是“我要执行 `npm test`”。这一下把控制权交回给了 harness。
+流里出现了 `toolcall` 事件，意思是“我要执行 `npm test`”。控制权交回给 harness。
 
 Pi 里一个回合（turn）的定义很干净：一次 assistant 响应，加上它引发的所有工具调用与结果。驱动它的 `runLoop` 是“双层 while”。要说明的是，`runLoop` 是模块私有函数，对外入口是 `agentLoop` / `runAgentLoop` / `runAgentLoopContinue`。骨架大致是这样（依据 `packages/agent/src/agent-loop.ts:156-273` 精简，省去了事件投递）：
 
@@ -175,29 +227,28 @@ async function runLoop(ctx, config) {
 }
 ```
 
-还有三件事，骨架里看不出来。
+这一趟只调了一个 `npm test`，所以上面那些分支都没走到。但把它们摆在一起看，会看出三种刹车是分开的：
 
-工具执行默认并行。一批里有三个互不依赖的命令，Pi 会同时发出去，而不是排队一个个来，只有显式声明要顺序执行的工具才串行。
-
-assistant 消息是先占位入栈、再按 delta 原位更新的。模型刚开始吐字时，一条只有骨架的 assistant 消息就已经进了上下文，之后每个 delta 到达就更新最后那一条，所以下游能看到“这句话正在被写出来”。
-
-工具执行本身分三段，prepare、execute、finalize。参数校验发生在 prepare 里，用的还是 pi-ai 那套 schema，也就是说给模型的契约和运行时校验是同一份定义，不会两边跑偏。
-
-骨架之外，真正见功夫的是它在几个边界条件上的处理。
-
-一批工具全员喊停才算停。一个工具执行完可以返回 `terminate: true`。但只有当这一批工具全部返回 terminate，循环才跳过紧接着的那次模型调用。混着来的一批照常继续。这是给“干完就收工”这类工具留的通道。
-
-**截断的参数一个都不执行。** 如果模型这次响应是被输出上限截断的（`stopReason === "length"`），那它吐出来的工具调用参数很可能是半截的。Pi 的做法是把这批工具调用全部判错，让模型把参数重发一遍，而不是半执行。宁可什么都不干，也不能干一半。
-
-它没有最大轮次。循环里没有一个“跑到第 N 轮就停”的保险丝。刹车分散在三个地方：工具可以返回 terminate，宿主可以随时用 `AbortSignal` 打断，钩子可以在回合结束后喊停。什么时候该停，只有正在干活的工具和最了解语境的宿主知道，循环自己不该替它们做主。
+- 一批工具全员喊停才算停。 工具可以返回 `terminate: true`，但只有这一批全部返回才跳过紧接着的那次模型调用，混着来的一批照常继续。
+- 截断的参数一个都不执行。 如果这次响应是被输出上限截断的，它吐出来的工具参数很可能是半截的。Pi 把这批工具调用全部判错，让模型重发，而不是半执行。宁可什么都不干，也不能干一半。
+- 没有最大轮次。 循环里找不到“跑到第 N 轮就停”的保险丝。刹车分散在工具、宿主（`AbortSignal`）、钩子三个地方。什么时候该停，只有正在干活的工具和最了解语境的宿主知道。
 
 ### 2.4 结果回到树上
 
-`npm test` 的输出被写回上下文，成为一条工具结果消息。模型接着想，接着调工具。上一篇文章那次任务里，这个过程重复了 6 次。
+`npm test` 的输出被写回上下文，成为一条工具结果消息。模型接着想，接着调工具。上一篇文章那次任务里，这个过程重复了 6 次，每次都在会话文件里留下痕迹。
 
-这里就撞上一个大多数工具都会撞到的问题：历史一直在长，长到最后装不下，怎么办？
+我让 Pi 真的写了一个会话文件，四行就是这个样子：
 
-Pi 的答案是把会话做成一棵树。每个会话是一个 JSONL 文件，第一行是 header，之后每一行是一个 entry，每个 entry 都指向自己的 parentId：
+```jsonl
+{"type":"session","version":3,"id":"01a0b81f-b94f-7559-bfee-67609da12709","timestamp":"2026-09-19T05:24:41.936Z","cwd":"/tmp/demo-repo"}
+{"type":"message","id":"a5c1c471","parentId":null,"timestamp":"2026-09-19T05:24:41.937Z","message":{"role":"user","content":"修复这个仓库里的 bug，让 npm test 全部通过","timestamp":1789795481937}}
+{"type":"message","id":"678f354f","parentId":"a5c1c471","timestamp":"2026-09-19T05:24:41.937Z","message":{"role":"assistant","api":"anthropic-messages","provider":"anthropic","model":"claude-sonnet-4-5","usage":{"input":3375,"output":120,"cacheRead":3000,"cacheWrite":0,"totalTokens":3495,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"toolUse","content":[{"type":"toolCall","id":"call_1","name":"bash","arguments":{"command":"npm test"}}],"timestamp":1789795481937}}
+{"type":"message","id":"423c01c8","parentId":"678f354f","timestamp":"2026-09-19T05:24:41.937Z","message":{"role":"toolResult","toolCallId":"call_1","toolName":"bash","content":[{"type":"text","text":"3 failing"}],"isError":false,"timestamp":1789795481937}}
+```
+
+四行里能看出三件事。
+
+第一行是 header，之后每一行是一个 entry，每个 entry 都指向自己的 parentId，`null` 表示它是根。所以一个文件里天然长着一棵树，而不是一条线：
 
 ```
 m1 ─ m2 ─ m3 ─┬─ m4 ─ m5   ← 叶子 A
@@ -205,21 +256,19 @@ m1 ─ m2 ─ m3 ─┬─ m4 ─ m5   ← 叶子 A
               └─ m6 ─ m7   ← 叶子 B
 ```
 
-当前对话位置就是树的某片叶子。所以我们刚才那 6 次工具调用，其实是在这棵树上走出了一条路径。想回到历史里的某个岔路口，那就是一次“切分支”。UI 上对应的命令有三个：
+id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。而 assistant 那条消息上挂着 `usage`，里面 `cacheRead: 3000` 是一个独立字段。这一趟花了多少缓存，会话文件里就记着多少。
+
+当前对话位置就是树的某片叶子，我们刚才那 6 次工具调用，是在这棵树上走出的一条路径。想回到历史里的某个岔路口，那就是一次“切分支”。对应的命令有三个：
 
 - `/tree`：查看整棵树，在文件内跳转、切换分支。
 - `/fork`：选中某条 user 消息，把它之前的路径复制成一个新的会话文件，并把那条 prompt 放回输入框供我们改写。
 - `/clone`：把当前分支复制到新文件。
 
-这些文件就躺在 `~/.pi/agent/sessions/` 下，按工作目录分文件夹。它是只追加的，entry 一旦写下就不能改也不能删，所以“回到过去”永远是移动指针，而不是回滚文件。
-
-构建“模型看到的上下文”时，SessionManager 会从当前叶子沿着 parentId 一路走回根，取路径上最后一个压缩条目，再把它当初刻意保留下来的那段尾巴接回去。规则很朴素，但细节很妙：被摘要覆盖掉的那批旧消息，一条都没有删。 它们只是不再进模型窗口，永远留在文件里，用 `/tree` 跳回去还能看到原文。
-
-这个设计说明：**“重写历史”在 Pi 里不是修改，而是开新枝。** 就像 git 一样，历史不可变，想走另一条路就 branch。对 agent 来说这太重要了：我们 fork 出去让模型试一个激进方案，不满意，切回原来的叶子继续，两边的记忆都还在，互不污染。
+这些文件就躺在 `~/.pi/agent/sessions/` 下，按工作目录分文件夹，而且是只追加的：entry 一旦写下就不能改也不能删。所以“重写历史”在 Pi 里不是修改，而是开新枝，就像 git 一样，历史不可变，想走另一条路就 branch。对 agent 来说这太重要了：我们 fork 出去让模型试一个激进方案，不满意，切回原来的叶子继续，两边的记忆都还在。
 
 ### 2.5 出错、插话、太长
 
-真实的请求不会一路顺风。模型调用会超时、会报错，上下文也会被顶爆。
+真实的请求不会一路顺风。模型调用会遇到超时、报错和上下文溢出。
 
 出错时的恢复原语叫 `agent.continue()`，注释写得很直白：
 
@@ -262,13 +311,13 @@ m1 ─ m2 ─ m3 ─┬─ m4 ─ m5   ← 叶子 A
 模型输入 [ 摘要 ][ m6 m7 ][ 新消息 ]
 ```
 
-触发条件是一行公式：上下文估算的 token 超过“窗口减去预留量”。两个默认值分别是 16384 和 20000，前者是留给模型回复的余量，后者是压缩后至少要保留的近期内容预算。触发时机永远在两次模型调用之间的间隙里，所以压缩不会打断正在生成的回复。
+触发条件是一行公式：上下文估算的 token 超过“窗口减去预留量”。两个默认值分别是 16384 和 20000，前者是留给模型回复的余量，后者是压缩后至少要保留的近期内容预算。切点有一个硬规矩，绝不允许切在工具结果上，否则模型会看到“调了工具却没结果”。
 
-会话文件是档案，一行都不删。进模型窗口的只有“摘要 + 被刻意保留的那段近期原文 + 压缩之后的新消息”。切点有一个硬规矩：**绝不允许切在工具结果上**，否则模型会看到“调了工具却没结果”。摘要本身也不是随便写的，它按固定结构生成，Goal、Constraints、Progress、Key Decisions、Next Steps、Critical Context，本质上是一份交接班记录。
+至于那批被摘要覆盖掉的旧消息，一条都没有删。它们只是不再进模型窗口，永远留在文件里，用 `/tree` 跳回去还能看到原文。
 
 ### 2.6 这一趟的证据
 
-上面这一路讲下来，你可能想问：这些机制我怎么确认它们是真的在跑？
+上面这一路讲下来，你可能会问：这些机制我怎么确认它们真的在跑？
 
 Pi 自己给了一个办法。它内置了一个 faux provider（`packages/ai/src/providers/faux.ts`，实测 708 行），一个零网络的假模型：把调用方排队的响应脚本，按真实的 delta 事件流吐出来。它能限速来模拟慢模型，也能模拟 abort 和 deferred 异步响应，甚至能按 sessionId 前缀命中来仿真 prompt cache 的读写。
 

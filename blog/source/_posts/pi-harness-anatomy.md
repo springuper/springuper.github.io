@@ -465,7 +465,11 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 
 ## 彩蛋
 
-2026 年 1 月，Pi 官网的 logo 还链在一个叫 shittycodingagent.ai 的域名上。作者的自嘲：功能不多，全靠自己拼。后来域名换成了现在的 pi.dev，这个域名是 exe.dev 友情捐赠的，致谢至今还写在 README 页脚里。
+2026 年 1 月，Pi 的 README 顶上那个 logo，链接指向一个叫 shittycodingagent.ai 的域名。作者的自嘲：功能不多，全靠自己拼。
+
+三个月后这个链接被换成了 pi.dev。动手的那次提交，message 写的是 “feat(branding): corporate said we're professionals”，意思是公司说我们得专业一点，提交人是 Armin Ronacher。pi.dev 这个域名是 exe.dev 友情捐赠的，致谢至今还写在 README 页脚里。
+
+顺手一提，那个老域名今天还活着，访问它会 301 跳到 pi.dev。
 
 一个敢把自己官网叫“烂编码 agent”的项目，大概也配得上“克制”这两个字。
 

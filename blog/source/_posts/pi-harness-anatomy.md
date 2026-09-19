@@ -224,7 +224,11 @@ const final = await stream.result();
 console.log(final.stopReason, final.content.map((c) => c.type).join(", "));
 ```
 
-我这里跑出来的原始输出（Node 24，2026-09-19）：
+上面这段在我的机器上跑起来是这样的（GIF 是真实终端输出录的，不是手绘）：
+
+![faux provider 的真实事件流：思考、正文、工具调用三段增量依次到达](../images/pi-harness-faux-event-stream.gif)
+
+控制台里的原始输出（Node 24，2026-09-19）：
 
 ```
 event  thinking_delta   "先看看工作目录里有什么，再决定改"

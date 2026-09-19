@@ -179,7 +179,7 @@ Current working directory: /tmp/demo-repo
 
 ### 2.2 它怎么发出去
 
-同一份东西，到了 Anthropic 那边长这样。下面这份是这一趟里的第二次请求（第一次只带前面那条 user 消息），我用一个假的 fetch 把它拦了下来，没有真的发网络请求：
+同一份东西，到了 Anthropic 那边长这样。这是这一趟的第一次请求，也是最短的一份：一份系统提示、一份工具清单、一条用户消息。我用一个假的 fetch 把它拦了下来，没有真的发网络请求：
 
 ```json
 POST https://api.anthropic.com/v1/messages?beta=true
@@ -206,23 +206,10 @@ POST https://api.anthropic.com/v1/messages?beta=true
   "messages": [
     {
       "role": "user",
-      "content": "修复这个仓库里的 bug，让 npm test 全部通过"
-    },
-    {
-      "role": "assistant",
       "content": [
         {
-          "type": "tool_use", "id": "call_1", "name": "bash",
-          "input": { "command": "npm test" }
-        }
-      ]
-    },
-    {
-      "role": "user",
-      "content": [
-        {
-          "type": "tool_result", "tool_use_id": "call_1",
-          "content": "3 failing", "is_error": false,
+          "type": "text",
+          "text": "修复这个仓库里的 bug，让 npm test 全部通过",
           "cache_control": { "type": "ephemeral" }
         }
       ]
@@ -235,9 +222,9 @@ POST https://api.anthropic.com/v1/messages?beta=true
 
 这一层干了两件事。
 
-一是翻译。 pi 的 `toolCall` 变成了 Anthropic 的 `tool_use`，工具结果变成了一条 `role: "user"` 消息里的 `tool_result` 块。各家协议不一样，但差异全部在这里消化掉，上一层的循环对此一无所知。第 2.1 节那份 `Context` 对各家 provider 都一样，这层之后就各说各话了。
+一是翻译。上面那份 `Context` 到这里被翻成 Anthropic 的格式：system prompt 变成一个 system 块数组，工具清单变成 tools 数组，消息还是 messages。形状没怎么变，名字全换了。再往下每一家都不一样，但差异都在这一层消化掉，上一层的循环对此一无所知。
 
-二是打缓存断点。注意那三处 `cache_control` 的位置：system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
+二是打缓存断点。三处 `cache_control`，位置分别是 system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
 
 请求发出去之后，回来的是一条统一的事件流：
 
@@ -286,6 +273,42 @@ while (true) {                                    // 外层：follow-up
 1. **模型一直要工具，谁来踩刹车？** 循环里没有“跑到第 N 轮就停”这种保险丝，刹车被分散到三个地方：工具自己可以返回 `terminate: true` 说“我干完了”，宿主可以随时用 `AbortSignal` 打断它，扩展（第 4 章会谈）也可以在一个回合结束时喊停。读下来像是在说：什么时候该停，交给正在干活的那一层判断。至少循环自己没有替它们做这个主。
 2. **一批工具里只有一个说“停”，算不算停？** 不算。要这一批**全部**返回 `terminate: true`，循环才跳过紧接着的那次模型调用，混着来的一批照常继续。否则一个多嘴的工具就能把整批活掐掉一半。
 3. **输出被截断，参数只剩半截，还执行吗？** 不执行。模型这次响应如果撞上了输出上限（`stopReason` 是 `length`），它吐出来的工具参数很可能是被腰斩的，Pi 把这批工具调用全部判错，让模型把参数重发一遍。宁可这一轮什么都不干，也不能拿着半截参数去改文件。
+
+模型那句“我要跑 `npm test`”到了 Pi 这里，被记成一条 assistant 消息。harness 执行完命令，把输出记成一条工具结果消息。下一趟请求就要把这两条一起带上去，于是 messages 从一条变成三条：
+
+```json
+"messages": [
+  {
+    "role": "user",
+    "content": "修复这个仓库里的 bug，让 npm test 全部通过"
+  },
+  {
+    "role": "assistant",
+    "content": [
+      {
+        "type": "tool_use", "id": "call_1", "name": "bash",
+        "input": { "command": "npm test" }
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "tool_result", "tool_use_id": "call_1",
+        "content": "3 failing", "is_error": false,
+        "cache_control": { "type": "ephemeral" }
+      }
+    ]
+  }
+]
+```
+
+两个地方值得留意。
+
+模型要调工具这件事，翻译过去叫 `tool_use`，参数装在 `input` 里。而工具的输出在 Anthropic 这边不能单独占一个角色，只能挂成一条 `role: "user"` 消息里的 `tool_result` 块，用 id 指回原来那次调用。这就是 2.2 里说的“各说各话”：Pi 内部是三种消息角色，出了这一层就得按人家的规矩来。
+
+缓存断点也跟着挪了位置。上一趟打在那唯一一条用户消息上，这一趟打到了工具结果的末块，因为规则是“最后一条 user 消息的末块”。真正没动的还是前面那一大段：系统提示和工具清单。
 
 ### 2.4 结果回到树上
 

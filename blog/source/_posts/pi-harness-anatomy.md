@@ -523,14 +523,17 @@ Anthropic 的顺序：tools → system → messages
 └─────── 前缀一字不差 ───────┘
 ```
 
-Pi 在这件事上做得比大多数工具细：
+Pi 在这件事上做的事，可以分成两类：一类让命中真的发生，一类让命中看得见。
 
-- usage 里 `cacheRead` 和 `cacheWrite` 是独立计量字段，成本按每家 provider 的缓存价单独算，连 Anthropic 一小时缓存写入按输入 2 倍计费这种细节都建模了。
-- 请求级的 `cacheRetention` 默认就是 `"short"`，缓存默认开启。
-- 打点位置按协议分别适配，Anthropic、OpenAI、Fireworks 三家各有一套。Anthropic 在 system、最后一个工具、最后一条 user 消息的末块打 `cache_control`。OpenAI Responses 侧发 `prompt_cache_key`，把 sessionId 截到 64 字符。Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头。
-- system prompt 是请求级顶层字段，每轮原样重发，工具集和插件不变时逐字节一致。对话中间怎么变，最贵的头部始终能命中。
+**先看让命中发生的三条。** 缓存命中的前提是两次请求的前缀逐字节相同，所以这三条都是在维护那个不变的前缀。
 
-这三套机制的差别很大：Anthropic 靠请求体里填标记，OpenAI 靠一个缓存键，Fireworks 靠让请求落到同一个缓存副本上。harness 要做的不是挑一种，而是三家都照顾到。
+- 请求级的 `cacheRetention` 默认就是 `"short"`，也就是缓存默认开着。听着不起眼，但它是前提，关着的话后面两条都无从谈起。
+- system prompt 是请求级顶层字段，每轮原样重发，工具集和插件不变时逐字节一致。所以最贵的那一段（系统提示加工具清单）永远不变，对话在它后面怎么长都不影响它。
+- 断点打在稳定前缀的边界上，而且位置固定。被断点圈住的那一段才会被服务端存下来，所以打在哪里，和前缀本身是否稳定一样重要。
+
+至于断点具体怎么打，三家协议各有一套写法。Anthropic 在 system 块、最后一个工具、最后一条 user 消息的末块填 `cache_control` 标记。OpenAI Responses 侧靠一个缓存键，`prompt_cache_key`，把 sessionId 截到 64 字符。Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头，让请求尽量落到同一个缓存副本上。harness 要做的不是挑一种，而是三家都照顾到。
+
+**再看让命中看得见的。** usage 里 `cacheRead` 和 `cacheWrite` 是两个独立字段，成本按每家 provider 的缓存价单独算，连 Anthropic 一小时缓存写入按输入 2 倍计费这种细节都建模了。省了多少，账上明明白白。
 
 上一篇文章实测里，Pi 的缓存命中率是 91% 到 93%。算一下：九成多的输入按 1/50 计价，剩下不到一成按原价，两项加起来约为完全未命中时的十分之一。**缓存把输入这一项压掉了大约九成。**
 

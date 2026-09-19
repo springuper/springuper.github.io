@@ -30,9 +30,9 @@ tags:
 
 用法是 `pi start Qwen/Qwen2.5-Coder-32B-Instruct`。“Pi” 这个名字最早属于一个在 GPU 机器上部署模型的工具。后来编码 agent 越长越大，反过来继承了这个名字。所以别问它是不是圆周率，它更像“某台跑模型的机器”的昵称（官方从没解释过，这是我的考古推测）。
 
-一周之后，第二个包被抽了出来。2025-08-17 的 commit 写着：`feat(ai): Create unified AI package with OpenAI, Anthropic, and Gemini support`。这是 Pi 的第一次分层，把“模型怎么接”从 agent 里剥出去，单独成了一个包。
+一周之后，pi-ai 被抽了出来。2025-08-17 的 commit 写着：`feat(ai): Create unified AI package with OpenAI, Anthropic, and Gemini support`。这是 Pi 的第一次分层，把“模型怎么接”从 agent 里剥出去，单独成了一个包。
 
-两个月后，2025-10-17，第三个包出现，coding-agent。产品层有了。
+两个月后，2025-10-17，coding-agent 出现。产品层有了。
 
 ### 1.2 一年之后，十一个包
 
@@ -43,7 +43,7 @@ tags:
 | 2025-08-09 | pi-tui / pi-agent / pi(pods) | 首提交，三件套 |
 | 2025-08-17 | pi-ai | 统一 OpenAI / Anthropic / Gemini |
 | 2025-10-17 | coding-agent | 把 agent 做成产品 |
-| 2026-07-21 | server | 会话要能被远程接进来（目录由更早的 orchestrator 改名而来） |
+| 2026-07-21 | server | 会话要能被远程接进来 |
 | 2026-07-25 | evals | 要能跑评测 |
 | 2026-07-30 | protocol | 远程会话的线协议 |
 | 2026-07-31 | client | 运行时无关的会话客户端 |
@@ -85,7 +85,8 @@ pi-tui 是这张图里唯一的旁支：它不依赖任何其他内部包，只�
 还是上一篇那条命令：
 
 ```bash
-pi -p "修复这个仓库里的 bug，让 npm test 全部通过" --provider deepseek --model deepseek/deepseek-v4-flash
+pi -p "修复这个仓库里的 bug，让 npm test 全部通过" \
+   --provider deepseek --model deepseek/deepseek-v4-flash
 ```
 
 `-p` 是非交互模式，跑完就退出。按下回车之后，我们跟着这行字走一趟，看它每一步变成了什么。
@@ -137,7 +138,7 @@ Current working directory: /tmp/demo-repo
 
 就这么短。真实的提示词是 24 行、1900 个字符，其中工具清单占 4 行，行为准则占 3 行。剩下的绝大部分是一串路径，指向**已安装包里的文档**。这一点到 4.2 还会再提一次，它是 Pi 最有趣的设计之一。
 
-（上面这块为了页面上不横向滚动，长行按 76 列折过行，安装路径也替换成了 `<安装目录>`，所以它显示成 39 行。内容一字未改，在你机器上那些路径指向你自己 node_modules 里的那个包。）
+（上面这块为了页面上不横向滚动，长行按 76 列折过行，安装路径也替换成了 `<安装目录>`，所以它显示成 38 行。内容一字未改，在你机器上那些路径指向你自己 node_modules 里的那个包。）
 
 一份请求在 pi-ai 里叫 `Context`，只有三样东西：上面这段 system prompt、一份消息列表、一份工具 schema。此刻消息列表里只有一条：
 
@@ -234,7 +235,7 @@ POST https://api.anthropic.com/v1/messages?beta=true
 
 这一层干了两件事。
 
-一是翻译。 pi 的 `toolCall` 变成了 Anthropic 的 `tool_use`，工具结果变成了一条 `role: "user"` 消息里的 `tool_result` 块。各家协议不一样，但差异全部在这里消化掉，上一层的循环对此一无所知。第 2.1 节那份 `Context` 是全篇通用的，这层之后就各说各话了。
+一是翻译。 pi 的 `toolCall` 变成了 Anthropic 的 `tool_use`，工具结果变成了一条 `role: "user"` 消息里的 `tool_result` 块。各家协议不一样，但差异全部在这里消化掉，上一层的循环对此一无所知。第 2.1 节那份 `Context` 对各家 provider 都一样，这层之后就各说各话了。
 
 二是打缓存断点。注意那三处 `cache_control` 的位置：system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
 
@@ -282,7 +283,7 @@ while (true) {                                    // 外层：follow-up
 
 真实的 `runLoop` 有 118 行（`packages/agent/src/agent-loop.ts:156-273`），比上面这个形状多出来的几乎全是边界处理。这些分支平时不显眼，但每一处都对应一个真实会踩到的坑：
 
-1. **模型一直要工具，谁来踩刹车？** 循环里没有“跑到第 N 轮就停”这种保险丝，刹车被分散到三个地方：工具自己可以返回 `terminate: true` 说“我干完了”，宿主可以随时用 `AbortSignal` 打断它，扩展也可以在一个回合结束时喊停。什么时候该停，只有正在干活的工具和最了解语境的宿主知道，循环不该替它们做主。
+1. **模型一直要工具，谁来踩刹车？** 循环里没有“跑到第 N 轮就停”这种保险丝，刹车被分散到三个地方：工具自己可以返回 `terminate: true` 说“我干完了”，宿主可以随时用 `AbortSignal` 打断它，扩展（第 4 章会谈）也可以在一个回合结束时喊停。什么时候该停，只有正在干活的工具和最了解语境的宿主知道，循环不该替它们做主。
 2. **一批工具里只有一个说“停”，算不算停？** 不算。要这一批**全部**返回 `terminate: true`，循环才跳过紧接着的那次模型调用，混着来的一批照常继续。否则一个多嘴的工具就能把整批活掐掉一半。
 3. **输出被截断，参数只剩半截，还执行吗？** 不执行。模型这次响应如果撞上了输出上限（`stopReason` 是 `length`），它吐出来的工具参数很可能是被腰斩的，Pi 把这批工具调用全部判错，让模型把参数重发一遍。宁可这一轮什么都不干，也不能拿着半截参数去改文件。
 
@@ -290,7 +291,7 @@ while (true) {                                    // 外层：follow-up
 
 `npm test` 的输出被写回上下文，成为一条工具结果消息。模型接着想，接着调工具。上一篇文章那次任务里，这个过程重复了 6 次，每次都在会话文件里留下痕迹。
 
-我让 Pi 真的写了一个会话文件。真实的文件是四行 JSONL，每条记录占一行，我在下面把它缩进展开了一遍，内容一字未改，只是为了让你不用横向滚动：
+我让 Pi 真的写了一个会话文件。真实的文件是每行一条记录的 JSONL，我在下面把其中一个回合的四条记录缩进展开了一遍，内容一字未改，只是为了让你不用横向滚动。完整文件里记录更多，这一趟那 6 次工具调用就散在十来个回合里：
 
 ```jsonc
 // 第 1 行：header
@@ -341,7 +342,7 @@ m1 ─ m2 ─ m3 ─┬─ m4 ─ m5   ← 叶子 A
               └─ m6 ─ m7   ← 叶子 B
 ```
 
-id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。而 assistant 那条消息上挂着 `usage`，里面 `cacheRead: 3000` 是一个独立字段。这一趟花了多少缓存，会话文件里就记着多少。
+id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。上面 `cost` 全是 0 是因为这份文件是我本地拿假模型写的，没接各家 provider 的计价表，真实的会话里这里会填上真金白银。而 assistant 那条消息上挂着 `usage`，里面 `cacheRead: 3000` 是一个独立字段。这一趟花了多少缓存，会话文件里就记着多少。
 
 当前对话位置就是树的某片叶子，我们刚才那 6 次工具调用，是在这棵树上走出的一条路径。想回到历史里的某个岔路口，那就是一次“切分支”。对应的命令有三个：
 
@@ -369,13 +370,13 @@ id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。而 a
 上下文溢出，且这一步的响应是失败的
   → 从 agent state 摘掉末尾那条失败的 assistant
   → 自动压缩，把历史折成摘要
-  → continue() 接着跑；只给一次机会
+  → continue() 接着跑，只给一次机会
 
 上下文溢出，但响应本身正常结束了
   → 只压缩，不重试
 ```
 
-除了出错，还有两件“运行中追加输入”的事，Pi 把它们建模成了两个队列：
+除了出错，还有两件事是往循环里追加输入，Pi 把它们建模成了两个队列：
 
 - **steering（转向）**：循环正在跑的时候想插一句话，投进 steer 队列，它会在当前工具执行完、模型下一次思考之前注入。
 - **follow-up（续尾）**：循环已经决定要停了，补一句“顺便把测试也跑了”，投进 follow-up 队列，它会再多跑一轮。
@@ -438,10 +439,13 @@ const stream = streamSimple(faux.getModel(), {
   ],
 });
 
+const seen = [];
 for await (const ev of stream) {
+  seen.push(ev.type);
   const payload = ev.type.endsWith("_delta") ? JSON.stringify(ev.delta) : "";
   console.log(ev.type, payload);
 }
+console.log(`共 ${seen.length} 个事件，事件类型种类 ${new Set(seen).size}`);
 const final = await stream.result();
 console.log(final.stopReason, final.content.map((c) => c.type).join(", "));
 ```
@@ -453,14 +457,21 @@ console.log(final.stopReason, final.content.map((c) => c.type).join(", "));
 控制台里的原始输出（Node 24，2026-09-19）：
 
 ```
+event  start
+event  thinking_start
 event  thinking_delta   "先看看工作目录里有什么，再决定改"
 event  thinking_delta   "哪个文件。"
+event  thinking_end
+event  text_start
 event  text_delta       "我先列一下目录。"
+event  text_end
+event  toolcall_start
 event  toolcall_delta   "{\"command\":\"ls -"
 event  toolcall_delta   "la\"}"
+event  toolcall_end
 event  done             stopReason=toolUse
 
-共 13 个事件；事件类型种类 11
+共 13 个事件，事件类型种类 11
 toolUse  thinking, text, toolCall
 ```
 
@@ -493,25 +504,25 @@ Pi 在这件事上做得比大多数工具细：
 
 - usage 里 `cacheRead` 和 `cacheWrite` 是独立计量字段，成本按每家 provider 的缓存价单独算，连 Anthropic 一小时缓存写入按输入 2 倍计费这种细节都建模了。
 - 请求级的 `cacheRetention` 默认就是 `"short"`，缓存默认开启。
-- 打点位置按协议分别适配。Anthropic 在 system、最后一个工具、最后一条 user 消息的末块打 `cache_control`。OpenAI Responses 侧发 `prompt_cache_key`，把 sessionId 截到 64 字符。
+- 打点位置按协议分别适配，Anthropic、OpenAI、Fireworks 三家各有一套。Anthropic 在 system、最后一个工具、最后一条 user 消息的末块打 `cache_control`。OpenAI Responses 侧发 `prompt_cache_key`，把 sessionId 截到 64 字符。Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头。
 - system prompt 是请求级顶层字段，每轮原样重发，工具集和插件不变时逐字节一致。对话中间怎么变，最贵的头部始终能命中。
 
-这三家的打点方式完全不一样。Anthropic 靠请求体里的 `cache_control` 标记，OpenAI 靠一个缓存键，Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头，让请求尽量落到同一个缓存副本上。harness 要做的不是挑一种，而是三家都照顾到。
+这三套机制的差别很大：Anthropic 靠请求体里填标记，OpenAI 靠一个缓存键，Fireworks 靠让请求落到同一个缓存副本上。harness 要做的不是挑一种，而是三家都照顾到。
 
-上一篇文章实测里，Pi 的缓存命中率是 91% 到 93%。**91% 以上的缓存命中，乘上 DeepSeek 量级的缓存读价，每轮的增量成本就趋近于零。** 那不是魔法，是前缀稳定工程叠加缓存计费模型的结果。
+上一篇文章实测里，Pi 的缓存命中率是 91% 到 93%。算一下：九成多的输入按 1/50 计价，剩下不到一成按原价，两项加起来约为完全未命中时的十分之一。**输入成本被压到十分之一，这就是 0.00007 美元的来历。** 那不是魔法，是前缀稳定工程叠加缓存计费模型的结果。
 
 缓存还有一个反直觉的配套规则：压缩和摘要请求强制关闭缓存。
 
 理由很简单。摘要是一次性内容，读完就扔，让它进缓存前缀纯属浪费，还会把真正的会话前缀挤掉。所以这类请求不仅 `cacheRetention` 是 `"none"`，默认路径下连 sessionId 都不传，每次现生成一个一次性 ID。
 
-一个便宜的机制（缓存）和一个昂贵的机制（压缩），在实现上是互相照顾的。
+一句话说，昂贵的那个主动给便宜的那个让路。毕竟压缩要额外叫一次模型来写摘要，它没理由再去污染缓存前缀。
 
 ### 3.2 不添乱
 
 再说快。9 秒里有很大一部分是模型自己思考、以及那 6 次命令执行花掉的时间，harness 没法替模型提速。它能做的是别往上加东西，而 Pi 在这一点上克制得有点反常：
 
 - 整个 system prompt 只有 1900 个字符，默认只挂 4 个工具，也就是 4 段 schema。这些东西每一轮都要原样重发，短一点，请求就轻一点。
-- 一批工具默认并行执行。那 6 次调用里有 3 次 bash、2 次 read、1 次 edit，互不依赖的同时发出去，而不是排队一个个来。
+- 一批工具默认并行执行。同一次模型响应里要调的几个工具，互不依赖的同时发出去，而不是排队一个个来。这一趟那 6 次调用（3 次 bash、2 次 read、1 次 edit）就分在几批里。
 - 没有权限弹窗要等。交互模式下工具该跑就跑，不会停下来等人点确认。
 
 这几条都不是什么发明，说到底只是没有被加上去。而忍住不加，本身也是一个设计决定。
@@ -532,7 +543,7 @@ Pi 在这件事上做得比大多数工具细：
 
 严格说它是区间语义：每帧先全量重算出整个行数组，再求出第一处和最后一处变化的行，中间没变的也跟着这一段一起写出去。只变一行时，才是图里画的最省情形。配合 CSI 2026 同步输出，终端先把一整帧攒齐再一次渲染，杜绝半帧闪烁。
 
-这和 3.1 那笔账是同一件事的两面：**把会变的部分和不会变的部分分开处理**。缓存盯的是请求前缀，尽量让它不变；渲染盯的是屏幕，只把变了的行发出去。
+这和 3.1 那笔账是同一件事的两面：**把会变的部分和不会变的部分分开处理**。缓存盯的是请求前缀，尽量让它不变。渲染盯的是屏幕，只把变了的行发出去。
 
 作者是游戏圈出身（libGDX 的作者），这套对“快”的执念全是游戏渲染管线的老手艺：主循环驱动刷新，每帧只画脏区域，双缓冲避免撕裂。仓库里甚至有用它跑 DOOM 的示例，在 overlay 里以 35 FPS 实时渲染。一个终端 UI 引擎能当游戏引擎用，大概是这套渲染哲学最好的注脚。
 
@@ -560,7 +571,7 @@ Pi 把这个思路推到了一个小极端：它把自己的说明书也数据�
 
 ### 4.3 敢不做
 
-Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“No”：不做 MCP，不做子代理，不做权限弹窗，不做计划模式，不做内置待办，不做后台 bash。
+Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“No”，而且一个比一个反直觉：不做 MCP（不接外部工具与数据源那套协议），不做子代理（不派生分身去干活），不做权限弹窗，不做计划模式（不先出方案再动手），不做内置待办清单，不做后台 bash（不把命令丢到后台慢慢跑）。
 
 第 2.1 节那个没有白名单的 bash，就是这条清单最直接的样子。它不替你判断哪条命令危险，只负责把命令原样交给 shell。
 
@@ -589,13 +600,21 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
    Gondolin       纯 Docker    OpenShell
 ```
 
+这三者都是社区给的壳，隔离范围不一样：
+
+| 壳 | 隔离什么 |
+|---|---|
+| Gondolin 扩展 | pi 与 provider 凭证留在宿主，内置工具与 `!` 命令路由进本地 Linux 微 VM |
+| 纯 Docker | 整个 pi 进程装进容器 |
+| NVIDIA OpenShell | 整个 pi 进程进策略沙箱（文件、进程、网络、凭证、推理都可控），需要 gateway |
+
 这条“不做”的清单也不是一成不变的。2025 年 11 月它的 README 里，这一节标题是 “Security (YOLO by default)”，理由是“权限系统只会增加摩擦，还很容易被绕过”。一个月后改名 “No Permission System (YOLO Mode)”。再一个月后整节被删，压成一行更戏谑的 “No permission popups. Security theater.”。今天那段严肃表述是 2026 年 6 月才写进根 README 的。立场没变过，说法一直在调。
 
 不做权限弹窗，那想要权限系统的人怎么办？自己拼一个。扩展系统里有现成的样板：`permission-gate.ts` 拦危险命令并弹确认，`protected-paths.ts` 保护 `.env` 和 `.git`。**“要权限系统？自己拼一个，20 分钟。”** 这句话就是“积木，而非成品”的注脚。
 
 这些“不做”后来大多变成了社区货源。官方说不做 MCP，社区就补了个适配器，把 MCP server 映射成 Pi 的原生工具。说不做子代理，社区就补了异步子代理委派。官方只负责把积木和图鉴做精，剩下的由我们自己拼。
 
-扩展点本身也给得足。`ExtensionAPI` 提供 36 个事件钩子，从输入、每轮模型调用前的上下文，到工具调用前后、回合起止、压缩之前，都有挂载点。日常用得上的其实不超过五个：拦个工具、加个命令、改改提示词、压缩前插一手。
+扩展点本身也给得足。`ExtensionAPI` 提供 36 个事件钩子，从输入、每轮模型调用前的上下文，到工具调用前后、回合起止、压缩之前，都有挂载点。日常用得上的其实就四个：拦个工具、加个命令、改改提示词、压缩前插一手。
 
 3.3 里那个自研的 pi-tui 也是这条清单的产物。现成的终端框架不是没有，但要按自己的方式渲染，就只能自己写。
 
@@ -609,9 +628,9 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 | 工具 | 内置 8 个默认开 4 个，无 allowlist，并行执行 |
 | 记忆 | 会话是一棵 entry 树，压缩写摘要而不删历史 |
 | 权限 | 没有内置权限系统，边界交给容器 |
-| 界面 | 自研差分渲染 TUI，print / json / rpc / SDK 共享同一个循环 |
+| 界面 | 自研差分渲染 TUI。四种出口（interactive / print·json / rpc / SDK）共享同一个循环 |
 
-一年时间从三个包长到十一个包，每一层都是被需求逼出来的，所以每一层都能被单独拿走。会话、分支、压缩、缓存全是数据，所以历史可以被 fork、被摘要、被续跑。该有的功能一个不做，把决定权留给我们自己拼。
+一年时间从三个包长到十一个包，每一层都是被需求逼出来的，所以每一层都能被单独拿走。会话、分支、压缩、缓存全是数据，所以历史可以被 fork、被摘要、被续跑。别人标配的那些功能它一个不做，把决定权留给我们自己拼。
 
 这三句话的落点是同一个：**这个项目没打算替你做决定。** 官网首页那句 “Primitives, not features”，还有那个曾经叫 shittycodingagent.ai 的域名，说的都是这件事。
 
@@ -654,4 +673,4 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 - 第三方解读：[walkinglabs 的 harness 工程设计系列（Pi 篇）](https://walkinglabs.github.io/learn-harness-engineering/zh-TW/harness-designs/pi/)
 - 真实会话数据集：[badlogicgames/pi-mono on Hugging Face](https://huggingface.co/datasets/badlogicgames/pi-mono)
 
-> 版本与核实说明：本文基于仓库 HEAD `9767ba2`（各包版本 0.85.1，2026-09-06 抓取）撰写，演进时间线里的日期与 commit 均取自仓库 git 历史，可按 commit 复核。star 数、版本号、生态数据随时间变化，引用请以当时为准。文中的 faux 事件流 demo 是实跑输出（Node 24 + `@earendil-works/pi-ai@0.85.1`），不是手写示意。掌故类内容（名字来历、YOLO Mode、域名变更）同样按 git 历史核验，其中域名那条重定向在浏览器里可以直接复现。
+> 版本与核实说明：本文基于仓库 HEAD `9767ba2`（各包版本 0.85.1，2026-09-06 抓取）撰写，演进时间线里的日期与 commit 均取自仓库 git 历史，可按 commit 复核。版本号与生态数据随时间变化，引用请以当时为准。文中实跑的证据（faux 输出、会话文件）产生于 2026-09-19，比基于 HEAD `9767ba2` 的源码核对晚两周，是为了让它们和这一版正文对齐才重新跑的。文中的 faux 事件流 demo 是实跑输出（Node 24 + `@earendil-works/pi-ai@0.85.1`），不是手写示意。掌故类内容（名字来历、YOLO Mode、域名变更）同样按 git 历史核验，其中域名那条重定向在浏览器里可以直接复现。

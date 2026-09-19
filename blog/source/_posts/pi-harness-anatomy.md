@@ -54,7 +54,7 @@ Pi 的官方仓库在 [github.com/earendil-works/pi](https://github.com/earendil
 
 > Pi is a minimal terminal coding harness. Adapt pi to your workflows, not the other way around, without having to fork and modify pi internals.
 
-翻译过来：**让 Pi 适应你的工作流，而不是让你去适应 Pi，而且你不需要 fork 它的源码就能做到这一点。** 这句话里藏着两层野心：一是"极简"，二是"可被塑造"。官网首页（pi.dev）上还有一句更狠的，是这篇解剖的题眼：**"Primitives, not features"**。直译是"原语，而非功能"，也正是标题里"积木，而非成品"的出处：Pi 给你的是可以自由拼装的原语，而不是替你拼好的成品功能。
+翻译过来：**让 Pi 适应你的工作流，而不是让你去适应 Pi，而且你不需要 fork 它的源码就能做到这一点。** 这句话里藏着两层野心：一是"极简"，二是"可被塑造"。官网首页（pi.dev）上还有一句更狠的，是这篇解剖的题眼：**“Primitives, not features”**。直译是"原语，而非功能"，也正是标题里"积木，而非成品"的出处：Pi 给你的是可以自由拼装的原语，而不是替你拼好的成品功能。
 
 ### 1.2 它的"不做清单"本身就是产品文档
 
@@ -140,12 +140,11 @@ UserMessage.content 还可以带 ImageContent（图片）
 
 这些内容块在走向各家协议时，会被翻译成各自的样子（示意，以各家当时的协议为准）：
 
-```
-          pi 统一消息      Anthropic          OpenAI 系             Google
-思考     ThinkingContent → thinking 块      reasoning_content    thought
-工具调用 ToolCall        → tool_use 块      tool_calls           functionCall
-图片     ImageContent    → image 块         image_url            inlineData
-```
+| pi 统一消息 | Anthropic | OpenAI 系 | Google |
+|---|---|---|---|
+| `ThinkingContent` | `thinking` 块 | `reasoning_content` | `thought` |
+| `ToolCall` | `tool_use` 块 | `tool_calls` | `functionCall` |
+| `ImageContent` | `image` 块 | `image_url` | `inlineData` |
 
 注意翻译的方向永远是"以 pi 的统一模型为准"，而不是"迁就最强的那个方言"，所以 pi 里可以有 Anthropic 没有的抽象（比如把思考单独分级），翻译不了就降级、能翻译就带走。
 
@@ -157,13 +156,16 @@ UserMessage.content 还可以带 ImageContent（图片）
 
 ```
 start
- ├── text_start / text_delta / text_end
- ├── thinking_start / thinking_delta / thinking_end     ← 思考单独成流
- ├── toolcall_start / toolcall_delta / toolcall_end     ← 每个工具调用也是一段增量流
-done / error
+ ├── text      → text_start / delta / end
+ ├── thinking  → thinking_start / delta / end
+ ├── toolcall  → toolcall_start / delta / end
+ ├── done
+ └── error
 ```
 
-delta 事件带 `contentIndex` 和一份共享的"累积消息"，所以下游既可以做逐字渲染，也可以等流结束取最终消息。最妙的是这个流容器**既是 AsyncIterable，又承诺一个 `result()`**：既可以把它当流消费，也可以等它给出最终消息。它不是 thenable，"当 Promise 用"得显式调 `.result()`。光说抽象没感觉，看一段真实消费它的代码（下面这段是我照着跑的，输出见 2.4 节）：
+（中间三条各自单独成流：思考、正文、每个工具调用都是一段自己的增量流。）
+
+delta 事件带 `contentIndex` 和一份共享的"累积消息"，所以下游既可以做逐字渲染，也可以等流结束取最终消息。最妙的是这个流容器**一手给两种吃法**：既是 AsyncIterable，又承诺一个 `result()`，既可以把它当流消费，也可以等它给出最终消息。它不是 thenable，"当 Promise 用"得显式调 `.result()`。光说抽象没感觉，看一段真实消费它的代码（下面这段是我照着跑的，输出见 2.4 节）：
 
 ```ts
 // 同一件事的两种吃法
@@ -190,6 +192,54 @@ console.log(message.usage.cost.total); // token 花了多少、缓存命中多�
 
 这件事看似小，其实是大工程的分水岭：**当"模型"可以被一个确定性脚本替代，整个循环的测试就从"碰运气"变成了"可复现"。** 前端同行看到这里会心一笑：这不就是"用 mock 数据驱动开发 UI"在 agent 世界的翻版么？后面讲压缩、讲缓存时还会再见到 faux 的妙用。
 
+**自己跑一遍。** 下面这段不需要 API key，也不需要联网，装上包就能复现；它顺手也验证了前两节的两件事，事件流是真的，`stream()` 和 `result()` 两种吃法同时成立：
+
+```bash
+npm i @earendil-works/pi-ai@0.85.1
+node faux-demo.mjs
+```
+
+```js
+// faux-demo.mjs
+import { fauxAssistantMessage, fauxText, fauxThinking, fauxToolCall } from "@earendil-works/pi-ai";
+import { registerFauxProvider, streamSimple } from "@earendil-works/pi-ai/compat";
+
+const faux = registerFauxProvider({ models: [{ id: "faux-1", contextWindow: 100000 }] });
+faux.setResponses([fauxAssistantMessage([
+  fauxThinking("先看看工作目录里有什么，再决定改哪个文件。"),
+  fauxText("我先列一下目录。"),
+  fauxToolCall("bash", { command: "ls -la" }, { id: "call_1" }),
+], { stopReason: "toolUse" })]);
+
+const stream = streamSimple(faux.getModel(), {
+  systemPrompt: "You are an expert coding assistant operating inside pi.",
+  messages: [{ role: "user", content: "帮我看看这个目录", timestamp: Date.now() }],
+  tools: [{ name: "bash", description: "Run a shell command", parameters: {} }],
+});
+
+for await (const ev of stream) {
+  console.log(ev.type, ev.type.endsWith("_delta") ? JSON.stringify(ev.delta) : "");
+}
+const final = await stream.result();
+console.log(final.stopReason, final.content.map((c) => c.type).join(", "));
+```
+
+我这里跑出来的原始输出（Node 24，2026-09-19）：
+
+```
+event  thinking_delta   "先看看工作目录里有什么，再决定改"
+event  thinking_delta   "哪个文件。"
+event  text_delta       "我先列一下目录。"
+event  toolcall_delta   "{\"command\":\"ls -"
+event  toolcall_delta   "la\"}"
+event  done             stopReason=toolUse
+
+共 13 个事件；事件类型种类 11
+toolUse  thinking, text, toolCall
+```
+
+注意那两行 `thinking_delta`：delta 是按 token 块切的，所以一句话会被切成好几段，这就是逐字渲染能成立的原因。
+
 pi-ai 的全部工作，说到底就是让 N 种"模型方言"变成 1 种"事件流"：**上层从此只认识一个形状，连测试用的假模型吐出来的都是这个形状。**
 
 ## 三、pi-agent-core：循环只是一个函数
@@ -198,7 +248,7 @@ pi-ai 的全部工作，说到底就是让 N 种"模型方言"变成 1 种"事�
 
 如果说 pi-ai 解决的是"模型怎么接"，pi-agent-core（`@earendil-works/pi-agent-core`）解决的是"循环本身"，而且是把它做成了一个你可以 `import` 进自己程序的函数，而不是一个只能通过 CLI 触发的黑盒。
 
-这是 Pi 架构观里最关键的一刀。前端的发展史告诉我们：**"框架"替你决定控制流，"库"把控制流还给你**（所以 jQuery 是库、Angular 是框架，React 一度被争论到底算哪个）。大多数 coding agent 是"框架"，我们必须活在它的 TUI 里；Pi 是"库"，agent 循环是一个我们可以 await 的 async 函数，CLI、批处理、RPC、SDK、别人的应用，都只是这个函数的不同宿主。README 里那句话（"adapt pi to your workflows, not the other way around"）在架构上的落点就在这里。
+这是 Pi 架构观里最关键的一刀。前端的发展史告诉我们：**“框架"替你决定控制流，"库"把控制流还给你**（所以 jQuery 是库、Angular 是框架，React 一度被争论到底算哪个）。大多数 coding agent 是"框架"，我们必须活在它的 TUI 里；Pi 是"库"，agent 循环是一个我们可以 await 的 async 函数，CLI、批处理、RPC、SDK、别人的应用，都只是这个函数的不同宿主。README 里那句话（"adapt pi to your workflows, not the other way around"）在架构上的落点就在这里。
 
 ### 3.2 一个回合（turn）是怎么被驱动的
 
@@ -229,7 +279,7 @@ async function runLoop(ctx, config) {
 }
 ```
 
-真实代码比这复杂得多（assistant 消息是先占位入栈、再按 delta 原位更新的，事件模型分 pi-ai 层和 agent 层两层，工具执行走 prepare（内含参数校验）→ execute → finalize 三段），但骨架就是它。**"循环本身不神秘"**：概念骨架几十行，含边界条件的实现约 120 行，整个 `agent-loop.ts` 800 行上下。Pi 的功夫全在循环的"边界条件"上。
+真实代码比这复杂得多（assistant 消息是先占位入栈、再按 delta 原位更新的，事件模型分 pi-ai 层和 agent 层两层，工具执行走 prepare（内含参数校验）→ execute → finalize 三段），但骨架就是它。**“循环本身不神秘”**：概念骨架几十行，含边界条件的实现约 120 行，整个 `agent-loop.ts` 800 行上下。Pi 的功夫全在循环的"边界条件"上。
 
 ### 3.3 精妙之处：它把"什么时候停"变成了一组显式规则
 
@@ -306,26 +356,31 @@ coding-agent 内置的工具只有 8 个：read、bash、edit、write、grep、f
 
 > This is intentional. Pi is designed to operate on local source trees… A partial in-process sandbox would be easy to misunderstand as a security boundary while still depending on the host shell, filesystem, package managers, credentials, and extension code. Real isolation needs to come from the operating system or a virtualization/container boundary.
 
-注意它的论证：**"一个进程内的半吊子沙箱，容易被误当成真正的安全边界"**。所以与其给一个让你误以为安全的假边界，不如明说"没有边界，边界请到操作系统/容器层面去画"。这不是偷懒，是一种清醒：in-process 沙箱在对抗"模型被提示词操纵去执行恶意命令"这件事上，本来就靠不住。
+注意它的论证：**“一个进程内的半吊子沙箱，容易被误当成真正的安全边界”**。所以与其给一个让你误以为安全的假边界，不如明说"没有边界，边界请到操作系统/容器层面去画"。这不是偷懒，是一种清醒：in-process 沙箱在对抗"模型被提示词操纵去执行恶意命令"这件事上，本来就靠不住。
 
 补个掌故：官方自己其实也开过这个玩笑，而且改过三次。2025-11-12 的 README 里，这一节标题是 "Security (YOLO by default)"，理由写的是 *"Permission systems add massive friction while being easily circumvented"*；2025-12-09 重构后改名 "No Permission System (YOLO Mode)"，那句里的 massive 也去掉了（就是外面最常引用的版本）；2025-12-17 整节被删，压成一行更戏谑的 "No permission popups. Security theater."，这行至今还留在 coding-agent README 的 Philosophy 里。今天那段严肃表述是 2026-06-03 才写进根 README 的。但"信任用户、把边界交给环境"的立场，从 YOLO 时代到今天没变过。
 
 它提供的安全方案在进程外面，根 README 摘了三条常见路径（[containerization 文档](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/containerization.md) 里其实已经有四种，还多一个把凭证留在宿主的 Docker Sandboxes）：
 
 ```
-┌─ Pi 核心（以你的用户权限运行）──────────────┐
-│  pi-ai / pi-agent-core / pi-coding-agent    │
-└──────────────────────────────┬───────────────┘
-                               │ 想要更强的边界？套一层壳
-        ┌──────────────────────┼──────────────────────┐
-        ▼                      ▼                      ▼
-  Gondolin 扩展          纯 Docker             OpenShell
-  宿主保留 pi 与凭证，     整个 pi 进程           策略控制的
-  内置工具与命令路由       装进容器              沙箱环境
-  进本地 Linux 微 VM
+┌─ Pi 核心（以你的用户权限运行）─────────────┐
+│  pi-ai / pi-agent-core / pi-coding-agent   │
+└───────────────────┬────────────────────────┘
+                    │ 想要更强的边界？套一层壳
+        ┌───────────┼───────────┐
+        ▼           ▼           ▼
+    Gondolin      纯 Docker     OpenShell
 ```
 
-另一个容易混淆的概念是 project trust（项目信任）：它只决定"要不要加载项目里的 `.pi/settings.json`、项目扩展、技能等输入资源"，默认会询问（非交互模式 `-p` / `--mode json` / `--mode rpc` 不弹问），它不是工具门禁。真正做"拦截"的挂载点，是扩展系统里的 `tool_call` 事件。官方 examples 里就躺着四个现成的参考实现：`permission-gate.ts`（拦截危险 bash 命令并弹 UI 确认）、`protected-paths.ts`（保护 .env/.git/node_modules 不被写）、`confirm-destructive.ts`、`project-trust.ts`。**"要权限系统？自己拼一个，20 分钟。"**，这就是"积木，而非成品"。
+三种壳的分工：
+
+| 方案 | 隔离什么 |
+|---|---|
+| Gondolin 扩展 | pi 与 provider 凭证留在宿主，内置工具与 `!` 命令路由进本地 Linux 微 VM |
+| 纯 Docker | 整个 pi 进程装进容器 |
+| NVIDIA OpenShell | 整个 pi 进程进策略沙箱（文件、进程、网络、凭证、推理都可控），需要 gateway |
+
+另一个容易混淆的概念是 project trust（项目信任）：它只决定"要不要加载项目里的 `.pi/settings.json`、项目扩展、技能等输入资源"，默认会询问（非交互模式 `-p` / `--mode json` / `--mode rpc` 不弹问），它不是工具门禁。真正做"拦截"的挂载点，是扩展系统里的 `tool_call` 事件。官方 examples 里就躺着四个现成的参考实现：`permission-gate.ts`（拦截危险 bash 命令并弹 UI 确认）、`protected-paths.ts`（保护 .env/.git/node_modules 不被写）、`confirm-destructive.ts`、`project-trust.ts`。**“要权限系统？自己拼一个，20 分钟。”**，这就是"积木，而非成品"。
 
 ### 4.4 扩展点：36 个事件钩子 + 技能 + Pi 包
 
@@ -444,13 +499,21 @@ SessionEntry {
 }
 ```
 
-每个 entry 都指向自己的 parentId。**所以一个文件里天然长着一棵树，而不是一条线**。当前对话位置就是树的某片叶子；想回到历史里的某个岔路口？那就是一次"切分支"。UI 上对应的命令是：
+每个 entry 都指向自己的 parentId。**所以一个文件里天然长着一棵树，而不是一条线**：
+
+```
+m1 ─ m2 ─ m3 ─┬─ m4 ─ m5   ← 叶子 A
+              │
+              └─ m6 ─ m7   ← 叶子 B
+```
+
+当前对话位置就是树的某片叶子，想回到历史里的某个岔路口，那就是一次"切分支"。UI 上对应的命令是：
 
 - `/tree`：查看整棵树，在文件内跳转/切换分支；
 - `/fork`：选中某条 user 消息，把它之前的路径复制成一个新会话文件，并把那条 prompt 放回输入框供我们改写（新文件的 header 里带 `parentSession` 指针，记录出身）；
 - `/clone`：把当前分支复制到新文件。
 
-这个设计说明：**"重写历史"在 Pi 里不是修改，而是开新枝**。就像 git 一样：历史不可变，想走另一条路就 branch。对 agent 来说这太重要了：我们 fork 出去让模型试一个激进方案，不满意，切回原来的叶子继续，两边的记忆都还在，互不污染。
+这个设计说明：**“重写历史"在 Pi 里不是修改，而是开新枝**。就像 git 一样：历史不可变，想走另一条路就 branch。对 agent 来说这太重要了：我们 fork 出去让模型试一个激进方案，不满意，切回原来的叶子继续，两边的记忆都还在，互不污染。
 
 构建"模型看到的上下文"时，SessionManager 从当前叶子沿着 parentId 一路走回根（buildContextEntries），取路径上最后一个压缩条目，再把它当初刻意保留下来的那段尾巴接回去。这段回溯的规则很朴素：
 
@@ -474,7 +537,7 @@ contextEntries.push(...path.slice(compactionIdx + 1)); // 压缩点之后的新�
 
 > During a multi-turn agent run, Pi checks this threshold after tools finish and their results are appended, before starting the next assistant response. If the threshold is crossed, Pi compacts inside the same agent run and resumes with the summary and retained messages.
 
-拆开看之前，先把最自然的问题问出来：既然要压缩，为什么不干脆全压成摘要、只留最近几句原文？ 因为摘要会丢细节，更因为工具调用与结果一旦被拆开，模型就会看到"调了工具却没结果"。Pi 的压缩目标从来不是"删旧的"，而是"**留尾巴、压老的**"。下面四个机制全在为这个平衡服务：
+拆开看之前，先把最自然的问题问出来：既然要压缩，为什么不干脆全压成摘要、只留最近几句原文？ 因为摘要会丢细节，更因为工具调用与结果一旦被拆开，模型就会看到"调了工具却没结果"。Pi 的压缩目标从来不是"删旧的"，而是”**留尾巴、压老的**“。下面四个机制全在为这个平衡服务：
 
 ① 触发：一个公式 + 三种原因。 阈值判定是 `contextTokens > contextWindow - reserveTokens`。默认 `reserveTokens = 16384`（预留的余量），`keepRecentTokens = 20000`（压缩后保留的近期内容预算）。触发原因有三种：`manual`（我们按 `/compact`）、`threshold`（接近上限）、`overflow`（真的溢出了。这里还分两种情形：响应失败才会压缩后重试，而且只给一次机会；响应本身正常结束的，就只压缩不重试）。触发时机永远在"一步 settle 之后、下一次 LLM 调用之前"，所以压缩不会打断正在进行的生成。判定与切点的逻辑，概念上就这两小段（示意）：
 
@@ -494,7 +557,21 @@ function findCutPoint(entries, keepRecentTokens) {
 }
 ```
 
-② 切点：宁可不压，不能切坏。 从最新往旧累计 token，凑够 `keepRecentTokens` 就切，但切点必须落在合法类型上（user/assistant/bash 等），绝不允许切在 toolResult 上：工具调用和它的结果必须语义连续，否则模型会看到"调了工具但没结果"。如果某个超长回合必须被腰斩，Pi 会先单独把回合前缀再摘一次要（split turn），保证上下文里永远没有半截对话。
+② 切点：宁可不压，不能切坏。 从最新往旧累计 token，凑够 `keepRecentTokens` 就切，但切点必须落在合法类型上（user/assistant/bash 等），**绝不允许切在 toolResult 上**：工具调用和它的结果必须语义连续，否则模型会看到"调了工具但没结果"。
+
+```
+会话文件（档案：一行都不删）
+ m1  m2  m3  m4  m5  m6  m7  m8
+ └───────┬───────┘  └────┬───┘
+         │                │
+    compaction          保留的原文
+     摘要 entry        （keepRecent）
+         │                │
+         ▼                ▼
+模型输入 [ 摘要 ][ m6 m7 ][ 新消息 ]
+```
+
+上面这张图是这一节的全部要点：会话文件是档案，一行都不删；进模型窗口的只有"摘要 + 被保留的那段近期原文 + 压缩之后的新消息"。如果某个超长回合必须被腰斩，Pi 会先单独把回合前缀再摘一次要（split turn），保证上下文里永远没有半截对话。
 
 ③ 摘要：不是"删掉旧的"，是"写入一条压缩记录"。 压缩发生后，文件里多了一个 `compaction` entry（字段示意，格式略作简化）：
 
@@ -506,7 +583,7 @@ function findCutPoint(entries, keepRecentTokens) {
   "details": { "readFiles": […], "modifiedFiles": […] } }
 ```
 
-旧消息一条都没删，它们只是不再进入模型输入，永远留在会话文件里可以审计、可以回看（用 `/tree` 跳回旧节点，原文一字不少）。此后模型看到的是：摘要消息 + 保留的近期原文 + 之后的新消息。摘要以扩展角色 `compactionSummary` 存在，真正发给模型时才包成一条带固定前后缀的 user 文本，防止模型把摘要误当对话继续。**诚实地说：压缩后你不能自动"追问细节"**，旧消息不会自动回灌；想考古就 `/tree`。这是一条刻意的取舍：窗口是稀缺资源，历史是档案，两者分开管理。
+旧消息一条都没删，它们只是不再进入模型输入，永远留在会话文件里可以审计、可以回看（用 `/tree` 跳回旧节点，原文一字不少）。此后模型看到的是：摘要消息 + 保留的近期原文 + 之后的新消息。摘要以扩展角色 `compactionSummary` 存在，真正发给模型时才包成一条带固定前后缀的 user 文本，防止模型把摘要误当对话继续。**诚实地说：压缩后你不能自动"追问细节”**，旧消息不会自动回灌；想考古就 `/tree`。这是一条刻意的取舍：窗口是稀缺资源，历史是档案，两者分开管理。
 
 ④ 摘要的质量工程。 摘要本身由会话主模型生成（可以换便宜模型，见下），输入是经过 `serializeConversation` 文本化的对话（显式标注每段是思考/工具调用/结果，防止模型把摘要对象当成对话来续写）；有旧摘要时用增量模板"更新"而不是重写；每次摘要还会累计记录读过的文件和改过的文件清单（Cumulative File Tracking），让压缩后的模型仍然"知道"自己动过哪些文件。摘要模板是结构化的：
 
@@ -519,7 +596,7 @@ function findCutPoint(entries, keepRecentTokens) {
 ## Critical Context
 ```
 
-这套结构不是随便写的。**它把"压缩"从"丢记忆"变成"交接班记录"**，让模型的短期记忆（窗口）和长期记忆（文件+摘要）有了一个高质量的接口。
+这套结构不是随便写的。**它把"压缩"从"丢记忆"变成"交接班记录”**，让模型的短期记忆（窗口）和长期记忆（文件+摘要）有了一个高质量的接口。
 
 ### 5.3 换分支的便签：branch summary
 
@@ -546,9 +623,10 @@ function findCutPoint(entries, keepRecentTokens) {
 回看 pi-ai 的设计，会发现缓存贯穿始终，不是某个 provider 的补丁。缓存命中的本质是两次请求的前缀完全一致：
 
 ```
-第 1 次请求: [system][工具 schema][user1][assistant: 调工具][toolResult1]
-第 2 次请求: [system][工具 schema][user1][assistant: 调工具][toolResult1][user2…]
-             └──────────────── 前缀一字不差 → 命中缓存，只付"搬运费" ────────────────┘
+Anthropic 的顺序：tools → system → messages
+第 1 次  [工具][sys][u1][调用][结果1]
+第 2 次  [工具][sys][u1][调用][结果1][u2]
+         └───── 前缀一字不差 ─────┘
 ```
 
 所以 Pi 的每一条缓存设计，都只有一个目标：让"前缀一致"这件事尽量多地发生。下面逐条看它怎么做到的：
@@ -557,7 +635,7 @@ function findCutPoint(entries, keepRecentTokens) {
 - 请求级 `cacheRetention: "none" | "short" | "long"`，默认 "short"，缓存默认开启；`sessionId` 同时充当"会话缓存标识"；
 - 对不同协议的打点方式做了完整适配：Anthropic 在 system 的块、最后一个工具、最后一条 user 消息的末块打 `cache_control: {type: "ephemeral"}`（long 才带 ttl）；OpenAI Responses 侧发 `prompt_cache_key`（把 sessionId 截到 64 字符），选 long 保留策略时再加 `prompt_cache_retention: "24h"`；Fireworks 这类靠副本路由命中的，则加 session-affinity 头让请求尽量打到同一个缓存副本；
 - 前缀稳定靠的是"system prompt 是请求级顶层字段，每轮原样重发"（工具集和插件不变时逐字节一致），加上缓存断点精准地打在 system、末工具、末 user 消息上：对话中间部分怎么变，最贵的头部始终可命中；
-- **压缩/摘要请求反而强制 `cacheRetention: "none"`**，默认压缩路径还不传 sessionId，每次现生成一个一次性 ID：摘要是一次性内容，不值得也不应该污染缓存前缀。
+- 压缩/摘要请求反而强制关闭缓存（`cacheRetention: "none"`），默认压缩路径还不传 sessionId，每次现生成一个一次性 ID：摘要是一次性内容，不值得也不应该污染缓存前缀。
 
 于是 Pi 的"省"有了机制级的解释：**91% 以上的缓存命中 × DeepSeek 量级的缓存读价 = 每轮增量成本趋近于零**。这也是为什么上一篇文章里它的成本低到 0.00007 美元。那不是魔法，是"前缀稳定工程 × 缓存计费模型"叠加的结果。连 faux provider 都会按 sessionId 仿真缓存命中的 token 拆分，测试里的计量口径和线上一致（它的 cost 字段恒为 0，一致的是 token 口径，不是价格）。
 
@@ -570,14 +648,16 @@ function findCutPoint(entries, keepRecentTokens) {
 **Differential Rendering：只更新变化的行或视口区域。** 把整块屏幕当成一帧来管理，每帧只把"变了的那几行"写出去（示意）：
 
 ```
-重绘派：把整个区域重新写一遍       Pi：只更新变化的行
-┌──────────────────┐            ┌──────────────────┐
-│  aaaaa           │            │  aaaaa           │
-│  bbbbb           │            │  bbbbb   ← 没变，不动
-│  ccccc → CCCCC   │            │  CCCCC   ← 只发这一行
-│  ddddd           │            │  ddddd           │
-└──────────────────┘            └──────────────────┘
+重绘派：整块重写       Pi：只更新变化的行
+┌────────────┐        ┌────────────┐
+│  aaaaa     │        │  aaaaa     │
+│  bbbbb     │        │  bbbbb     │  ← 没变
+│  ccccc     │        │  CCCCC     │  ← 只发这行
+│  dddddd    │        │  dddddd    │
+└────────────┘        └────────────┘
 ```
+
+严格说它是**区间**语义：每帧先全量重算出行数组，再求出第一处和最后一处变化的行，中间没变的行也跟着这一段一起写出去。只变一行时，才是上面画的最省情形。
 
 配合 CSI 2026 同步输出（终端先把一整帧攒齐、再一次渲染，杜绝"半帧闪烁"），体验非常顺滑。它区分主屏（保留回滚历史）与备屏（viewport 由应用自己管理滚动），内置 Text/Input/Editor/Markdown/ScrollView 等十几类组件；平台相关的"小助手"（剪贴板、修饰键等）用原生代码预编译成 .node 放进仓库。
 
@@ -636,4 +716,4 @@ function findCutPoint(entries, keepRecentTokens) {
 - 第三方解读：[walkinglabs 的 harness 工程设计系列（Pi 篇）](https://walkinglabs.github.io/learn-harness-engineering/zh-TW/harness-designs/pi/)
 - 真实会话数据集：[badlogicgames/pi-mono on Hugging Face](https://huggingface.co/datasets/badlogicgames/pi-mono)（作者公开自己的真实工作会话，并呼吁大家也分享）
 
-> 版本与核实说明：本文基于仓库 HEAD `9767ba2`（各包版本 0.85.1，2026-09-06 抓取）与公开文档撰写；生态与社区数据（画廊包数、第三方 star、技能集）抓取于 2026-09-07，其中第三方 star 数在 2026-09-19 复查时已整体上浮，文内已按复查值更新。star 数、版本号、生态数据随时间变化，引用请以当时为准。文中对"当前产品行为（经典 API）"与"演进方向（harness 运行时）"做了区分；凡涉及第三方解读处均已注明。名字来历、YOLO Mode、官网域名等掌故，均按仓库 git 历史考古核验（首提交 2025-08-09 起）。如果发现哪里有偏，欢迎在评论区指出来。
+> 版本与核实说明：本文基于仓库 HEAD `9767ba2`（各包版本 0.85.1，2026-09-06 抓取）与公开文档撰写；生态与社区数据（画廊包数、第三方 star、技能集）抓取于 2026-09-07，其中第三方 star 数在 2026-09-19 复查时已整体上浮，文内已按复查值更新。star 数、版本号、生态数据随时间变化，引用请以当时为准。文中的 faux 事件流 demo 是实跑输出（Node 24 + `@earendil-works/pi-ai@0.85.1`），不是手写示意；凡涉及源码的论断都标了 `packages/...` 路径与行号，可按 `HEAD 9767ba2` 逐条复核。文中对"当前产品行为（经典 API）"与"演进方向（harness 运行时）"做了区分；凡涉及第三方解读处均已注明。名字来历、YOLO Mode、官网域名等掌故，均按仓库 git 历史考古核验（首提交 2025-08-09 起）。如果发现哪里有偏，欢迎在评论区指出来。

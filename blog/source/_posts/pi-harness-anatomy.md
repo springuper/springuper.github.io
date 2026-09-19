@@ -62,31 +62,37 @@ tags:
 
 连“Pi 是什么”也是长出来的。它对自己的称呼改过好几轮：2025 年 11 月中旬叫 “a radically simple and opinionated coding agent”，2026 年 1 月底换成 “minimal terminal coding harness”，2026 年 5 月才第一次把 “Pi Agent Harness” 写进标题（当时还多一个尾巴，写作 “# Pi Agent Harness Mono Repo”），2026 年 6 月才精简成今天这句。
 
-最终长成的样子是这样，依赖严格单向，上层 import 下层：
+最终长成的样子是这样。箭头从使用方指向被使用方，被依赖的那一方对上面一无所知。
 
 ```
-   pi-tui（自研终端 UI：差分渲染）
-       ▲
-   pi-coding-agent（CLI：interactive / print / json / rpc / SDK）
-       ▲
-   pi-agent-core（agent 循环、会话树、压缩、状态机）
-       ▲
-   pi-ai（统一多 provider LLM API）
-       ▲
-   OpenAI / Anthropic / Google / DeepSeek / 各家订阅 OAuth / 本地模型……
+pi-coding-agent（CLI：interactive / print · json / rpc / SDK）
+   │
+   ├─ pi-agent-core（agent 循环、会话树、压缩、状态机）
+   │    └─ pi-ai（统一多 provider LLM API）
+   │         └─ OpenAI / Anthropic / Google / DeepSeek 等
+   │
+   └─ pi-tui（自研终端 UI：差分渲染）
 ```
 
-这条演进线解释了一件后面会反复出现的事：**每一层都是为了被别人拿走才切出来的。** 所以你可以只拿走底下三层，自己写第四层。这也是它敢管自己叫“库”的底气。
+pi-tui 是这张图里唯一的旁支：它不依赖任何其他内部包，只是被产品层拿去渲染界面。
+
+这条演进线解释了一件后面会反复出现的事：**每一层都是为了被别人拿走才切出来的。** 想要 agent 循环就拿 pi-agent-core，想要终端渲染再带上 pi-tui，产品层自己写就行。这也是它敢管自己叫“库”的底气。
 
 说完它是怎么长成的，回到第二个问题：敲下一行命令之后，里面究竟发生了什么。
 
 ## 二、一次请求的旅程
 
-还是那条命令。按下回车之后，我们跟着这行字走一趟，看它每一步变成了什么。
+还是上一篇那条命令：
+
+```bash
+pi -p "修复这个仓库里的 bug，让 npm test 全部通过" --provider deepseek --model deepseek/deepseek-v4-flash
+```
+
+`-p` 是非交互模式，跑完就退出。按下回车之后，我们跟着这行字走一趟，看它每一步变成了什么。
 
 ### 2.1 它把 prompt 变成了什么
 
-第一件事，是把这行字变成一份发给模型的东西。我把这一份抓出来看了，实际内容如下。它是用 pi 自己的 prompt 构造函数和工具定义生成的，不是我照着文档手抄的：
+第一件事，是把上面那行字变成一份发给模型的东西。我把这一份抓出来看了，实际内容如下。它是用 pi 自己的 prompt 构造函数和工具定义生成的，不是我照着文档手抄的：
 
 ```
 You are an expert coding assistant operating inside pi, a coding agent
@@ -145,6 +151,8 @@ Current working directory: /tmp/demo-repo
 ]
 ```
 
+模型能看到的除了历史，还有一份工具清单。coding-agent 内置的工具一共 8 个：read、bash、edit、write、grep、find、ls，外加一个可选、文档标注为 Windows 用的 powershell。**默认激活的只有 read、bash、edit、write 四个。**
+
 工具 schema 也一样朴素。四个默认工具里，bash 就两个字段：
 
 ```json
@@ -170,7 +178,7 @@ Current working directory: /tmp/demo-repo
 
 ### 2.2 它怎么发出去
 
-同一份东西，到了 Anthropic 那边长这样。我用一个假的 fetch 把它拦了下来，没有真的发网络请求：
+同一份东西，到了 Anthropic 那边长这样。下面这份是这一趟里的第二次请求（第一次只带前面那条 user 消息），我用一个假的 fetch 把它拦了下来，没有真的发网络请求：
 
 ```json
 POST https://api.anthropic.com/v1/messages?beta=true
@@ -609,7 +617,7 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 
 它当然不是给所有人准备的。如果你要的是开箱即用的安全与周全，Claude Code 们更合适。但如果你想亲手掌控自己那副鞍具的每一颗螺丝，Pi 是这个品类里把选择权还回来还得最彻底的一个。上一篇文章结尾我说“马是谁不重要了，重要的是鞍具合不合手”，这篇的结尾想补一句：**最好的鞍具，是你随时能拆开、能续上、还能请马自己讲讲它怎么跑的那一副。**
 
-有一点要交代：那套“把循环搬上网络”的新运行时，目前还只在 coding-agent 的 `experimental/` 路线里，要 `PI_EXPERIMENTAL=1` 才启用，默认 CLI 走的仍是经典 API。写这篇文章时它的定位是演进方向，不是当前行为。但方向说明的问题已经够清楚了，它正在把 agent 循环从进程内的一个函数，变成能跨进程恢复、还允许多个客户端同时接进来的服务。
+还有一件正文没展开的事。第一章那张表里的 server、protocol、client、chord 四个包，是正在成型的另一套运行时：它把 agent 循环从进程内的函数，改造成可以落盘、可以跨进程恢复的服务，目标是一个会话能被多个客户端同时接进来。这套东西目前只在 coding-agent 的 `experimental/` 路线里，要 `PI_EXPERIMENTAL=1` 才启用，默认 CLI 走的仍是经典架构。写这篇文章时它的定位是演进方向，不是当前行为。
 
 想亲自上手验证这篇里的论断，最快的一条路是：装上 Pi，把官方 `examples/extensions/` 目录翻一遍，照着抄一个自己的扩展，再跑一次 2.6 节那段 faux demo。这比读十篇解剖文章都管用。别忘了上篇的提醒：给工具用独立的目录副本，别让它们互相剧透。
 

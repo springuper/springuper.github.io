@@ -606,11 +606,18 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 
 ## 彩蛋
 
-2026 年 1 月，Pi 的 README 顶上那个 logo，链接指向一个叫 shittycodingagent.ai 的域名。作者的自嘲：功能不多，全靠自己拼。
+2026 年 1 月，Pi 的官网长这样：
 
-三个月后这个链接被换成了 pi.dev。动手的那次提交，message 写的是 “feat(branding): corporate said we're professionals”，意思是公司说我们得专业一点，提交人是 Armin Ronacher。pi.dev 这个域名是 exe.dev 友情捐赠的，致谢至今还写在 README 页脚里。
+![2026 年 1 月的 Pi 官网首页](../images/pi-harness-old-site.png)
+*Wayback Machine 对 shittycodingagent.ai 的存档，抓取时间 2026-01-09*
 
-顺手一提，那个老域名今天还活着，访问它会 301 跳到 pi.dev。
+那句 “There are many shitty coding agents, but this one is mine” 是冲着美国海军陆战队的步枪手誓词（Rifleman's Creed）来的。原话是 “This is my rifle. There are many like it, but this one is mine”，《全金属外壳》里新兵齐声念的就是它。翻译过来大概是：烂编码 agent 有很多，但这一个是我的。
+
+安装命令里还留着当时的 scope，`@mariozechner/pi-coding-agent`，包名后来才挪到 `@earendil-works` 下。
+
+三个月后，README 顶上那个指向 shittycodingagent.ai 的 logo 链接被换成了 pi.dev。动手的那次提交，message 写的是 “feat(branding): corporate said we're professionals”，意思是公司说我们得专业一点，提交人是 Armin Ronacher。pi.dev 这个域名是 exe.dev 友情捐赠的，致谢至今还写在 README 页脚里。
+
+顺手一提，那个老域名今天还活着，访问它会 301 跳到 pi.dev。存档页显示这段历史一共有 38 次抓取，跨度从 2025 年 12 月 17 日到 2026 年 9 月 14 日。
 
 一个敢把自己官网叫“烂编码 agent”的项目，大概也配得上“克制”这两个字。
 

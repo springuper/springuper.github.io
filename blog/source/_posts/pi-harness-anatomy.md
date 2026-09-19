@@ -89,33 +89,47 @@ tags:
 第一件事，是把这行字变成一份发给模型的东西。我把这一份抓出来看了，实际内容如下。它是用 pi 自己的 prompt 构造函数和工具定义生成的，不是我照着文档手抄的：
 
 ```
-You are an expert coding assistant operating inside pi, a coding agent harness. You help users by reading files, executing commands, editing code, and writing new files.
+You are an expert coding assistant operating inside pi, a coding agent
+  harness. You help users by reading files, executing commands, editing
+  code, and writing new files.
 
 Available tools:
 - read: Read file contents
 - bash: Execute bash commands (ls, grep, find, etc.)
-- edit: Make precise file edits with exact text replacement, including multiple disjoint edits in one call
+- edit: Make precise file edits with exact text replacement, including
+  multiple disjoint edits in one call
 - write: Create or overwrite files
 
-In addition to the tools above, you may have access to other custom tools depending on the project.
+In addition to the tools above, you may have access to other custom tools
+  depending on the project.
 
 Guidelines:
 - Use bash for file operations like ls, rg, find
 - Be concise in your responses
 - Show file paths clearly when working with files
 
-Pi documentation (read only when the user asks about pi itself, its SDK, extensions, themes, skills, or TUI):
+Pi documentation (read only when the user asks about pi itself, its SDK,
+  extensions, themes, skills, or TUI):
 - Main documentation: <安装目录>/pi-coding-agent/README.md
 - Additional docs: <安装目录>/pi-coding-agent/docs
-- Examples: <安装目录>/pi-coding-agent/examples (extensions, custom tools, SDK)
-- When reading pi docs or examples, resolve docs/... under Additional docs and examples/... under Examples, not the current working directory
-- When asked about: extensions (docs/extensions.md, examples/extensions/), themes (docs/themes.md), skills (docs/skills.md), prompt templates (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers (docs/custom-provider.md), adding models (docs/models.md), pi packages (docs/packages.md), environment variables (docs/environment-variables.md)
-- When working on pi topics, read the docs and examples, and follow .md cross-references before implementing
-- Always read pi .md files completely and follow links to related docs (e.g., tui.md for TUI API details)
+- Examples: <安装目录>/pi-coding-agent/examples
+  (extensions, custom tools, SDK)
+- When reading pi docs or examples, resolve docs/... under Additional docs and
+  examples/... under Examples, not the current working directory
+- When asked about: extensions (docs/extensions.md, examples/extensions/),
+  themes (docs/themes.md), skills (docs/skills.md), prompt templates
+  (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings
+  (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers
+  (docs/custom-provider.md), adding models (docs/models.md), pi packages
+  (docs/packages.md), environment variables (docs/environment-variables.md)
+- When working on pi topics, read the docs and examples, and follow .md
+  cross-references before implementing
+- Always read pi .md files completely and follow links to related docs
+  (e.g., tui.md for TUI API details)
 Current working directory: /tmp/demo-repo
 ```
 
-就这么短。24 行，1900 个字符，其中工具清单占 4 行，行为准则占 3 行。剩下的绝大部分是一串路径，指向**已安装包里的文档**。这一点到 4.2 还会再提一次，它是 Pi 最有趣的设计之一。（路径里的安装目录是我这台机器上的位置，在你机器上指向你自己 node_modules 里的那个包。）
+就这么短。24 行，1900 个字符，其中工具清单占 4 行，行为准则占 3 行。剩下的绝大部分是一串路径，指向**已安装包里的文档**。这一点到 4.2 还会再提一次，它是 Pi 最有趣的设计之一。（路径里的安装目录是我这台机器上的位置，在你机器上指向你自己 node_modules 里的那个包。为了页面上不横向滚动，长行按 76 列折过行，其余逐字未动。）
 
 一份请求在 pi-ai 里叫 `Context`，只有三样东西：上面这段 system prompt、一份消息列表、一份工具 schema。此刻消息列表里只有一条：
 
@@ -136,8 +150,14 @@ Current working directory: /tmp/demo-repo
   "type": "object",
   "required": ["command"],
   "properties": {
-    "command": { "type": "string", "description": "Shell command to execute" },
-    "timeout": { "type": "number", "description": "Timeout in seconds (optional, no default timeout)" }
+    "command": {
+      "type": "string",
+      "description": "Shell command to execute"
+    },
+    "timeout": {
+      "type": "number",
+      "description": "Timeout in seconds (optional, no default timeout)"
+    }
   }
 }
 ```
@@ -156,21 +176,46 @@ POST https://api.anthropic.com/v1/messages?beta=true
 {
   "model": "claude-sonnet-4-5",
   "system": [
-    { "type": "text", "text": "You are an expert coding assistant operating inside pi, ...",
-      "cache_control": { "type": "ephemeral" } }
+    {
+      "type": "text",
+      "text": "You are an expert coding assistant operating inside pi, ...",
+      "cache_control": { "type": "ephemeral" }
+    }
   ],
   "tools": [
-    { "name": "bash", "description": "Execute a bash command ...",
-      "input_schema": { "type": "object", "required": ["command"], "properties": { ... } },
-      "cache_control": { "type": "ephemeral" } }
+    {
+      "name": "bash",
+      "description": "Execute a bash command ...",
+      "input_schema": {
+        "type": "object", "required": ["command"], "properties": { ... }
+      },
+      "cache_control": { "type": "ephemeral" }
+    }
   ],
   "messages": [
-    { "role": "user", "content": "修复这个仓库里的 bug，让 npm test 全部通过" },
-    { "role": "assistant", "content": [
-      { "type": "tool_use", "id": "call_1", "name": "bash", "input": { "command": "npm test" } } ] },
-    { "role": "user", "content": [
-      { "type": "tool_result", "tool_use_id": "call_1", "content": "3 failing", "is_error": false,
-        "cache_control": { "type": "ephemeral" } } ] }
+    {
+      "role": "user",
+      "content": "修复这个仓库里的 bug，让 npm test 全部通过"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_use", "id": "call_1", "name": "bash",
+          "input": { "command": "npm test" }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "tool_result", "tool_use_id": "call_1",
+          "content": "3 failing", "is_error": false,
+          "cache_control": { "type": "ephemeral" }
+        }
+      ]
+    }
   ],
   "max_tokens": 8192,
   "stream": true
@@ -205,23 +250,25 @@ Pi 里一个回合（turn）的定义很干净：一次 assistant 响应，加�
 ```ts
 // packages/agent/src/agent-loop.ts:156-273 精简（省略 emit 事件与 turn_end）
 async function runLoop(ctx, config) {
-  let pending = (await config.getSteeringMessages?.()) ?? [];        // :168
-  while (true) {                                                    // :171 外层：follow-up
+  let pending = (await config.getSteeringMessages?.()) ?? [];   // :168
+  while (true) {                                                // :171 外层
     let hasMoreToolCalls = true;
-    while (hasMoreToolCalls || pending.length > 0) {                 // :175 内层
-      ctx.messages.push(...pending); pending = [];                   // :201 steering 在这里注入
-      const msg = await streamAssistantResponse(ctx, config);        // :212（真名，:279 定义）
-      if (msg.stopReason === "error" || msg.stopReason === "aborted") return; // :215 不执行任何工具
-      const calls = msg.content.filter((c) => c.type === "toolCall");       // :222
-      const batch = calls.length === 0 ? null : msg.stopReason === "length" // :231
-        ? await failToolCallsFromTruncatedMessage(calls)             // :232 全部判错，让模型重发
-        : await executeToolCalls(ctx, msg, config);                  // :233 默认并行执行
-      if (batch) ctx.messages.push(...batch.messages);               // :237
-      hasMoreToolCalls = batch ? !batch.terminate : false;           // :235 全员 terminate 才停
-      pending = (await config.getSteeringMessages?.()) ?? [];        // :257
+    while (hasMoreToolCalls || pending.length > 0) {            // :175 内层
+      ctx.messages.push(...pending); pending = [];     // :201 注入 steering
+      const msg = await streamAssistantResponse(ctx, config);    // :212
+      if (msg.stopReason === "error" || msg.stopReason === "aborted")
+        return;                                            // :215 不执行工具
+      const calls = msg.content.filter((c) => c.type === "toolCall"); // :222
+      const batch = calls.length === 0 ? null
+        : msg.stopReason === "length"
+          ? await failToolCallsFromTruncatedMessage(calls)  // :232 全部判错
+          : await executeToolCalls(ctx, msg, config);       // :233 默认并行
+      if (batch) ctx.messages.push(...batch.messages);          // :237
+      hasMoreToolCalls = batch ? !batch.terminate : false;      // :235
+      pending = (await config.getSteeringMessages?.()) ?? [];   // :257
     }
-    const followUps = (await config.getFollowUpMessages?.()) ?? [];  // :261 内层退出后才看 follow-up
-    if (followUps.length === 0) break;                               // :264
+    const followUps = (await config.getFollowUpMessages?.()) ?? []; // :261
+    if (followUps.length === 0) break;                          // :264
     pending = followUps;
   }
 }
@@ -237,13 +284,45 @@ async function runLoop(ctx, config) {
 
 `npm test` 的输出被写回上下文，成为一条工具结果消息。模型接着想，接着调工具。上一篇文章那次任务里，这个过程重复了 6 次，每次都在会话文件里留下痕迹。
 
-我让 Pi 真的写了一个会话文件，四行就是这个样子：
+我让 Pi 真的写了一个会话文件。真实的文件是四行 JSONL，每条记录占一行，我在下面把它缩进展开了一遍，内容一字未改，只是为了让你不用横向滚动：
 
-```jsonl
-{"type":"session","version":3,"id":"01a0b81f-b94f-7559-bfee-67609da12709","timestamp":"2026-09-19T05:24:41.936Z","cwd":"/tmp/demo-repo"}
-{"type":"message","id":"a5c1c471","parentId":null,"timestamp":"2026-09-19T05:24:41.937Z","message":{"role":"user","content":"修复这个仓库里的 bug，让 npm test 全部通过","timestamp":1789795481937}}
-{"type":"message","id":"678f354f","parentId":"a5c1c471","timestamp":"2026-09-19T05:24:41.937Z","message":{"role":"assistant","api":"anthropic-messages","provider":"anthropic","model":"claude-sonnet-4-5","usage":{"input":3375,"output":120,"cacheRead":3000,"cacheWrite":0,"totalTokens":3495,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"toolUse","content":[{"type":"toolCall","id":"call_1","name":"bash","arguments":{"command":"npm test"}}],"timestamp":1789795481937}}
-{"type":"message","id":"423c01c8","parentId":"678f354f","timestamp":"2026-09-19T05:24:41.937Z","message":{"role":"toolResult","toolCallId":"call_1","toolName":"bash","content":[{"type":"text","text":"3 failing"}],"isError":false,"timestamp":1789795481937}}
+```jsonc
+// 第 1 行：header
+{ "type": "session", "version": 3,
+  "id": "01a0b81f-b94f-7559-bfee-67609da12709",
+  "timestamp": "2026-09-19T05:24:41.936Z", "cwd": "/tmp/demo-repo" }
+
+// 第 2 行：用户消息
+{ "type": "message", "id": "a5c1c471", "parentId": null,
+  "timestamp": "2026-09-19T05:24:41.937Z",
+  "message": { "role": "user",
+               "content": "修复这个仓库里的 bug，让 npm test 全部通过",
+               "timestamp": 1789795481937 } }
+
+// 第 3 行：assistant，带工具调用与 usage
+{ "type": "message", "id": "678f354f", "parentId": "a5c1c471",
+  "timestamp": "2026-09-19T05:24:41.937Z",
+  "message": {
+    "role": "assistant", "api": "anthropic-messages",
+    "provider": "anthropic", "model": "claude-sonnet-4-5",
+    "usage": { "input": 3375, "output": 120,
+               "cacheRead": 3000, "cacheWrite": 0,
+               "totalTokens": 3495,
+               "cost": { "input": 0, "output": 0, "cacheRead": 0,
+                         "cacheWrite": 0, "total": 0 } },
+    "stopReason": "toolUse",
+    "content": [ { "type": "toolCall", "id": "call_1",
+                   "name": "bash",
+                   "arguments": { "command": "npm test" } } ],
+    "timestamp": 1789795481937 } }
+
+// 第 4 行：工具结果
+{ "type": "message", "id": "423c01c8", "parentId": "678f354f",
+  "timestamp": "2026-09-19T05:24:41.937Z",
+  "message": { "role": "toolResult", "toolCallId": "call_1",
+               "toolName": "bash",
+               "content": [ { "type": "text", "text": "3 failing" } ],
+               "isError": false, "timestamp": 1789795481937 } }
 ```
 
 四行里能看出三件事。
@@ -328,10 +407,15 @@ node faux-demo.mjs
 
 ```js
 // faux-demo.mjs
-import { fauxAssistantMessage, fauxText, fauxThinking, fauxToolCall } from "@earendil-works/pi-ai";
-import { registerFauxProvider, streamSimple } from "@earendil-works/pi-ai/compat";
+import {
+  fauxAssistantMessage, fauxText, fauxThinking, fauxToolCall,
+} from "@earendil-works/pi-ai";
+import { registerFauxProvider, streamSimple }
+  from "@earendil-works/pi-ai/compat";
 
-const faux = registerFauxProvider({ models: [{ id: "faux-1", contextWindow: 100000 }] });
+const faux = registerFauxProvider({
+  models: [{ id: "faux-1", contextWindow: 100000 }],
+});
 faux.setResponses([fauxAssistantMessage([
   fauxThinking("先看看工作目录里有什么，再决定改哪个文件。"),
   fauxText("我先列一下目录。"),
@@ -340,12 +424,17 @@ faux.setResponses([fauxAssistantMessage([
 
 const stream = streamSimple(faux.getModel(), {
   systemPrompt: "You are an expert coding assistant operating inside pi.",
-  messages: [{ role: "user", content: "帮我看看这个目录", timestamp: Date.now() }],
-  tools: [{ name: "bash", description: "Run a shell command", parameters: {} }],
+  messages: [
+    { role: "user", content: "帮我看看这个目录", timestamp: Date.now() },
+  ],
+  tools: [
+    { name: "bash", description: "Run a shell command", parameters: {} },
+  ],
 });
 
 for await (const ev of stream) {
-  console.log(ev.type, ev.type.endsWith("_delta") ? JSON.stringify(ev.delta) : "");
+  const payload = ev.type.endsWith("_delta") ? JSON.stringify(ev.delta) : "";
+  console.log(ev.type, payload);
 }
 const final = await stream.result();
 console.log(final.stopReason, final.content.map((c) => c.type).join(", "));
@@ -385,9 +474,11 @@ delta 是按 token 块切的，所以一句话会被切成几段，逐字渲染�
 
 ```
 Anthropic 的顺序：tools → system → messages
-第 1 次  [工具][sys][u1][调用][结果1]
-第 2 次  [工具][sys][u1][调用][结果1][u2]
-         └───── 前缀一字不差 ─────┘
+
+两次请求的前缀：
+[tools][sys][u1][call][result1]
+[tools][sys][u1][call][result1][u2]
+└─────── 前缀一字不差 ───────┘
 ```
 
 Pi 在这件事上做得比大多数工具细：
@@ -450,13 +541,14 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 它给出的安全方案在进程外面：
 
 ```
-┌─ Pi 核心（以你的用户权限运行）─────────────┐
-│  pi-ai / pi-agent-core / pi-coding-agent   │
-└───────────────────┬────────────────────────┘
-                    │ 想要更强的边界？套一层壳
-        ┌───────────┼───────────┐
-        ▼           ▼           ▼
-    Gondolin      纯 Docker     OpenShell
+┌─────────────────────────────────────────┐
+│  pi-ai / pi-agent-core / pi-coding-agent │
+└────────────────────┬────────────────────┘
+                     │ Pi 核心以你的用户权限运行
+                     │ 想要更强的边界？套一层壳
+       ┌─────────────┼─────────────┐
+       ▼             ▼             ▼
+   Gondolin       纯 Docker    OpenShell
 ```
 
 这条“不做”的清单也不是一成不变的。2025 年 11 月它的 README 里，这一节标题是 “Security (YOLO by default)”，理由是“权限系统只会增加摩擦，还很容易被绕过”。一个月后改名 “No Permission System (YOLO Mode)”。再一个月后整节被删，压成一行更戏谑的 “No permission popups. Security theater.”。今天那段严肃表述是 2026 年 6 月才写进根 README 的。立场没变过，说法一直在调。

@@ -226,7 +226,7 @@ POST https://api.anthropic.com/v1/messages?beta=true
 
 一是翻译。上面那份 `Context` 到这里被翻成 Anthropic 的格式：system prompt 变成一个 system 块数组，工具清单变成 tools 数组，消息还是 messages。形状没怎么变，名字全换了。再往下每一家都不一样，但差异都在这一层消化掉，上一层的循环对此一无所知。
 
-二是打缓存断点。三处 `cache_control`，位置分别是 system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
+二是打缓存断点。断点就是在请求体里标一个位置，等于告诉服务端：从开头到这里的内容请存下来，下次前缀一样就能直接复用，不必重算。上面那份报文里 `cache_control` 出现的三处，就是三个断点，位置分别是 system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
 
 请求发出去之后，回来的是一条统一的事件流：
 
@@ -514,7 +514,7 @@ delta 是按 token 块切的，所以一句话会被切成几段，逐字渲染�
 
 很多模型 API 对上下文缓存计费。如果这次请求的前缀和之前某次完全相同，命中的那部分就按远低于正常输入的价格算。按 DeepSeek 官方价目，缓存命中的输入价约为未命中的 1/50，Flash 档 0.02 对 1 元每百万 token。
 
-所以 harness 的功课很像前端压榨 HTTP 缓存：让请求前缀尽量稳定，并且正确地打缓存标记。
+所以 harness 的功课很像前端压榨 HTTP 缓存：让请求前缀尽量稳定，并且把断点打在对的地方。
 
 ```
 Anthropic 的顺序：tools → system → messages
@@ -533,7 +533,7 @@ Pi 在这件事上做的事，可以分成两类：一类让命中真的发生�
 - system prompt 是请求级顶层字段，每轮原样重发，工具集和插件不变时逐字节一致。所以最贵的那一段（系统提示加工具清单）永远不变，对话在它后面怎么长都不影响它。
 - 断点打在稳定前缀的边界上，而且位置固定。被断点圈住的那一段才会被服务端存下来，所以打在哪里，和前缀本身是否稳定一样重要。
 
-至于断点具体怎么打，三家协议各有一套写法。Anthropic 在 system 块、最后一个工具、最后一条 user 消息的末块填 `cache_control` 标记。OpenAI Responses 侧靠一个缓存键，`prompt_cache_key`，把 sessionId 截到 64 字符。Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头，让请求尽量落到同一个缓存副本上。harness 要做的不是挑一种，而是三家都照顾到。
+至于断点具体怎么打，三家协议各有一套写法。Anthropic 就是在 system 块、最后一个工具、最后一条 user 消息的末块填 `cache_control`。OpenAI Responses 侧靠一个缓存键，`prompt_cache_key`，把 sessionId 截到 64 字符。Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头，让请求尽量落到同一个缓存副本上。harness 要做的不是挑一种，而是三家都照顾到。
 
 **再看让命中看得见的。** usage 里 `cacheRead` 和 `cacheWrite` 是两个独立字段，成本按每家 provider 的缓存价单独算，连 Anthropic 一小时缓存写入按输入 2 倍计费这种细节都建模了。省了多少，账上明明白白。
 

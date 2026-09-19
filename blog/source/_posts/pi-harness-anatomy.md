@@ -28,7 +28,7 @@ tags:
 
 > Deploy and manage LLMs on GPU pods with automatic vLLM configuration for agentic workloads.
 
-用法是 `pi start Qwen/Qwen2.5-Coder-32B-Instruct`。“Pi” 这个名字最早属于一个在 GPU 机器上部署模型的工具。 后来编码 agent 越长越大，反过来继承了这个名字。所以别问它是不是圆周率，它更像“某台跑模型的机器”的昵称（官方从没解释过，这是我的考古推测）。
+用法是 `pi start Qwen/Qwen2.5-Coder-32B-Instruct`。“Pi” 这个名字最早属于一个在 GPU 机器上部署模型的工具。后来编码 agent 越长越大，反过来继承了这个名字。所以别问它是不是圆周率，它更像“某台跑模型的机器”的昵称（官方从没解释过，这是我的考古推测）。
 
 一周之后，第二个包被抽了出来。2025-08-17 的 commit 写着：`feat(ai): Create unified AI package with OpenAI, Anthropic, and Gemini support`。这是 Pi 的第一次分层，把“模型怎么接”从 agent 里剥出去，单独成了一个包。
 
@@ -226,7 +226,7 @@ POST https://api.anthropic.com/v1/messages?beta=true
 
 一是翻译。 pi 的 `toolCall` 变成了 Anthropic 的 `tool_use`，工具结果变成了一条 `role: "user"` 消息里的 `tool_result` 块。各家协议不一样，但差异全部在这里消化掉，上一层的循环对此一无所知。第 2.1 节那份 `Context` 是全篇通用的，这层之后就各说各话了。
 
-二是打缓存断点。 注意那三处 `cache_control` 的位置：system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
+二是打缓存断点。注意那三处 `cache_control` 的位置：system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
 
 请求发出去之后，回来的是一条统一的事件流：
 
@@ -245,40 +245,36 @@ start
 
 流里出现了 `toolcall` 事件，意思是“我要执行 `npm test`”。控制权交回给 harness。
 
-Pi 里一个回合（turn）的定义很干净：一次 assistant 响应，加上它引发的所有工具调用与结果。驱动它的 `runLoop` 是“双层 while”。要说明的是，`runLoop` 是模块私有函数，对外入口是 `agentLoop` / `runAgentLoop` / `runAgentLoopContinue`。骨架大致是这样（依据 `packages/agent/src/agent-loop.ts:156-273` 精简，省去了事件投递）：
+Pi 里一个回合（turn）的定义很干净：一次 assistant 响应，加上它引发的所有工具调用与结果。驱动它的 `runLoop` 是“双层 while”。要说明的是，`runLoop` 是模块私有函数，对外入口是 `agentLoop` / `runAgentLoop` / `runAgentLoopContinue`。形状大致是这样：
 
 ```ts
-// packages/agent/src/agent-loop.ts:156-273 精简（省略 emit 事件与 turn_end）
-async function runLoop(ctx, config) {
-  let pending = (await config.getSteeringMessages?.()) ?? [];   // :168
-  while (true) {                                                // :171 外层
-    let hasMoreToolCalls = true;
-    while (hasMoreToolCalls || pending.length > 0) {            // :175 内层
-      ctx.messages.push(...pending); pending = [];     // :201 注入 steering
-      const msg = await streamAssistantResponse(ctx, config);    // :212
-      if (msg.stopReason === "error" || msg.stopReason === "aborted")
-        return;                                            // :215 不执行工具
-      const calls = msg.content.filter((c) => c.type === "toolCall"); // :222
-      const batch = calls.length === 0 ? null
-        : msg.stopReason === "length"
-          ? await failToolCallsFromTruncatedMessage(calls)  // :232 全部判错
-          : await executeToolCalls(ctx, msg, config);       // :233 默认并行
-      if (batch) ctx.messages.push(...batch.messages);          // :237
-      hasMoreToolCalls = batch ? !batch.terminate : false;      // :235
-      pending = (await config.getSteeringMessages?.()) ?? [];   // :257
-    }
-    const followUps = (await config.getFollowUpMessages?.()) ?? []; // :261
-    if (followUps.length === 0) break;                          // :264
-    pending = followUps;
+// 双层循环的形状（示意，省去错误处理与截断保护）
+while (true) {                                    // 外层：follow-up
+  let hasMoreToolCalls = true;
+  while (hasMoreToolCalls) {                      // 内层
+    const msg = await streamAssistantResponse(ctx, config); // think
+    const calls = msg.content.filter((c) => c.type === "toolCall");
+
+    if (calls.length === 0) break;                // 没有工具要调，内层结束
+
+    const batch = await executeToolCalls(ctx, msg, config);  // act
+    ctx.messages.push(...batch.messages);         // observe
+
+    hasMoreToolCalls = !batch.terminate;          // 全员喊停才停
   }
+
+  const followUps = await config.getFollowUpMessages?.() ?? [];
+  if (followUps.length === 0) break;
 }
 ```
 
-这一趟只调了一个 `npm test`，所以上面那些分支都没走到。但把它们摆在一起看，会看出三种刹车是分开的：
+内层那一圈就是 think、act、observe：让模型说一段，取出它想调的工具，执行完把结果写回上下文，再回到开头。外层则负责一件事，这一圈走完之后，如果还有排队中的 follow-up，就带着新上下文再来一圈。
 
-- 一批工具全员喊停才算停。 工具可以返回 `terminate: true`，但只有这一批全部返回才跳过紧接着的那次模型调用，混着来的一批照常继续。
-- 截断的参数一个都不执行。 如果这次响应是被输出上限截断的，它吐出来的工具参数很可能是半截的。Pi 把这批工具调用全部判错，让模型重发，而不是半执行。宁可什么都不干，也不能干一半。
-- 没有最大轮次。 循环里找不到“跑到第 N 轮就停”的保险丝。刹车分散在工具、宿主（`AbortSignal`）、钩子三个地方。什么时候该停，只有正在干活的工具和最了解语境的宿主知道。
+真实的 `runLoop` 有 118 行（`packages/agent/src/agent-loop.ts:156-273`），比上面这个形状多出来的几乎全是边界处理：中途注入 steering 消息、工具调用前挡一道截断检查，还有各种出错分支。这一趟只调了一个 `npm test`，都没走到。把它们摆在一起看，会看出三种刹车是分开的：
+
+- 一批工具全员喊停才算停。工具可以返回 `terminate: true`，但只有这一批全部返回才跳过紧接着的那次模型调用，混着来的一批照常继续。
+- 截断的参数一个都不执行。如果这次响应是被输出上限截断的，它吐出来的工具参数很可能是半截的。Pi 把这批工具调用全部判错，让模型重发，而不是半执行。宁可什么都不干，也不能干一半。
+- 没有最大轮次。循环里找不到“跑到第 N 轮就停”的保险丝。刹车分散在工具、宿主（`AbortSignal`）、钩子三个地方。什么时候该停，只有正在干活的工具和最了解语境的宿主知道。
 
 ### 2.4 结果回到树上
 
@@ -520,7 +516,7 @@ Pi 在这件事上做得比大多数工具细：
 
 这条审美前端工程师很熟。这跟不可变状态加时间旅行调试是同一套东西：把状态的变化存成数据，把回到过去变成一次指针操作。
 
-Pi 把这个思路推到了一个小极端：它把自己的说明书也数据化了。 系统提示词里给了三个指向已安装包内 README、docs、examples 的路径，并写明只在用户问起 Pi 本身时才读。意思是你可以直接问它“你自己是怎么工作的”，它会翻开自己的说明书作答。
+Pi 把这个思路推到了一个小极端：它把自己的说明书也数据化了。系统提示词里给了三个指向已安装包内 README、docs、examples 的路径，并写明只在用户问起 Pi 本身时才读。意思是你可以直接问它“你自己是怎么工作的”，它会翻开自己的说明书作答。
 
 ### 4.3 敢不做
 

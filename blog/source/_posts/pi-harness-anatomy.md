@@ -555,6 +555,12 @@ Pi 在这件事上做得比大多数工具细：
 
 前端的发展史告诉我们：**“框架”替我们决定控制流，“库”把控制流还给我们。** jQuery 是库，Angular 是框架，React 一度被争论到底算哪个。
 
+Pi 把这条审美写进了 README：
+
+> Pi is a minimal terminal coding harness. Adapt pi to your workflows, not the other way around, without having to fork and modify pi internals.
+
+翻译过来是：让 Pi 适应你的工作流，而不是让你去适应它，而且你不需要 fork 它的源码就能做到。
+
 大多数 coding agent 是“框架”，我们必须活在它的 TUI 里。Pi 是“库”，agent 循环是一个可以 `import` 进自己程序的 async 函数。CLI、批处理、RPC、SDK，都只是这个函数的不同宿主。
 
 看完第二章那一趟旅程，你会发现这有多实在：那套 `runLoop` 不认终端，不认 stdin，也不认任何界面。它只认一个 `Context` 和一份配置。所以它今天能跑在 CLI 里，明天就能跑在别人的 IDE 里。
@@ -568,6 +574,12 @@ Pi 在这件事上做得比大多数工具细：
 这条审美前端工程师很熟。这跟不可变状态加时间旅行调试是同一套东西：把状态的变化存成数据，把回到过去变成一次指针操作。
 
 Pi 把这个思路推到了一个小极端：它把自己的说明书也数据化了。系统提示词里给了三个指向已安装包内 README、docs、examples 的路径，并写明只在用户问起 Pi 本身时才读。意思是你可以直接问它“你自己是怎么工作的”，它会翻开自己的说明书作答。
+
+仓库 README 里有一句自我介绍：
+
+> This is the home of the Pi agent harness project including our self extensible coding agent.
+
+“self extensible” 是它给自己贴的标签，而且贴得住。仓库根目录的 `.pi/` 里就是它自己用的扩展、提示词和技能，它拿自己开发自己。
 
 ### 4.3 敢不做
 

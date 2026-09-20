@@ -40,17 +40,18 @@ tags:
 
 | 日期 | 包 | 起因 |
 |---|---|---|
-| 2025-08-09 | pi-tui / pi-agent / pi(pods) | 首提交，三件套 |
+| 2025-08-09 | pi-tui / pi-agent / pi(pods) | 首提交，三件套。pods 已在 2026-04 删除 |
 | 2025-08-17 | pi-ai | 统一 OpenAI / Anthropic / Gemini |
 | 2025-10-17 | coding-agent | 把 agent 做成产品 |
-| 2026-07-21 | server | 会话要能被远程接进来 |
+| 2026-06-18 | server | 会话要能被远程接进来。当时叫 orchestrator，07-21 改名 |
 | 2026-07-25 | evals | 要能跑评测 |
 | 2026-07-30 | protocol | 远程会话要有个通信协议 |
 | 2026-07-31 | client | 不挑传输方式（WebSocket、Unix socket 都行） |
 | 2026-08-05 | telemetry | 遥测抽包 |
+| 2026-08-05 | session-backends | 存储后端抽出来单列，原名 storage |
 | 2026-08-28 | chord | 把插件组装成应用的运行时 |
 
-一年时间，三个包长到十一个。这条时间线基本是被需求推着走的，很少看到先画一套架构再落地。模型要统一，就抽 pi-ai。要有产品，就长出 coding-agent。会话要能被别人接进来，就有了 server 和 protocol。
+一年时间，三个包长到十一个。中间有进出，pods 被删了，storage 改名成了 session-backends，表里都标了。这条时间线基本是被需求推着走的，很少看到先画一套架构再落地。模型要统一，就抽 pi-ai。要有产品，就长出 coding-agent。会话要能被别人接进来，就有了 server 和 protocol。
 
 也有例外：上下文压缩在动手前两天先写了研究文档，pi-tui 至今留着一份 `tui-plan.md`，开头写着它记录的是设计讨论里的决定。
 
@@ -59,7 +60,7 @@ tags:
 | 日期 | 机制 |
 |---|---|
 | 2025-12-04 | 上下文压缩 |
-| 2026-01-02 | 会话树（原地分支） |
+| 2026-01-02 | 会话树（原地分支，v0.31.0 发布） |
 | 2026-03-29 | faux provider，用来在没有模型的情况下测整个循环 |
 
 连“Pi 是什么”也是长出来的。它对自己的称呼改过好几轮：2025 年 11 月中旬叫 “a radically simple and opinionated coding agent”，2026 年 1 月底换成 “minimal terminal coding harness”，2026 年 5 月才第一次把 “Pi Agent Harness” 写进标题（当时还多一个尾巴，写作 “# Pi Agent Harness Mono Repo”），2026 年 6 月才精简成今天这句。
@@ -78,7 +79,7 @@ pi-coding-agent（CLI：interactive / print · json / rpc / SDK）
 
 pi-tui 是这张图里唯一的旁支：它不依赖任何其他内部包，只是被产品层拿去渲染界面。
 
-每一层都切在自己的 package 边界上，所以每一层都能被单独安装。有意思的是 commit message 里给的理由全是内部需要，统一多 provider、把遥测抽出来、给目录改名，没有一条写着“方便别人复用”。但结果摆在那里：想要 agent 循环就拿 pi-agent-core，想要终端渲染再带上 pi-tui，产品层自己写就行。这也是它敢管自己叫“库”的底气。
+每一层都切在自己的 package 边界上，多数层在 npm 上能单独装，只有 evals 没发布。有意思的是 commit message 里给的理由全是内部需要，统一多 provider、把遥测抽出来、给目录改名，没有一条写着“方便别人复用”。但结果摆在那里：想要 agent 循环就拿 pi-agent-core，想要终端渲染再带上 pi-tui，产品层自己写就行。这也是它敢管自己叫“库”的底气。
 
 说完它是怎么长成的，回到第二个问题：敲下一行命令之后，里面究竟发生了什么。
 
@@ -95,7 +96,7 @@ pi -p "修复这个仓库里的 bug，让 npm test 全部通过" \
 
 ### 2.1 它把 prompt 变成了什么
 
-按下去之后的第一件事，是把上面那行字变成一份发给模型的东西。我把这一份抓出来看了，实际内容如下。它是用 pi 自己的 prompt 构造函数和工具定义生成的，不是我照着文档手抄的：
+按下去之后的第一件事，是把上面那行字变成一份发给模型的东西。下面这份是真抓的：把 provider 地址指到本机一个假服务，让 pi 照常发请求，把落在磁盘上的请求体原样抄下来。
 
 ```
 You are an expert coding assistant operating inside pi, a coding agent
@@ -114,6 +115,18 @@ In addition to the tools above, you may have access to other custom tools
 
 Guidelines:
 - Use bash for file operations like ls, rg, find
+- Use read to examine files instead of cat or sed.
+- You can inspect PI_* environment variables for current model and session
+  details.
+- Use edit for precise changes (edits[].oldText must match exactly)
+- When changing multiple separate locations in one file, use one edit call
+  with multiple entries in edits[] instead of multiple edit calls
+- Each edits[].oldText is matched against the original file, not after
+  earlier edits are applied. Do not emit overlapping or nested edits. Merge
+  nearby changes into one edit.
+- Keep edits[].oldText as small as possible while still being unique in the
+  file. Do not pad with large unchanged regions.
+- Use write only for new files or complete rewrites.
 - Be concise in your responses
 - Show file paths clearly when working with files
 
@@ -123,24 +136,17 @@ Pi documentation (read only when the user asks about pi itself, its SDK,
 - Additional docs: <安装目录>/pi-coding-agent/docs
 - Examples: <安装目录>/pi-coding-agent/examples
   (extensions, custom tools, SDK)
-- When reading pi docs or examples, resolve docs/... under Additional docs and
-  examples/... under Examples, not the current working directory
-- When asked about: extensions (docs/extensions.md, examples/extensions/),
-  themes (docs/themes.md), skills (docs/skills.md), prompt templates
-  (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings
-  (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers
-  (docs/custom-provider.md), adding models (docs/models.md), pi packages
-  (docs/packages.md), environment variables (docs/environment-variables.md)
-- When working on pi topics, read the docs and examples, and follow .md
-  cross-references before implementing
-- Always read pi .md files completely and follow links to related docs
-  (e.g., tui.md for TUI API details)
+- 另有 5 条说明，讲怎么顺着这些文档和交叉引用往下读（此处省略）
 Current working directory: /tmp/demo-repo
 ```
 
-就这么短。真实的提示词是 24 行、1900 个字符，其中工具清单占 4 行，行为准则占 3 行。剩下的绝大部分是一串路径，指向**已安装包里的文档**。这一点到 4.2 还会再提一次，它是 Pi 最有趣的设计之一。
+就这么短。真实的提示词是 31 行、2600 个字符，其中工具清单占 4 行，行为准则占 10 行。
 
-（上面这块为了页面上不横向滚动，长行按 76 列折过行，安装路径也替换成了 `<安装目录>`，所以它显示成 38 行。内容一字未改，在你机器上那些路径指向你自己 node_modules 里的那个包。）
+准则那一节值得停一下：10 条里有 7 条是**工具自己带上来的**。read 要求“用我，别用 cat 和 sed”，edit 交代“多处改动用一次调用”，write 声明“只用于新文件或整篇重写”。这一节不是 Pi 手写的，是它把每个工具自报的准则汇总起来的。
+
+剩下的绝大部分是一串路径，指向**已安装包里的文档**。这一点到 4.2 还会再提一次，它是 Pi 最有趣的设计之一。
+
+（上面这块为了页面上不横向滚动，长行按 76 列折过行，安装路径也换成了 `<安装目录>`。文档那一节原有 8 行，折叠成 4 行并标注了省略。所以它显示成 39 行，正文说的 31 行是原始行数。）
 
 一份请求在 pi-ai 里叫 `Context`，只有三样东西：上面这段 system prompt、一份消息列表、一份工具 schema。此刻消息列表里只有一条：
 
@@ -181,7 +187,7 @@ Current working directory: /tmp/demo-repo
 
 ### 2.2 它怎么发出去
 
-同一份东西，到了 DeepSeek 那边长这样。这是这一趟的第一次请求，也是最短的一份：一份系统提示、一份工具清单、一条用户消息。我用一个假的 fetch 把它拦了下来，没有真的发网络请求：
+同一份东西，到了 DeepSeek 那边长这样。这是这一趟的第一次请求，也是最短的一份：一份系统提示、一份工具清单、一条用户消息。除了 system 那句和工具描述用 `...` 缩掉，其余逐字来自真实请求（工具清单里只留了 bash，实际是四个）：
 
 ```json
 POST https://api.deepseek.com/chat/completions
@@ -195,28 +201,37 @@ POST https://api.deepseek.com/chat/completions
     },
     {
       "role": "user",
-      "content": "修复这个仓库里的 bug，让 npm test 全部通过"
+      "content": [
+        {
+          "type": "text",
+          "text": "修复这个仓库里的 bug，让 npm test 全部通过"
+        }
+      ]
     }
   ],
+  "stream": true,
+  "stream_options": { "include_usage": true },
+  "max_tokens": 384000,
   "tools": [
     {
       "type": "function",
       "function": {
         "name": "bash",
-        "description": "Execute a bash command ...",
+        "description": "Execute a bash command in the current ...",
         "parameters": {
-          "type": "object", "required": ["command"], "properties": { ... }
-        }
+          "type": "object", "required": ["command"],
+          "properties": { "command": { "type": "string" } }
+        },
+        "strict": false
       }
     }
   ],
-  "stream": true,
-  "stream_options": { "include_usage": true },
-  "thinking": { "type": "disabled" }
+  "thinking": { "type": "enabled" },
+  "reasoning_effort": "high"
 }
 ```
 
-先说形状。Pi 的 `Context` 是三样东西：系统提示、消息列表、工具清单。到了这里，系统提示变成 `messages` 里的第一条 `role: "system"` 消息，工具清单每条都要套一层 `function`。名字和嵌套都变了，但三样还是那三样。
+先说形状。Pi 的 `Context` 是三样东西：系统提示、消息列表、工具清单。到了这里，系统提示变成 `messages` 里的第一条 `role: "system"` 消息，工具清单每条都要套一层 `function`，用户那句话也裹成了文本块。名字和嵌套都变了，但三样还是那三样。
 
 再说一件这份报文里没有的东西：任何缓存标记。DeepSeek 的上下文缓存是自动的，前缀一样就命中，不需要你标什么。而有的协议要手动打标记，这份报文里看不出来，第三章会讲。
 
@@ -237,7 +252,7 @@ start
 
 流里出现了 `toolcall` 事件，意思是“我要执行 `npm test`”。控制权交回给 harness。
 
-Pi 里一个回合（turn）的定义很干净：一次 assistant 响应，加上它引发的所有工具调用与结果。驱动它的 `runLoop` 是“双层 while”。要说明的是，`runLoop` 是模块私有函数，对外入口是 `agentLoop` / `runAgentLoop` / `runAgentLoopContinue`。形状大致是这样：
+Pi 里一个回合（turn）的定义很干净：一次 assistant 响应，加上它引发的所有工具调用与结果。驱动它的 `runLoop` 是“双层 while”。要说明的是，`runLoop` 是模块私有函数，对外入口有四个：`agentLoop` / `agentLoopContinue` / `runAgentLoop` / `runAgentLoopContinue`。形状大致是这样：
 
 ```ts
 // 双层循环的形状（示意，省去错误处理与截断保护）
@@ -264,11 +279,11 @@ while (true) {                                    // 外层：follow-up
 
 真实的 `runLoop` 有 118 行（`packages/agent/src/agent-loop.ts:156-273`），比上面这个形状多出来的几乎全是边界处理。多出来的那些分支平时不显眼，但每一处都对应一个真实会踩到的坑：
 
-1. **模型一直要工具，谁来踩刹车？** 循环里没有“跑到第 N 轮就停”这种保险丝，刹车被分散到三个地方：工具自己可以返回 `terminate: true` 说“我干完了”，宿主可以随时用 `AbortSignal` 打断它，扩展（第 4 章会谈）也可以在一个回合结束时喊停。读下来像是在说：什么时候该停，交给正在干活的那一层判断。至少循环自己没有替它们做这个主。
+1. **模型一直要工具，谁来踩刹车？** 循环里没有“跑到第 N 轮就停”这种保险丝，刹车被分散到三个地方：工具自己可以返回 `terminate: true` 说“我干完了”，宿主可以随时用 `AbortSignal` 打断它，扩展也可以拦下某个工具调用，顺手带上同一个 `terminate` 标记。读下来像是在说：什么时候该停，交给正在干活的那一层判断。至少循环自己没有替它们做这个主。
 2. **一批工具里只有一个说“停”，算不算停？** 不算。要这一批全部返回 `terminate: true`，循环才跳过紧接着的那次模型调用。这个标记最典型的用法是收尾工具：官方示例里的 `structured_output`，模型最后调一次它把结果交出来，它标上 `terminate: true`，循环就此收工，**省掉一次完整的模型往返**。反过来，同一批里如果还混着一个普通工具（比如刚跑完 `npm test`），它的输出模型还没看过，这一批就不能停，得再问一轮。
 3. **输出被截断，参数只剩半截，还执行吗？** 不执行。模型这次响应如果撞上了输出上限（`stopReason` 是 `length`），它吐出来的工具参数很可能是被腰斩的，Pi 把这批工具调用全部判错，让模型把参数重发一遍。宁可这一轮什么都不干，也不能拿着半截参数去改文件。
 
-模型那句“我要跑 `npm test`”到了 Pi 这里，被记成一条 assistant 消息。harness 执行完命令，把输出记成一条工具结果消息。下一趟请求就要把这两条一起带上去，于是 messages 从一条变成三条：
+模型那句“我要跑 `npm test`”到了 Pi 这里，被记成一条 assistant 消息。harness 执行完命令，把输出记成一条工具结果消息。下一趟请求把这两条一起带上去：Pi 内部的消息列表从一条变成三条，到了报文里再加上 system，一共四条：
 
 ```json
 "messages": [
@@ -304,7 +319,9 @@ while (true) {                                    // 外层：follow-up
 
 这一趟只调了一个工具，真实的修复任务不会这么简单。上一篇文章那次任务里，模型和工具来回走了 6 轮，每一轮都在会话文件里留下记录。那 6 轮长什么样，看文件最直接。
 
-我让 Pi 真的写了一个会话文件。真实的文件是每行一条记录的 JSONL，我在下面把其中一个回合的四条记录缩进展开了一遍，内容一字未改，只是为了让你不用横向滚动。完整文件长得多，上面这四条只是其中一段：
+我让 Pi 真的写了一个会话文件。真实的文件是每行一条记录的 JSONL，每行一条记录，我在下面把其中一个回合的四条记录缩进展开了一遍（缩进只是为了让你不用横向滚动，字段结构和取值都照实）。
+
+其中 usage 和 cost 里的数字是示意值，原因下面会说。完整文件长得多，上面这四条只是其中一段：
 
 ```jsonc
 // 第 1 行：header
@@ -321,13 +338,13 @@ while (true) {                                    // 外层：follow-up
 
 // 第 3 行：assistant，带工具调用与 usage
 { "type": "message", "id": "678f354f", "parentId": "a5c1c471",
-  "timestamp": "2026-09-19T05:24:41.937Z",
+  "timestamp": "2026-09-19T05:24:42.104Z",
   "message": {
     "role": "assistant", "api": "openai-completions",
     "provider": "deepseek", "model": "deepseek-v4-flash",
     "usage": { "input": 1240, "output": 96,
                "cacheRead": 1080, "cacheWrite": 0,
-               "totalTokens": 1336,
+               "totalTokens": 2416,
                "cost": { "input": 0, "output": 0, "cacheRead": 0,
                          "cacheWrite": 0, "total": 0 } },
     "stopReason": "toolUse",
@@ -338,7 +355,7 @@ while (true) {                                    // 外层：follow-up
 
 // 第 4 行：工具结果
 { "type": "message", "id": "423c01c8", "parentId": "678f354f",
-  "timestamp": "2026-09-19T05:24:41.937Z",
+  "timestamp": "2026-09-19T05:24:45.318Z",
   "message": { "role": "toolResult", "toolCallId": "call_1",
                "toolName": "bash",
                "content": [ { "type": "text", "text": "3 failing" } ],
@@ -355,7 +372,7 @@ m1 ─ m2 ─ m3 ─┬─ m4 ─ m5   ← 叶子 A
               └─ m6 ─ m7   ← 叶子 B
 ```
 
-id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。这份文件是我用假模型在本地写的，所以 `cost` 全是 0，`usage` 里那几个数字也是示意值，真实会话里这里会填上真金白银和真实计量。顺带一提，`cacheRead` 是这次请求命中缓存的 token 量，第三章会专门讲它。而 assistant 那条消息上挂着 `usage`，里面 `cacheRead: 3000` 是一个独立字段。这一趟花了多少缓存，会话文件里就记着多少。
+id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。这份文件是我用假模型在本地写的，所以 `cost` 全是 0，`usage` 里那几个数字也是示意值，真实会话里这里会填上真金白银和真实计量。assistant 那条消息上挂着 `usage`，缓存命中量是里面一个独立字段（上面这份文件里是 `cacheRead: 1080`）。这一趟花了多少缓存，会话文件里就记着多少。
 
 当前对话位置就是树的某片叶子，我们刚才那 6 次工具调用，是在这棵树上走出的一条路径。想回到历史里的某个岔路口，那就是一次“切分支”。对应的命令有三个：
 
@@ -410,7 +427,7 @@ id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。这�
 模型输入 [ 摘要 ][ m6 m7 ][ 新消息 ]
 ```
 
-触发条件是一行公式：上下文估算的 token 超过“窗口减去预留量”。两个默认值分别是 16384 和 20000，前者是留给模型回复的余量，后者是压缩后至少要保留的近期内容预算。切点有一个硬规矩，绝不允许切在工具结果上，否则模型会看到“调了工具却没结果”。
+触发条件是一行公式：上下文估算的 token 超过“窗口减去预留量”。这个预留量的默认值是 16384，留给提示词和模型回复。切点则用另一个数，20000，表示压缩后至少要保留的近期内容预算。两者分工不同，一个管什么时候压，一个管压到哪儿。切点有一个硬规矩，绝不允许切在工具结果上，否则模型会看到“调了工具却没结果”。
 
 至于那批被摘要覆盖掉的旧消息，一条都没有删。它们只是不再进模型窗口，永远留在文件里，用 `/tree` 跳回去还能看到原文。
 
@@ -488,7 +505,9 @@ event  done             stopReason=toolUse
 toolUse  thinking, text, toolCall
 ```
 
-delta 是按 token 块切的，所以一句话会被切成几段，逐字渲染靠的就是这个。另外注意最后那行：一共 12 种事件类型，这一趟没出现 `error`，所以只数到 11 种。
+delta 是按 token 块切的，所以一句话会被切成几段，逐字渲染靠的就是这个。事件类型一共 12 种，这一趟没出现 `error`，所以最后那行只数到 11 种。
+
+（faux 的切块大小是随机取的，所以每次跑出来的条数和切分点都略有不同，上面这份是其中一次。）
 
 这件事看着小，其实是工程上的分水岭：**当“模型”可以被一个确定性脚本替代，整个循环的测试就从碰运气变成了可复现。** 上一篇文章里那个 9 秒的成绩是真实 API 跑出来的，但同样的路径可以拿 faux 反复走，不必再花钱。仓库的开发守则里写得很硬：`packages/coding-agent/test/suite/` 这套回归测试只准用 faux，不许用真实 API key 和付费 token。
 
@@ -626,7 +645,7 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
    Gondolin       纯 Docker    OpenShell
 ```
 
-这三层边界都不在 Pi 里面，来源也各不相同，隔离范围不一样：
+这几种边界都不在 Pi 里面，来源各不相同，隔离范围也不一样（官方文档列了四种，除了下面三个还有 Docker Sandboxes）：
 
 | 壳 | 隔离什么 |
 |---|---|
@@ -636,7 +655,7 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 
 这条清单的说法一直在调。2025 年 11 月这一节叫 “Security (YOLO by default)”，一个月后改成 “No Permission System (YOLO Mode)”，再一个月整节被删，只剩一句 “No permission popups. Security theater.”。今天那段严肃表述是 2026 年 6 月才写进去的。立场没变，措辞一直在变。
 
-不做权限弹窗，那想要权限系统的人怎么办？自己拼一个。扩展系统里有现成的样板：`permission-gate.ts` 拦危险命令并弹确认，`protected-paths.ts` 保护 `.env` 和 `.git`。**“要权限系统？自己拼一个，20 分钟。”** 这句话就是“积木，而非成品”的注脚。
+不做权限弹窗，那想要权限系统的人怎么办？自己拼一个。扩展系统里有现成的样板：`permission-gate.ts` 拦危险命令并弹确认，`protected-paths.ts` 保护 `.env` 和 `.git`。照 `permission-gate.ts` 抄一个自己的权限门，大概二十分钟的事。这就是“积木，而非成品”的注脚。
 
 这些能力后来大多由生态补上，多数样板就躺在官方仓库的 `examples/extensions/` 里：子代理、计划模式、待办清单，官方给了示例，只是不装进核心。钩子也给得足，`ExtensionAPI` 一共 36 个事件，从输入到回合起止、压缩之前都有挂载点，日常用得上的四个就够：拦个工具、加个命令、改改提示词、压缩前插一手。
 
@@ -654,11 +673,11 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 | 权限 | 没有内置权限系统，边界交给容器 |
 | 界面 | 自研差分渲染 TUI。四种出口（interactive / print·json / rpc / SDK）共享同一个循环 |
 
-一年时间从三个包长到十一个包，每一层都是被需求逼出来的，所以每一层都能被单独拿走。会话、分支、压缩、缓存全是数据，所以历史可以被 fork、被摘要、被续跑。别人标配的那些功能它一个不做，把工作流那一层的决定权留给我们自己拼。
+一年时间从三个包长到十一个包，每一层都是被需求逼出来的，所以多数层都能被单独拿走。会话、分支、压缩、缓存全是数据，所以历史可以被 fork、被摘要、被续跑。别人标配的那些功能它一个不做，把工作流那一层的决定权留给我们自己拼。
 
 这三句话的落点是同一个：**工作流那一层，它不替你做决定。** 官网首页那句 “Primitives, not features”，还有那个曾经叫 shittycodingagent.ai 的域名，说的都是这件事。
 
-当然，默认值还是它替你选的。默认只开四个工具，压缩的两个阈值写死在 16384 和 20000，项目信任默认要问一句。它让出来的不是“从不做选择”，而是“选择可以被改”。这两件事不一样，前面几章的例子也只在说后一件。
+当然，默认值还是它替你选的。默认只开四个工具，压缩的两个阈值默认 16384 和 20000，项目信任默认要问一句。它让出来的不是“从不做选择”，而是“选择可以被改”。这两件事不一样，前面几章的例子也只在说后一件。
 
 它当然不是给所有人准备的。如果你要的是开箱即用的安全与周全，Claude Code 们更合适。但如果你想亲手掌控自己那副鞍具的每一颗螺丝，Pi 是这个品类里把选择权还回来还得最彻底的一个。上一篇文章结尾我说“马是谁不重要了，重要的是鞍具合不合手”，这篇的结尾想补一句：**最好的鞍具，是你随时能拆开、能续上、还能请马自己讲讲它怎么跑的那一副。**
 
@@ -668,7 +687,7 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 
 ## 该警惕的地方
 
-1. 没有内置权限就是安全自负。这是设计，但也是风险：让 Pi 在我们不完全信任的目录上裸奔，等于让任意提示词驱动我们的 shell。GitLab Advisory Database 收录过它本地执行面的问题，最高一条是 HIGH（CVE-2026-54328，7.3 分，影响 0.78.1 之前的版本，本文这个 0.85.1 已经修掉）。在共享机器、CI、处理敏感数据时，先套壳。
+1. 没有内置权限就是安全自负。这是设计，也是风险：让 Pi 在我们不完全信任的目录上裸奔，等于让任意提示词驱动我们的 shell。它的安全文档自己也认这一点，说 `AGENTS.md`、注释、规则文件这类注入“cannot be protected against”，Pi 只把你本人和 Pi 进程当同一个信任边界。在共享机器、CI、处理敏感数据时，先套壳。（顺带一提，它确实修过一个本地提权问题，CVE-2026-54328，影响 0.74.0 到 0.78.1 之前，但这个和权限模型无关，成因是临时扩展目录可预测。）
 2. 版本与文档有代差。经典 API 和新 harness 并存，教学材料往往只讲其一。写代码、看文档前先确认自己在哪一代上。
 3. “不做 MCP、不做子代理、不做计划模式”的取舍不是免费的。这些能力要么靠社区包补，要么得自己写。对开箱即用党来说，它比 Claude Code 这类工具糙不少。
 4. 仓库默认自动关闭新贡献者的 issue 和 PR，维护者每日人工复查。项目红火但门槛不低，别被拒了一次就以为是在针对自己。
@@ -694,7 +713,7 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 
 - 仓库：[earendil-works/pi](https://github.com/earendil-works/pi)（[pi.dev](https://pi.dev) 官网与文档）
 - 作者博客：[《What I learned building an opinionated and minimal coding agent》](https://mariozechner.at/posts/2025-11-30-pi-coding-agent/)、[《What if you don't need MCP at all?》](https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/)
-- 我上一篇的横评：《[给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测](https://springuper.github.io/blog/agent-harness-comparison/)》（复现实测用同一提示词即可，命令见其附录）
+- 我上一篇的横评：《[给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测](https://springuper.github.io/agent-harness-comparison/)》（复现实测用同一提示词即可，命令见其附录）
 - 中文教学仓库：[cellinlab/how-pi-agent-works](https://github.com/cellinlab/how-pi-agent-works)
 - 第三方解读：[walkinglabs 的 harness 工程设计系列（Pi 篇）](https://walkinglabs.github.io/learn-harness-engineering/zh-TW/harness-designs/pi/)
 - 真实会话数据集：[badlogicgames/pi-mono on Hugging Face](https://huggingface.co/datasets/badlogicgames/pi-mono)

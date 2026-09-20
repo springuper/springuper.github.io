@@ -1,9 +1,8 @@
 ---
 layout: post
-title: “积木，而非成品：Pi Agent Harness 的克制与精妙”
-date: 2026-09-06 20:00:00
-status: draft
-published: false
+title: "积木，而非成品：Pi Agent Harness 的克制与精妙"
+date: 2026-09-20 09:00:00
+status: publish
 tags:
   - AI
   - Agent
@@ -154,7 +153,9 @@ Current working directory: /tmp/demo-repo
 [
   {
     "role": "user",
-    "content": "修复这个仓库里的 bug，让 npm test 全部通过",
+    "content": [
+      { "type": "text", "text": "修复这个仓库里的 bug，让 npm test 全部通过" }
+    ],
     "timestamp": 1789795481937
   }
 ]
@@ -231,7 +232,7 @@ POST https://api.deepseek.com/chat/completions
 }
 ```
 
-形状先对一下。Pi 的 `Context` 还是三样东西：系统提示、消息列表、工具清单。到了这里，系统提示变成 `messages` 里的第一条 `role: "system"` 消息，工具清单每条都要套一层 `function`，用户那句话也裹成了文本块。名字和嵌套都换了，三样还是那三样。
+形状先对一下。Pi 的 `Context` 还是三样东西：系统提示、消息列表、工具清单。到了这里，系统提示变成 `messages` 里的第一条 `role: "system"` 消息，工具清单每条都要套一层 `function`，用户那句话本来就是文本块数组（2.1 里那个形状），搬过来还是原样。名字和嵌套都换了，三样还是那三样。
 
 这份报文里还缺一样东西：缓存标记，一个都没有。DeepSeek 的上下文缓存是自动的，前缀一样就命中，不用你标什么；换个协议就得手动打断点，第三章会讲。
 
@@ -290,7 +291,9 @@ while (true) {                                    // 外层：follow-up
   { "role": "system", "content": "You are an expert coding assistant ..." },
   {
     "role": "user",
-    "content": "修复这个仓库里的 bug，让 npm test 全部通过"
+    "content": [
+      { "type": "text", "text": "修复这个仓库里的 bug，让 npm test 全部通过" }
+    ]
   },
   {
     "role": "assistant", "content": null,
@@ -534,7 +537,7 @@ OpenAI Responses 侧是另一套，靠一个缓存键，`prompt_cache_key`，把
 
 再说快。9 秒里有很大一部分是模型自己在想、加上那 6 次命令跑掉的时间，harness 替不了这个忙。它能做的是别往上添东西，而 Pi 在这点上克制得有点反常：
 
-- 整个 system prompt 只有 1900 个字符，默认只挂 4 个工具，也就是 4 段 schema。这些东西每一轮都要原样重发，短一点，请求就轻一点。
+- 整个 system prompt 只有 2600 个字符，默认只挂 4 个工具，也就是 4 段 schema。这些东西每一轮都要原样重发，短一点，请求就轻一点。
 - 一批工具默认并行执行。同一次模型响应里要调的几个工具会一起发出去，而不是排队一个个来。基准那一趟看不出这条省了多少，因为那 6 次调用大多是串的（跑测试、改、再跑测试）。
 - 工具本身没有确认弹窗，该跑就跑。这里说的是工具层——第一次在一个带 `.pi` 资源（这个项目自己的扩展、提示词、技能）的目录里启动时，仍会有一次项目信任询问。
 

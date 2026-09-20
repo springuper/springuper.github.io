@@ -181,54 +181,44 @@ Current working directory: /tmp/demo-repo
 
 ### 2.2 它怎么发出去
 
-同一份东西，到了 Anthropic 那边长这样。这是这一趟的第一次请求，也是最短的一份：一份系统提示、一份工具清单、一条用户消息。我用一个假的 fetch 把它拦了下来，没有真的发网络请求：
+同一份东西，到了 DeepSeek 那边长这样。这是这一趟的第一次请求，也是最短的一份：一份系统提示、一份工具清单、一条用户消息。我用一个假的 fetch 把它拦了下来，没有真的发网络请求：
 
 ```json
-POST https://api.anthropic.com/v1/messages?beta=true
+POST https://api.deepseek.com/chat/completions
 
 {
-  "model": "claude-sonnet-4-5",
-  "system": [
+  "model": "deepseek-v4-flash",
+  "messages": [
     {
-      "type": "text",
-      "text": "You are an expert coding assistant operating inside pi, ...",
-      "cache_control": { "type": "ephemeral" }
+      "role": "system",
+      "content": "You are an expert coding assistant operating inside pi, ..."
+    },
+    {
+      "role": "user",
+      "content": "修复这个仓库里的 bug，让 npm test 全部通过"
     }
   ],
   "tools": [
     {
-      "name": "bash",
-      "description": "Execute a bash command ...",
-      "input_schema": {
-        "type": "object", "required": ["command"], "properties": { ... }
-      },
-      "cache_control": { "type": "ephemeral" }
-    }
-  ],
-  "messages": [
-    {
-      "role": "user",
-      "content": [
-        {
-          "type": "text",
-          "text": "修复这个仓库里的 bug，让 npm test 全部通过",
-          "cache_control": { "type": "ephemeral" }
+      "type": "function",
+      "function": {
+        "name": "bash",
+        "description": "Execute a bash command ...",
+        "parameters": {
+          "type": "object", "required": ["command"], "properties": { ... }
         }
-      ]
+      }
     }
   ],
-  "max_tokens": 8192,
-  "stream": true
+  "stream": true,
+  "stream_options": { "include_usage": true },
+  "thinking": { "type": "disabled" }
 }
 ```
 
-这一层干了两件事。
+先说形状。Pi 的 `Context` 是三样东西：系统提示、消息列表、工具清单。到了这里，系统提示变成 `messages` 里的第一条 `role: "system"` 消息，工具清单每条都要套一层 `function`。名字和嵌套都变了，但三样还是那三样。
 
-一是翻译。上面那份 `Context` 到这里被翻成 Anthropic 的格式：system prompt 变成一个 system 块数组，工具清单变成 tools 数组，消息还是 messages。形状没怎么变，名字全换了。再往下每一家都不一样，但差异都在这一层消化掉，上一层的循环对此一无所知。
-
-二是打缓存断点。断点就是在请求体里标一个位置，等于告诉服务端：从开头到这里的内容请存下来，下次前缀一样就能直接复用，不必重算。上面那份报文里 `cache_control` 出现的三处，就是三个断点，位置分别是 system 块、工具列表的最后一项、最后一条 user 消息的末块。它们不是随便挑的，第三章会算这笔账。
-
-至于那个值 `{"type": "ephemeral"}`，ephemeral 是“临时的”：Anthropic 目前只有这一种缓存类型，默认寿命 5 分钟，过期就没了。想让它活一小时，得额外加一个 `ttl: "1h"`，代价是写入按输入的两倍计费。
+再说一件这份报文里**没有**的东西：任何缓存标记。DeepSeek 的上下文缓存是自动的，前缀一样就命中，不需要你标什么。而有的协议要手动打标记，2.2 这里看不出来，第三章会讲。
 
 请求发出去之后，回来的是一条统一的事件流：
 
@@ -282,37 +272,30 @@ while (true) {                                    // 外层：follow-up
 
 ```json
 "messages": [
+  { "role": "system", "content": "You are an expert coding assistant ..." },
   {
     "role": "user",
     "content": "修复这个仓库里的 bug，让 npm test 全部通过"
   },
   {
-    "role": "assistant",
-    "content": [
+    "role": "assistant", "content": null,
+    "tool_calls": [
       {
-        "type": "tool_use", "id": "call_1", "name": "bash",
-        "input": { "command": "npm test" }
+        "id": "call_1", "type": "function",
+        "function": { "name": "bash", "arguments": "{\"command\":\"npm test\"}" }
       }
-    ]
+    ],
+    "reasoning_content": ""
   },
-  {
-    "role": "user",
-    "content": [
-      {
-        "type": "tool_result", "tool_use_id": "call_1",
-        "content": "3 failing", "is_error": false,
-        "cache_control": { "type": "ephemeral" }
-      }
-    ]
-  }
+  { "role": "tool", "content": "3 failing", "tool_call_id": "call_1" }
 ]
 ```
 
 两个地方值得留意。
 
-模型要调工具这件事，翻译过去叫 `tool_use`，参数装在 `input` 里。而工具的输出在 Anthropic 这边不能单独占一个角色，只能挂成一条 `role: "user"` 消息里的 `tool_result` 块，用 id 指回原来那次调用。这就是 2.2 里说的“各说各话”：Pi 内部是三种消息角色，出了这一层就得按人家的规矩来。
+模型要调工具这件事，翻译过去是 `tool_calls` 数组，而且**参数是序列化好的 JSON 字符串**，不是对象。Pi 内部那个 `arguments` 是 `{ command: "npm test" }`，到了这里变成 `"{\"command\":\"npm test\"}"`。谁负责这一下转换，就是这一层的事，上一层的循环不用管。
 
-缓存断点也跟着挪了位置。上一趟打在那唯一一条用户消息上，这一趟打到了工具结果的末块，因为规则是“最后一条 user 消息的末块”。真正没动的还是前面那一大段：系统提示和工具清单。
+工具结果到了这里自己占一个角色，`role: "tool"`，用 `tool_call_id` 指回原来那次调用。换个协议就不一样了：在 Anthropic 那边，工具结果不能单独占角色，只能挂在一条 `role: "user"` 消息里。这套差异全在这一层消化掉，上一层的循环对此一无所知。
 
 ### 2.4 结果回到树上
 
@@ -337,8 +320,8 @@ while (true) {                                    // 外层：follow-up
 { "type": "message", "id": "678f354f", "parentId": "a5c1c471",
   "timestamp": "2026-09-19T05:24:41.937Z",
   "message": {
-    "role": "assistant", "api": "anthropic-messages",
-    "provider": "anthropic", "model": "claude-sonnet-4-5",
+    "role": "assistant", "api": "openai-completions",
+    "provider": "deepseek", "model": "deepseek-v4-flash",
     "usage": { "input": 1240, "output": 96,
                "cacheRead": 1080, "cacheWrite": 0,
                "totalTokens": 1336,
@@ -514,13 +497,11 @@ delta 是按 token 块切的，所以一句话会被切成几段，逐字渲染�
 
 先说便宜。那 0.00007 美元。
 
-很多模型 API 对上下文缓存计费。如果这次请求的前缀和之前某次完全相同，命中的那部分就按远低于正常输入的价格算。按 DeepSeek 官方价目，缓存命中的输入价约为未命中的 1/50，Flash 档 0.02 对 1 元每百万 token。
+很多模型 API 对上下文缓存计费。如果这次请求的前缀和之前某次完全相同，命中的那部分就按远低于正常输入的价格算。按 DeepSeek 官方价目，缓存命中的输入价约为未命中的 1/50。模型清单里 flash 档的这两个数是 0.0028 和 0.14，正好差 50 倍。
 
-所以 harness 的功课很像前端压榨 HTTP 缓存：让请求前缀尽量稳定，并且把断点打在对的地方。
+所以 harness 的功课很像前端压榨 HTTP 缓存：让请求前缀尽量稳定。能命中的，永远是“从头开始、一字不差的那一段”：
 
 ```
-Anthropic 的顺序：tools → system → messages
-
 两次请求的前缀：
 [tools][sys][u1][call][result1]
 [tools][sys][u1][call][result1][u2]
@@ -533,11 +514,13 @@ Pi 在这件事上做的事，可以分成两类：一类让命中真的发生�
 
 - 请求级的 `cacheRetention` 默认就是 `"short"`，也就是缓存默认开着。听着不起眼，但它是前提，关着的话后面两条都无从谈起。
 - system prompt 是请求级顶层字段，每轮原样重发，工具集和插件不变时逐字节一致。所以最贵的那一段（系统提示加工具清单）永远不变，对话在它后面怎么长都不影响它。
-- 断点打在稳定前缀的边界上，而且位置固定。被断点圈住的那一段才会被服务端存下来，所以打在哪里，和前缀本身是否稳定一样重要。
+- 打标记这件事，各家要求不一样，交给适配层去管。DeepSeek 这类是**自动**的，什么都不用标，前缀一样就命中（2.2 那份报文里一个缓存字段都没有，就是这个原因）。Anthropic 那类要**手动打断点**，标记打在哪儿、活多久，都得自己算。
 
-至于断点具体怎么打，三家协议各有一套写法。Anthropic 就是在 system 块、最后一个工具、最后一条 user 消息的末块填 `cache_control`。OpenAI Responses 侧靠一个缓存键，`prompt_cache_key`，把 sessionId 截到 64 字符。Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头，让请求尽量落到同一个缓存副本上。harness 要做的不是挑一种，而是三家都照顾到。
+手动打的那一套，看 Anthropic 最清楚。所谓**断点**，就是在请求体里标一个位置，等于告诉服务端：从开头到这里的内容请存下来，下次前缀一样就能直接复用。标记本身就是 `cache_control`，它出现在哪个块上，断点就在哪。它的值是 `{"type": "ephemeral"}`，ephemeral 是“临时的”，这是目前唯一的缓存类型，默认寿命 5 分钟，想延长到一小时要额外加 `ttl: "1h"`，写入按输入两倍计费。
 
-**再看让命中看得见的。** usage 里 `cacheRead` 和 `cacheWrite` 是两个独立字段，成本按每家 provider 的缓存价单独算，连 Anthropic 一小时缓存写入按输入 2 倍计费这种细节都建模了。省了多少，账上明明白白。
+OpenAI Responses 侧是另一套，靠一个缓存键，`prompt_cache_key`，把 sessionId 截到 64 字符。Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头，让请求尽量落到同一个缓存副本上。harness 要做的不是挑一种，而是各家都照顾到。
+
+**再看让命中看得见的。** usage 里 `cacheRead` 和 `cacheWrite` 是两个独立字段，成本按每家 provider 的缓存价单独算，连上面那种一小时缓存的写入按输入两倍计费，模型里也照样分开算。省了多少，账上明明白白。
 
 上一篇文章实测里，Pi 的缓存命中率是 91% 到 93%。算一下：九成多的输入按 1/50 计价，剩下不到一成按原价，两项加起来约为完全未命中时的十分之一。**缓存把输入这一项压掉了大约九成。**
 

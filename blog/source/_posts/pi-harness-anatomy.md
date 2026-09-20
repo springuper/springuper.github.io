@@ -162,7 +162,7 @@ Current working directory: /tmp/demo-repo
 
 模型能看到的除了历史，还有一份工具清单。coding-agent 内置的工具一共 8 个：read、bash、edit、write、grep、find、ls，外加一个可选、文档标注为 Windows 用的 powershell。**默认激活的只有 read、bash、edit、write 四个。**
 
-工具 schema 也一样朴素。四个默认工具里，bash 就两个字段：
+工具 schema 也一样朴素。四个默认工具里，bash 真正的参数只有两个（`type` 和 `required` 是骨架，参数本体在 `properties` 里），一个必填、一个可选：
 
 ```json
 {

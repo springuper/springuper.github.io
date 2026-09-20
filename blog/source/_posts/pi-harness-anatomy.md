@@ -627,7 +627,7 @@ Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“N
 
 安全文档里说得更绝：
 
-> A partial in-process sandbox would be easy to misunderstand as a security boundary while still depending on the host shell, filesystem, package managers, credentials, and extension code. Real isolation needs to come from the operating system or a virtualization/container boundary.
+> Real isolation needs to come from the operating system or a virtualization/container boundary.
 
 它的论证是：一个进程内的半吊子沙箱，容易被误当成真正的安全边界，因为它自己还得依赖宿主 shell、文件系统、包管理器和凭证。所以与其给一个让人误以为安全的假边界，不如明说没有边界，边界请到操作系统或容器层面去画。
 

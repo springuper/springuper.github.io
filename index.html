@@ -175,6 +175,50 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/pi-harness-anatomy/">积木，而非成品：Pi Agent Harness 的克制与精妙</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2026-09-20
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>上一篇文章《给大脑配一副好鞍具》里，Pi 交出的成绩单是这样的：<strong>9 秒修完 3 个 bug，6 次工具调用，3375 个 token，成本 0.00007 美元</strong>。五款 agent harness 里最快，也最便宜。</p>
+<p>这篇文章想把 Pi 拆开看看，把内部机制往深里挖一层。我想搞清楚两个问题：它是怎么一步步长成今天这样的，以及我们敲下一行命令之后，它内部究竟发生了什么。</p>
+<p>第一个问题的答案不在文档里，在 git 历史里。所以先去翻它的提交记录。</p>
+    <div class="read-more">
+      <a href="/pi-harness-anatomy/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/inward-attribution/">向内归因的人，手里永远多出几个选项</a>
       
     </h1>
@@ -604,62 +648,6 @@
 <p>这个案例彰显出“带着答案去提问”的重要价值，尤其在远程协作或者大型组织等沟通渠道弥足珍贵的环境中，这种能力更值得重视和培养。接下来我们从几个方面阐释其中的内涵。</p>
     <div class="read-more">
       <a href="/ask-with-answers/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/react-context/">基于 Context 做 React 状态管理</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2023-03-09
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p>React Context 在一些弱交互的 Web 应用中被很多人用来作为全局状态管理的利器，理由非常简单：开箱即用，无需额外引入第三方工具，而且毕竟是“亲儿子”，对将来的 concurrent mode 等新特性支持良好。然而在略微复杂些的场景继续使用 context 有时会面临一定的性能问题，目前官方和社区都在探索可能的解决方案。期望通过本文的介绍，能让大家在这方面有一定概要性的理解。</p>
-<h2 id="痛点"><a href="#痛点" class="headerlink" title="痛点"></a>痛点</h2><p>官方文档中有这样一句话：</p>
-<blockquote>
-<p>Context lets you “broadcast” such data, and changes to it, to all components below.</p>
-</blockquote>
-<p>简单来说，一个 context 中的数据发生变化后，所有下层使用这一 context 的组件都会被更新。当 context 数据越来越多的时候，就会出现一些根本不必要的重复更新。</p>
-<p>让我们用一个例子来简单阐释下。假设我们有一个这样的应用：</p>
-<ul>
-<li>有一个名字的输入框以及一个姓氏的输入框，使用两个组件实现</li>
-<li>在另一个组件中展示欢迎信息，需要用到上面输入的名字和姓氏</li>
-</ul>
-<p>界面效果如下：
-<img src="../images/react-context-01.jpg"></p>
-<p>因为涉及到跨组件数据调用，我们使用 context 进行名字和姓氏数据的管理。简要代码如下：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Context &amp; Components</span></span><br><span class="line"><span class="keyword">const</span> PersonContext = createContext();</span><br><span class="line"><span class="keyword">const</span> PersonFirstName = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [state, dispatch] = useContext(PersonContext);</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="xml">      First Name:</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">input</span></span></span></span><br><span class="line"><span class="tag"><span class="xml">        <span class="attr">value</span>=<span class="string">&#123;state.firstName&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="xml">        <span class="attr">onChange</span>=<span class="string">&#123;event</span> =&gt;</span> dispatch(&#123; type: &quot;setFirstName&quot;, firstName: event.target.value &#125;)&#125;</span></span><br><span class="line"><span class="xml">      /&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> PersonFamilyName = <span class="function">() =&gt;</span> &#123; <span class="comment">/* similar to PersonFirstName */</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> Greeting = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [state] = useContext(PersonContext);</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>Hi, &#123;state.firstName&#125; &#123;state.familyName&#125;!<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Main App</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">PersonContext.Provider</span> <span class="attr">value</span>=<span class="string">&#123;useReducer(reducer,</span> <span class="attr">initialState</span>)&#125;&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">Greeting</span> /&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">PersonFirstName</span> /&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">PersonFamilyName</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">PersonContext.Provider</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-    <div class="read-more">
-      <a href="/react-context/" class="read-more-link">Read more..</a>
     </div>
     
     

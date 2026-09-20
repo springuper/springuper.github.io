@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Website mata -->
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<!-- Disable transformation -->
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<!-- Website description -->
+
+<meta name="description" content="积木，而非成品：Pi Agent Harness 的克制与精妙" />
+
+
+<!-- Website keywords -->
+
+<meta name="keywords" content="AI, Agent, Harness, Pi, TypeScript, Shang Chun" />
+
+
+
+
+<!-- Website rss -->
+
+<link rel="alternate" href="/atom.xml" title="Shang Chun" type="application/atom+xml">
+
+
+<!-- Website favicon -->
+
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+
+
+<!-- Canonical, good for google search engine -->
+<link rel="canonical" href="https://springuper.github.io/pi-harness-anatomy/" />
+
+<!-- Fancybox styling -->
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+
+
+<!-- MathJax (LaTeX) support -->
+
+
+<!-- Noto Sans Mono CJK SC (CJK monospace font for ASCII art alignment) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&display=swap">
+
+<!-- Theme styling -->
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Analytics and push -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-48551774-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+
+  gtag('config', 'UA-48551774-1');
+</script>
+
+  
+
+
+
+<!-- LeanCloud Counter -->
+
+
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"latex":false};
+</script>
+  
+  <title>积木，而非成品：Pi Agent Harness 的克制与精妙 - Shang Chun</title>
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div class="scrollPercentage"></div>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Shang Chun</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+    <a href="/">
+      <li class="mobile-menu-item">
+        
+        
+        Home              </li>
+    </a>
+    
+    <a href="/archives/">
+      <li class="mobile-menu-item">
+        
+        
+        Archives              </li>
+    </a>
+    
+    <a href="/tags/">
+      <li class="mobile-menu-item">
+        
+        
+        Tags              </li>
+    </a>
+    
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+      <div class="logo-wrapper">  
+  <a href="/." class="logo">Shang Chun</a>  
+</div>  
+  
+<nav class="site-navbar">  
+    
+    <ul id="menu" class="menu">  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/">  
+              
+              
+              Home  
+              
+          </a>  
+        </li>  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/archives/">  
+              
+              
+              Archives  
+              
+          </a>  
+        </li>  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/tags/">  
+              
+              
+              Tags  
+              
+          </a>  
+        </li>  
+        
+    </ul>  
+    
+</nav>  
+
+    </header>
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
+      积木，而非成品：Pi Agent Harness 的克制与精妙
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2026-09-20
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%AE%83%E4%B8%80%E5%BC%80%E5%A7%8B%E5%8F%AA%E6%9C%89%E4%B8%89%E4%B8%AA%E5%8C%85"><span class="toc-number">1.</span> <span class="toc-text">一、它一开始只有三个包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E9%A6%96%E6%8F%90%E4%BA%A4%E9%87%8C%E7%9A%84%E4%B8%89%E4%BB%B6%E5%A5%97"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 首提交里的三件套</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E4%B8%80%E5%B9%B4%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%8D%81%E4%B8%80%E4%B8%AA%E5%8C%85"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 一年之后，十一个包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%80%E6%AC%A1%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%85%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">二、一次请求的旅程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%AE%83%E6%8A%8A-prompt-%E5%8F%98%E6%88%90%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 它把 prompt 变成了什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%AE%83%E6%80%8E%E4%B9%88%E5%8F%91%E5%87%BA%E5%8E%BB"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 它怎么发出去</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%A8%A1%E5%9E%8B%E5%BC%80%E5%8F%A3%E8%A6%81%E5%B7%A5%E5%85%B7"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 模型开口要工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E7%BB%93%E6%9E%9C%E5%9B%9E%E5%88%B0%E6%A0%91%E4%B8%8A"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 结果回到树上</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E5%87%BA%E9%94%99%E3%80%81%E6%8F%92%E8%AF%9D%E3%80%81%E5%A4%AA%E9%95%BF"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 出错、插话、太长</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E8%BF%99%E4%B8%80%E8%B6%9F%E7%9A%84%E8%AF%81%E6%8D%AE"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 这一趟的证据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E5%AE%83%E5%BF%AB"><span class="toc-number">3.</span> <span class="toc-text">三、为什么它快</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%BC%93%E5%AD%98%E8%BF%99%E6%9C%AC%E8%B4%A6"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 缓存这本账</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%B8%8D%E6%B7%BB%E4%B9%B1"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 不添乱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%8F%AA%E9%87%8D%E7%94%BB%E5%8F%98%E5%8C%96%E7%9A%84%E8%A1%8C"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 只重画变化的行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%AE%83%E5%88%B0%E5%BA%95%E5%81%9A%E5%AF%B9%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-number">4.</span> <span class="toc-text">四、它到底做对了什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%BE%AA%E7%8E%AF%E6%98%AF%E4%B8%AA%E5%87%BD%E6%95%B0"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 循环是个函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E6%8A%8A%E4%B8%80%E5%88%87%E5%81%9A%E6%88%90%E6%95%B0%E6%8D%AE"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 把一切做成数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%95%A2%E4%B8%8D%E5%81%9A"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 敢不做</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">5.</span> <span class="toc-text">结语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A5%E8%AD%A6%E6%83%95%E7%9A%84%E5%9C%B0%E6%96%B9"><span class="toc-number">6.</span> <span class="toc-text">该警惕的地方</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BD%A9%E8%9B%8B"><span class="toc-number">7.</span> <span class="toc-text">彩蛋</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">8.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </div>
+  
+
+  <div class="post-content">
+    
+    <p>上一篇文章《给大脑配一副好鞍具》里，Pi 交出的成绩单是这样的：<strong>9 秒修完 3 个 bug，6 次工具调用，3375 个 token，成本 0.00007 美元</strong>。五款 agent harness 里最快，也最便宜。</p>
+<p>这篇文章想把 Pi 拆开看看，把内部机制往深里挖一层。我想搞清楚两个问题：它是怎么一步步长成今天这样的，以及我们敲下一行命令之后，它内部究竟发生了什么。</p>
+<p>第一个问题的答案不在文档里，在 git 历史里。所以先去翻它的提交记录。</p>
+<span id="more"></span>
+
+<h2 id="一、它一开始只有三个包"><a href="#一、它一开始只有三个包" class="headerlink" title="一、它一开始只有三个包"></a>一、它一开始只有三个包</h2><h3 id="1-1-首提交里的三件套"><a href="#1-1-首提交里的三件套" class="headerlink" title="1.1 首提交里的三件套"></a>1.1 首提交里的三件套</h3><p>翻到 2025-08-09 的第一个 commit，里面只有三个包：pi-tui（差分渲染的终端 UI 库）、pi-agent（带会话持久化的 agent 库），以及一个叫 pi 的 CLI。第三个 pi 跟 coding agent 毫无关系，它的 README 第一段是：</p>
+<blockquote>
+<p>Deploy and manage LLMs on GPU pods with automatic vLLM configuration for agentic workloads.</p>
+</blockquote>
+<p>用法是 <code>pi start Qwen/Qwen2.5-Coder-32B-Instruct</code>。“Pi” 这个名字最早属于一个在 GPU 机器上部署模型的工具。后来编码 agent 越长越大，反过来继承了这个名字。所以别问它是不是圆周率，它更像“某台跑模型的机器”的昵称（官方从没解释过，这是我的考古推测）。</p>
+<p>一周之后，pi-ai 被抽了出来。2025-08-17 的 commit 写着：<code>feat(ai): Create unified AI package with OpenAI, Anthropic, and Gemini support</code>。这是 Pi 的第一次分层，把“模型怎么接”从 agent 里剥出去，单独成了一个包。</p>
+<p>两个月后，2025-10-17，coding-agent 出现。产品层有了。</p>
+<h3 id="1-2-一年之后，十一个包"><a href="#1-2-一年之后，十一个包" class="headerlink" title="1.2 一年之后，十一个包"></a>1.2 一年之后，十一个包</h3><p>把每个包第一次出现的日子排一排：</p>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>包</th>
+<th>起因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2025-08-09</td>
+<td>pi-tui / pi-agent / pi(pods)</td>
+<td>首提交，三件套。pods 已在 2026-04 删除</td>
+</tr>
+<tr>
+<td>2025-08-17</td>
+<td>pi-ai</td>
+<td>统一 OpenAI / Anthropic / Gemini</td>
+</tr>
+<tr>
+<td>2025-10-17</td>
+<td>coding-agent</td>
+<td>把 agent 做成产品</td>
+</tr>
+<tr>
+<td>2026-06-18</td>
+<td>server</td>
+<td>会话要能被远程接进来。当时叫 orchestrator，07-21 改名</td>
+</tr>
+<tr>
+<td>2026-07-25</td>
+<td>evals</td>
+<td>要能跑评测</td>
+</tr>
+<tr>
+<td>2026-07-30</td>
+<td>protocol</td>
+<td>远程会话要有个通信协议</td>
+</tr>
+<tr>
+<td>2026-07-31</td>
+<td>client</td>
+<td>不挑传输方式（WebSocket、Unix socket 都行）</td>
+</tr>
+<tr>
+<td>2026-08-05</td>
+<td>telemetry</td>
+<td>遥测抽包</td>
+</tr>
+<tr>
+<td>2026-08-05</td>
+<td>session-backends</td>
+<td>存储后端抽出来单列。原名 storage，07-21 建包，08-05 改名</td>
+</tr>
+<tr>
+<td>2026-08-28</td>
+<td>chord</td>
+<td>把插件组装成应用的运行时</td>
+</tr>
+</tbody></table>
+<p>一年时间，三个包长到十一个。中间有进出，pods 被删了，storage 改名成了 session-backends，表里都标了。这条时间线基本是被需求推着走的，很少看到先画一套架构再落地。模型要统一，就抽 pi-ai。要有产品，就长出 coding-agent。会话要能被别人接进来，就有了 server 和 protocol。</p>
+<p>也有例外：上下文压缩在动手前两天先写了研究文档，pi-tui 至今留着一份 <code>tui-plan.md</code>，开头就说它记的是设计讨论里定下来的东西。</p>
+<p>那些机制也是这么长出来的：</p>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2025-12-04</td>
+<td>上下文压缩</td>
+</tr>
+<tr>
+<td>2026-01-02</td>
+<td>会话树（原地分支，v0.31.0 发布）</td>
+</tr>
+<tr>
+<td>2026-03-29</td>
+<td>faux provider，用来在没有模型的情况下测整个循环</td>
+</tr>
+</tbody></table>
+<p>连“Pi 是什么”也是长出来的。它对自己的称呼改过好几轮：2025 年 11 月中旬叫 “a radically simple and opinionated coding agent”，2026 年 1 月底换成 “minimal terminal coding harness”，2026 年 5 月第一次把 “Pi Agent Harness” 写进标题（当时标题里还拖着一个尾巴：“# Pi Agent Harness Mono Repo”），到 2026 年 6 月才精简成今天这句。</p>
+<p>长到最后，形状是这样。箭头从使用方指向被使用方，被依赖的那一方对上面一无所知。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pi-coding-agent（CLI：interactive / print · json / rpc / SDK）</span><br><span class="line">   │</span><br><span class="line">   ├─ pi-agent-core（agent 循环、会话树、压缩、状态机）</span><br><span class="line">   │    └─ pi-ai（统一多 provider LLM API）</span><br><span class="line">   │         └─ OpenAI / Anthropic / Google / DeepSeek 等</span><br><span class="line">   │</span><br><span class="line">   └─ pi-tui（自研终端 UI：差分渲染）</span><br></pre></td></tr></table></figure>
+
+<p>pi-tui 是这张图里唯一的旁支：它不依赖任何其他内部包，只是被产品层拿去渲染界面。</p>
+<p>每一层都切在自己的 package 边界上，多数层在 npm 上能单独装，只有 evals 没发布。有意思的是 commit message 里给的理由全是内部需要，统一多 provider、把遥测抽出来、给目录改名，没有一条写着“方便别人复用”。但结果摆在那里：想要 agent 循环就拿 pi-agent-core，想要终端渲染再带上 pi-tui，产品层自己写就行。这也是它敢管自己叫“库”的底气。</p>
+<p>说完它是怎么长成的，回到第二个问题：敲下一行命令之后，里面究竟发生了什么。</p>
+<h2 id="二、一次请求的旅程"><a href="#二、一次请求的旅程" class="headerlink" title="二、一次请求的旅程"></a>二、一次请求的旅程</h2><p>还是上一篇那条命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pi -p <span class="string">&quot;修复这个仓库里的 bug，让 npm test 全部通过&quot;</span> \</span><br><span class="line">   --provider deepseek --model deepseek/deepseek-v4-flash</span><br></pre></td></tr></table></figure>
+
+<p><code>-p</code> 是非交互模式，跑完就退出。按下回车之后，我们跟着这行字走一趟，看它每一步变成了什么。</p>
+<h3 id="2-1-它把-prompt-变成了什么"><a href="#2-1-它把-prompt-变成了什么" class="headerlink" title="2.1 它把 prompt 变成了什么"></a>2.1 它把 prompt 变成了什么</h3><p>按下去之后的第一件事，是把上面那行字变成一份发给模型的东西。下面这份是真抓的：把 provider 地址指到本机一个假服务，让 pi 照常发请求，落在磁盘上的请求体原样抄下来。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">You are an expert coding assistant operating inside pi, a coding agent</span><br><span class="line">  harness. You help users by reading files, executing commands, editing</span><br><span class="line">  code, and writing new files.</span><br><span class="line"></span><br><span class="line">Available tools:</span><br><span class="line">- read: Read file contents</span><br><span class="line">- bash: Execute bash commands (ls, grep, find, etc.)</span><br><span class="line">- edit: Make precise file edits with exact text replacement, including</span><br><span class="line">  multiple disjoint edits in one call</span><br><span class="line">- write: Create or overwrite files</span><br><span class="line"></span><br><span class="line">In addition to the tools above, you may have access to other custom tools</span><br><span class="line">  depending on the project.</span><br><span class="line"></span><br><span class="line">Guidelines:</span><br><span class="line">- Use bash for file operations like ls, rg, find</span><br><span class="line">- Use read to examine files instead of cat or sed.</span><br><span class="line">- You can inspect PI_* environment variables for current model and session</span><br><span class="line">  details.</span><br><span class="line">- Use edit for precise changes (edits[].oldText must match exactly)</span><br><span class="line">- When changing multiple separate locations in one file, use one edit call</span><br><span class="line">  with multiple entries in edits[] instead of multiple edit calls</span><br><span class="line">- Each edits[].oldText is matched against the original file, not after</span><br><span class="line">  earlier edits are applied. Do not emit overlapping or nested edits. Merge</span><br><span class="line">  nearby changes into one edit.</span><br><span class="line">- Keep edits[].oldText as small as possible while still being unique in the</span><br><span class="line">  file. Do not pad with large unchanged regions.</span><br><span class="line">- Use write only for new files or complete rewrites.</span><br><span class="line">- Be concise in your responses</span><br><span class="line">- Show file paths clearly when working with files</span><br><span class="line"></span><br><span class="line">Pi documentation (read only when the user asks about pi itself, its SDK,</span><br><span class="line">  extensions, themes, skills, or TUI):</span><br><span class="line">- Main documentation: &lt;安装目录&gt;/pi-coding-agent/README.md</span><br><span class="line">- Additional docs: &lt;安装目录&gt;/pi-coding-agent/docs</span><br><span class="line">- Examples: &lt;安装目录&gt;/pi-coding-agent/examples</span><br><span class="line">  (extensions, custom tools, SDK)</span><br><span class="line">- 另有 5 条说明，讲怎么顺着这些文档和交叉引用往下读（此处省略）</span><br><span class="line">Current working directory: /tmp/demo-repo</span><br></pre></td></tr></table></figure>
+
+<p>就这么短。真实的提示词是 31 行、2600 个字符，其中工具清单占 4 行，行为准则占 10 行。</p>
+<p>准则那一节，10 条里有 7 条是<strong>工具自己带上来的</strong>：read 要求“用我，别用 cat 和 sed”，edit 交代“多处改动用一次调用”，write 声明“只用于新文件或整篇重写”。剩下三条是框架补的——一条按当前装了哪些工具生成，一条要求回答简洁，一条要求写清文件路径。这一节不是 Pi 手写的。</p>
+<p>剩下的绝大部分是路径，指向<strong>已安装包里的文档</strong>。这一点 4.2 还会再提，它是 Pi 最有趣的设计之一。</p>
+<p>（为了页面上不横向滚动，上面这块长行按 76 列折过，安装路径换成了 <code>&lt;安装目录&gt;</code>；文档那一节原有 8 行，折成 4 行并标了省略。所以看着是 39 行，正文说的 31 行是原始行数。）</p>
+<p>一份请求在 pi-ai 里叫 <code>Context</code>，只有三样东西：上面这段 system prompt、一份消息列表、一份工具 schema。此刻消息列表里只有一条：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;content&quot;</span>: [</span><br><span class="line">      &#123; <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span>, <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;修复这个仓库里的 bug，让 npm test 全部通过&quot;</span> &#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">&quot;timestamp&quot;</span>: <span class="number">1789795481937</span></span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>模型能看到的除了历史，还有一份工具清单。coding-agent 内置的工具一共 8 个：read、bash、edit、write、grep、find、ls，外加一个可选、文档标注为 Windows 用的 powershell。<strong>默认激活的只有 read、bash、edit、write 四个。</strong></p>
+<p>工具 schema 也一样朴素。四个默认工具里，bash 真正的参数只有两个（<code>type</code> 和 <code>required</code> 是骨架，参数本体在 <code>properties</code> 里），一个必填、一个可选：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;object&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;required&quot;</span>: [<span class="string">&quot;command&quot;</span>],</span><br><span class="line">  <span class="attr">&quot;properties&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;command&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;string&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;description&quot;</span>: <span class="string">&quot;Shell command to execute&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;timeout&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;number&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;description&quot;</span>: <span class="string">&quot;Timeout in seconds (optional, no default timeout)&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>任意命令，没有白名单。这个“吓人”的细节先记下，4.3 会解释它为什么是故意的。</p>
+<p>还有两个选择不好一眼带过。一个是没有 system 消息类型——系统提示是 <code>Context</code> 的独立字段，不混进历史，所以历史能原样存下来、原样续跑；另一个是这段提示词写死在代码里，本地拼装，不靠远程下发。</p>
+<h3 id="2-2-它怎么发出去"><a href="#2-2-它怎么发出去" class="headerlink" title="2.2 它怎么发出去"></a>2.2 它怎么发出去</h3><p>同一份东西，到了 DeepSeek 那边长这样。这是这一趟的第一次请求，也是最轻的一次：一个系统提示、一份工具清单、一条用户消息。除了 system 那句和工具描述用 <code>...</code> 缩掉，其余逐字来自真实请求（工具清单里只留了 bash，实际是四个）：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">POST https:<span class="comment">//api.deepseek.com/chat/completions</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;model&quot;</span>: <span class="string">&quot;deepseek-v4-flash&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;messages&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;role&quot;</span>: <span class="string">&quot;system&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;content&quot;</span>: <span class="string">&quot;You are an expert coding assistant operating inside pi, ...&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;content&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;修复这个仓库里的 bug，让 npm test 全部通过&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">&quot;stream&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">&quot;stream_options&quot;</span>: &#123; <span class="attr">&quot;include_usage&quot;</span>: <span class="literal">true</span> &#125;,</span><br><span class="line">  <span class="attr">&quot;max_tokens&quot;</span>: <span class="number">384000</span>,</span><br><span class="line">  <span class="attr">&quot;tools&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;function&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;function&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;name&quot;</span>: <span class="string">&quot;bash&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;description&quot;</span>: <span class="string">&quot;Execute a bash command in the current ...&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;parameters&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;object&quot;</span>, <span class="attr">&quot;required&quot;</span>: [<span class="string">&quot;command&quot;</span>],</span><br><span class="line">          <span class="attr">&quot;properties&quot;</span>: &#123; <span class="attr">&quot;command&quot;</span>: &#123; <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;string&quot;</span> &#125; &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">&quot;strict&quot;</span>: <span class="literal">false</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">&quot;thinking&quot;</span>: &#123; <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;enabled&quot;</span> &#125;,</span><br><span class="line">  <span class="attr">&quot;reasoning_effort&quot;</span>: <span class="string">&quot;high&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>形状先对一下。Pi 的 <code>Context</code> 还是三样东西：系统提示、消息列表、工具清单。到了这里，系统提示变成 <code>messages</code> 里的第一条 <code>role: &quot;system&quot;</code> 消息，工具清单每条都要套一层 <code>function</code>，用户那句话本来就是文本块数组（2.1 里那个形状），搬过来还是原样。名字和嵌套都换了，三样还是那三样。</p>
+<p>这份报文里还缺一样东西：缓存标记，一个都没有。DeepSeek 的上下文缓存是自动的，前缀一样就命中，不用你标什么；换个协议就得手动打断点，第三章会讲。</p>
+<p>请求发出去之后，回来的是一条统一的事件流：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">start</span><br><span class="line"> ├── text      → text_start / delta / end</span><br><span class="line"> ├── thinking  → thinking_start / delta / end</span><br><span class="line"> ├── toolcall  → toolcall_start / delta / end</span><br><span class="line"> ├── done</span><br><span class="line"> └── error</span><br></pre></td></tr></table></figure>
+
+<p>text、thinking、toolcall 各自展开成 start / delta / end，加上 start、done、error，一共 12 个变体。中间那三条各自成流，思考、正文、每个工具调用都有自己的增量。这个流容器既是 AsyncIterable，又承诺一个 <code>result()</code>：同一段流既能逐字渲染，也能等它给出最终消息。</p>
+<h3 id="2-3-模型开口要工具"><a href="#2-3-模型开口要工具" class="headerlink" title="2.3 模型开口要工具"></a>2.3 模型开口要工具</h3><p>流里出现了 <code>toolcall</code> 事件，意思是“我要执行 <code>npm test</code>”。控制权交回给 harness。</p>
+<p>Pi 里一个回合（turn）的定义很干净：一次 assistant 响应，加上它引发的所有工具调用与结果。驱动它的 <code>runLoop</code> 是“双层 while”。它本身是模块私有函数，对外入口有四个：<code>agentLoop</code> / <code>agentLoopContinue</code> / <code>runAgentLoop</code> / <code>runAgentLoopContinue</code>。形状大致是这样：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 双层循环的形状（示意，省去错误处理与截断保护）</span></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;                                    <span class="comment">// 外层：follow-up</span></span><br><span class="line">  <span class="keyword">let</span> hasMoreToolCalls = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">while</span> (hasMoreToolCalls) &#123;                      <span class="comment">// 内层</span></span><br><span class="line">    <span class="keyword">const</span> msg = <span class="keyword">await</span> streamAssistantResponse(ctx, config); <span class="comment">// think</span></span><br><span class="line">    <span class="keyword">const</span> calls = msg.content.filter(<span class="function">(<span class="params">c</span>) =&gt;</span> c.type === <span class="string">&quot;toolCall&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (calls.length === <span class="number">0</span>) <span class="keyword">break</span>;                <span class="comment">// 没有工具要调，内层结束</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> batch = <span class="keyword">await</span> executeToolCalls(ctx, msg, config);  <span class="comment">// act</span></span><br><span class="line">    ctx.messages.push(...batch.messages);         <span class="comment">// observe</span></span><br><span class="line"></span><br><span class="line">    hasMoreToolCalls = !batch.terminate;          <span class="comment">// 全员喊停才停</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> followUps = <span class="keyword">await</span> config.getFollowUpMessages?.() ?? [];</span><br><span class="line">  <span class="keyword">if</span> (followUps.length === <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>内层那一圈就是 think、act、observe：让模型说一段，取出它想调的工具，执行完把结果写回上下文，再回到开头。外层只管一件事：这一圈走完，如果还有排队中的 follow-up，就带着新上下文再来一圈。</p>
+<p>真实的 <code>runLoop</code> 有 118 行（<code>packages/agent/src/agent-loop.ts:156-273</code>），比上面这个形状多出来的部分几乎全是边界处理。那些分支平时不显眼，每一处却都对应一个真会踩到的坑：</p>
+<ol>
+<li><strong>模型一直要工具，谁来踩刹车？</strong> 循环里没有“跑到第 N 轮就停”这种保险丝，刹车被分散到三个地方：工具自己可以返回 <code>terminate: true</code> 说“我干完了”，宿主可以随时用 <code>AbortSignal</code> 打断它，扩展也可以拦下某个工具调用，顺手带上同一个 <code>terminate</code> 标记。读下来像是在说：什么时候该停，交给正在干活的那一层判断。至少循环自己没有替它们做这个主。</li>
+<li><strong>一批工具里只有一个说“停”，算不算停？</strong> 不算。要这一批全部返回 <code>terminate: true</code>，循环才跳过紧接着的那次模型调用。这个标记最典型的用法是收尾工具：官方示例里的 <code>structured_output</code>，模型最后调一次它把结果交出来，它标上 <code>terminate: true</code>，循环就此收工，<strong>省掉一次完整的模型往返</strong>。反过来，同一批里如果还混着一个普通工具（比如刚跑完 <code>npm test</code>），它的输出模型还没看过，这一批就不能停，得再问一轮。</li>
+<li><strong>输出被截断，参数只剩半截，还执行吗？</strong> 不执行。模型这次响应如果撞上了输出上限（<code>stopReason</code> 是 <code>length</code>），它吐出来的工具参数很可能是被腰斩的，Pi 把这批工具调用全部判错，让模型把参数重发一遍。宁可这一轮什么都不干，也不能拿着半截参数去改文件。</li>
+</ol>
+<p>模型那句“我要跑 <code>npm test</code>”到了 Pi 这里，被记成一条 assistant 消息。harness 执行完命令，把输出记成一条工具结果消息。下一趟请求把这两条一起带上去：Pi 内部的消息列表从一条变成三条，到了报文里再加上 system，一共四条：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;messages&quot;</span>: [</span><br><span class="line">  &#123; <span class="attr">&quot;role&quot;</span>: <span class="string">&quot;system&quot;</span>, <span class="attr">&quot;content&quot;</span>: <span class="string">&quot;You are an expert coding assistant ...&quot;</span> &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;content&quot;</span>: [</span><br><span class="line">      &#123; <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;text&quot;</span>, <span class="attr">&quot;text&quot;</span>: <span class="string">&quot;修复这个仓库里的 bug，让 npm test 全部通过&quot;</span> &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;role&quot;</span>: <span class="string">&quot;assistant&quot;</span>, <span class="attr">&quot;content&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">&quot;tool_calls&quot;</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">&quot;id&quot;</span>: <span class="string">&quot;call_1&quot;</span>, <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;function&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;function&quot;</span>: &#123;</span><br><span class="line">          <span class="attr">&quot;name&quot;</span>: <span class="string">&quot;bash&quot;</span>,</span><br><span class="line">          <span class="attr">&quot;arguments&quot;</span>: <span class="string">&quot;&#123;\&quot;command\&quot;:\&quot;npm test\&quot;&#125;&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">&quot;reasoning_content&quot;</span>: <span class="string">&quot;&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123; <span class="attr">&quot;role&quot;</span>: <span class="string">&quot;tool&quot;</span>, <span class="attr">&quot;content&quot;</span>: <span class="string">&quot;3 failing&quot;</span>, <span class="attr">&quot;tool_call_id&quot;</span>: <span class="string">&quot;call_1&quot;</span> &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>有两处对着看更有意思。</p>
+<p>模型要调工具这件事，翻译过去是 <code>tool_calls</code> 数组，而且<strong>参数是序列化好的 JSON 字符串</strong>，不是对象。Pi 内部那个 <code>arguments</code> 是 <code>&#123; command: &quot;npm test&quot; &#125;</code>，到了这里变成 <code>&quot;&#123;\&quot;command\&quot;:\&quot;npm test\&quot;&#125;&quot;</code>。谁负责这一下转换，就是这一层的事，上一层的循环不用管。</p>
+<p>工具结果到了这里自己占一个角色，<code>role: &quot;tool&quot;</code>，用 <code>tool_call_id</code> 指回原来那次调用。换个协议就不一样了：在 Anthropic 那边，工具结果不能单独占角色，只能挂在一条 <code>role: &quot;user&quot;</code> 消息里。这套差异全在这一层消化掉，上一层的循环对此一无所知。</p>
+<h3 id="2-4-结果回到树上"><a href="#2-4-结果回到树上" class="headerlink" title="2.4 结果回到树上"></a>2.4 结果回到树上</h3><p>这一趟只调了一个工具，真实的修复任务不会这么简单。上一篇文章那次任务里，模型和工具来回走了 6 轮，每一轮都在会话文件里留下记录。6 轮在文件里怎么排布，看文件本身最直接。</p>
+<p>我让 Pi 真的写了一个会话文件。真实文件是每行一条记录的 JSONL：每条记录一层外壳，消息本体挂在外壳里。这一节只关心树怎么长出来，所以下面把外壳里与树无关的字段都收起来，只留每条的身份和它的父节点——被收起来的 <code>usage</code> 和 <code>cost</code> 后面还要回来交代，先放一放。完整文件长得多，下面这四条只是其中一段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// 第 1 行：header，整个文件只有这一条</span><br><span class="line">&#123; &quot;type&quot;: &quot;session&quot;, &quot;version&quot;: 3, &quot;cwd&quot;: &quot;/tmp/demo-repo&quot;,</span><br><span class="line">  &quot;id&quot;: &quot;01a0b81f-b94f-7559-bfee-67609da12709&quot; &#125;</span><br><span class="line"></span><br><span class="line">// 第 2 行 / m1：用户消息，parentId 为 null，所以它是根</span><br><span class="line">&#123; &quot;type&quot;: &quot;message&quot;, &quot;id&quot;: &quot;a5c1c471&quot;, &quot;parentId&quot;: null,</span><br><span class="line">  &quot;message&quot;: &#123; /* 消息本体，形状同 2.1 */ &#125; &#125;</span><br><span class="line"></span><br><span class="line">// 第 3 行 / m2：assistant，挂在 m1 下面</span><br><span class="line">&#123; &quot;type&quot;: &quot;message&quot;, &quot;id&quot;: &quot;678f354f&quot;, &quot;parentId&quot;: &quot;a5c1c471&quot;,</span><br><span class="line">  &quot;message&quot;: &#123; /* 消息本体：内容 + usage + cost */ &#125; &#125;</span><br><span class="line"></span><br><span class="line">// 第 4 行 / m3：工具结果，挂在 m2 下面</span><br><span class="line">&#123; &quot;type&quot;: &quot;message&quot;, &quot;id&quot;: &quot;423c01c8&quot;, &quot;parentId&quot;: &quot;678f354f&quot;,</span><br><span class="line">  &quot;message&quot;: &#123; /* 消息本体：工具输出 */ &#125; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>外壳里只剩 <code>type</code>、<code>id</code>、<code>parentId</code> 三样，但这棵树已经在里面了。</p>
+<p>第一行是 header，之后每一行是一个 entry，每个 entry 都指向自己的 parentId，<code>null</code> 表示它是根。所以一个文件里天然长着一棵树，而不是一条线：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">m1 ─ m2 ─ m3 ─┬─ m4 ─ m5   ← 叶子 A</span><br><span class="line">              │</span><br><span class="line">              └─ m6 ─ m7   ← 叶子 B</span><br></pre></td></tr></table></figure>
+
+<p>id 是 8 位 hex，比如 <code>a5c1c471</code>，只用来定位，不参与语义。被收起来的 <code>usage</code> 挂在每条 assistant 记录上，缓存命中量是其中独立的一个字段——这次实录里是 <code>cacheRead: 1080</code>。这份文件是我用假模型在本地写的，所以 <code>cost</code> 全是 0、<code>usage</code> 里那几个数字也只是示意值，真实会话里会填上真金白银和真实计量。这一趟花了多少缓存，会话文件里就记着多少。</p>
+<p>图里的 m1 到 m3 就是上面那三条记录，再往后是这次实录之外的部分。当前对话位置永远是树的某片叶子，我们刚才那 6 次工具调用，是在这棵树上走出的一条路径。想回到历史里的某个岔路口，那就是一次“切分支”。对应的命令有三个：</p>
+<ul>
+<li><code>/tree</code>：查看整棵树，在文件内跳转、切换分支。</li>
+<li><code>/fork</code>：选中某条 user 消息，把它之前的路径复制成一个新的会话文件，并把那条 prompt 放回输入框供我们改写。</li>
+<li><code>/clone</code>：把当前分支复制到新文件。</li>
+</ul>
+<p>这些文件就躺在 <code>~/.pi/agent/sessions/</code> 下，按工作目录分文件夹，而且是只追加的：entry 一旦写下就不能改也不能删，只有迁移旧格式时会整体重写一次。所以“重写历史”在 Pi 里不是修改，而是开新枝，就像 git 一样，历史不可变，想走另一条路就 branch。对 agent 来说这太重要了：我们 fork 出去让模型试一个激进方案，不满意，切回原来的叶子继续，两边的记忆都还在。</p>
+<h3 id="2-5-出错、插话、太长"><a href="#2-5-出错、插话、太长" class="headerlink" title="2.5 出错、插话、太长"></a>2.5 出错、插话、太长</h3><p>真实的请求不会一路顺风。模型调用会遇到超时、报错和上下文溢出。</p>
+<p>出错时的恢复原语叫 <code>agent.continue()</code>，注释写得很直白：</p>
+<blockquote>
+<p>Continue an agent loop from the current context without adding a new message.
+Used for retries - context already has user message or tool results.</p>
+</blockquote>
+<p>不加新消息，从当前上下文接着跑。产品层在它之上套了一层自动恢复：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">可重试错误（过载 / 限流 / 5xx）</span><br><span class="line">  → 指数退避重试：2s → 4s → 8s，至多 3 次</span><br><span class="line"></span><br><span class="line">上下文溢出，且这一步的响应是失败的</span><br><span class="line">  → 从 agent state 摘掉末尾那条失败的 assistant</span><br><span class="line">  → 自动压缩，把历史折成摘要</span><br><span class="line">  → continue() 接着跑，只给一次机会</span><br><span class="line"></span><br><span class="line">上下文溢出，但响应本身正常结束了</span><br><span class="line">  → 只压缩，不重试</span><br><span class="line"></span><br><span class="line">上下文用量越过阈值</span><br><span class="line">  → 只压缩，不重试</span><br></pre></td></tr></table></figure>
+
+<p>出错之外，还有两件事是往循环里追加输入，Pi 把它们做成了两个队列：</p>
+<ul>
+<li><strong>steering（转向）</strong>：循环正在跑的时候想插一句话，投进 steer 队列，它会在当前工具执行完、模型下一次思考之前注入。</li>
+<li><strong>follow-up（续尾）</strong>：循环已经决定要停了，补一句“顺便把测试也跑了”，投进 follow-up 队列，它会再多跑一轮。</li>
+</ul>
+<p>一个插在“还在干活时”，一个插在“正要收工时”。这两种时机对应完全不同的体验，所以是两个队列，不是一个。</p>
+<p>还有太长的时候。上下文快装不下时，一种常见做法是把最旧的几条消息丢掉。Pi 用摘要替换，而且原文一条不删地留在文件里：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">会话文件（档案：一行都不删）</span><br><span class="line"> m1  m2  m3  m4  m5  m6  m7  m8</span><br><span class="line"> └───────┬───────┘  └────┬───┘</span><br><span class="line">         │                │</span><br><span class="line">    compaction          保留的原文</span><br><span class="line">     摘要 entry        （keepRecent）</span><br><span class="line">         │                │</span><br><span class="line">         ▼                ▼</span><br><span class="line">模型输入 [ 摘要 ][ m6 m7 ][ 新消息 ]</span><br></pre></td></tr></table></figure>
+
+<p>触发条件是一行公式：上下文估算的 token 超过“窗口减去预留量”。这个预留量的默认值是 16384，留给提示词和模型回复。切点则用另一个数，20000，表示压缩后至少要保留的近期内容预算。两者分工不同：一个管什么时候压，一个管压到哪儿。切点有一个硬规矩，绝不允许切在工具结果上，否则模型会看到“调了工具却没结果”。</p>
+<p>至于那批被摘要覆盖掉的旧消息，一条都没有删。它们只是不再进模型窗口，永远留在文件里，用 <code>/tree</code> 跳回去还能看到原文。</p>
+<h3 id="2-6-这一趟的证据"><a href="#2-6-这一趟的证据" class="headerlink" title="2.6 这一趟的证据"></a>2.6 这一趟的证据</h3><p>讲到这里，你可能会问：这些机制，我怎么确认它们真的在跑？</p>
+<p>Pi 自己给了一个办法。它内置了一个 faux provider（<code>packages/ai/src/providers/faux.ts</code>，共 708 行），一个零网络的假模型：把调用方排队的响应脚本，按真实的 delta 事件流吐出来。它能限速来模拟慢模型，也能模拟 abort 和 deferred 异步响应，甚至能按 sessionId 前缀命中来仿真 prompt cache 的读写。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm i @earendil-works/pi-ai@0.85.1</span><br><span class="line">node faux-demo.mjs</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// faux-demo.mjs</span></span><br><span class="line"><span class="keyword">import</span> &#123;</span><br><span class="line">  fauxAssistantMessage, fauxText, fauxThinking, fauxToolCall,</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">&quot;@earendil-works/pi-ai&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; registerFauxProvider, streamSimple &#125;</span><br><span class="line">  <span class="keyword">from</span> <span class="string">&quot;@earendil-works/pi-ai/compat&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> faux = registerFauxProvider(&#123;</span><br><span class="line">  <span class="attr">models</span>: [&#123; <span class="attr">id</span>: <span class="string">&quot;faux-1&quot;</span>, <span class="attr">contextWindow</span>: <span class="number">100000</span> &#125;],</span><br><span class="line">&#125;);</span><br><span class="line">faux.setResponses([fauxAssistantMessage([</span><br><span class="line">  fauxThinking(<span class="string">&quot;先看看工作目录里有什么，再决定改哪个文件。&quot;</span>),</span><br><span class="line">  fauxText(<span class="string">&quot;我先列一下目录。&quot;</span>),</span><br><span class="line">  fauxToolCall(<span class="string">&quot;bash&quot;</span>, &#123; <span class="attr">command</span>: <span class="string">&quot;ls -la&quot;</span> &#125;, &#123; <span class="attr">id</span>: <span class="string">&quot;call_1&quot;</span> &#125;),</span><br><span class="line">], &#123; <span class="attr">stopReason</span>: <span class="string">&quot;toolUse&quot;</span> &#125;)]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> stream = streamSimple(faux.getModel(), &#123;</span><br><span class="line">  <span class="attr">systemPrompt</span>: <span class="string">&quot;You are an expert coding assistant operating inside pi.&quot;</span>,</span><br><span class="line">  <span class="attr">messages</span>: [</span><br><span class="line">    &#123; <span class="attr">role</span>: <span class="string">&quot;user&quot;</span>, <span class="attr">content</span>: <span class="string">&quot;帮我看看这个目录&quot;</span>, <span class="attr">timestamp</span>: <span class="built_in">Date</span>.now() &#125;,</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">tools</span>: [</span><br><span class="line">    &#123; <span class="attr">name</span>: <span class="string">&quot;bash&quot;</span>, <span class="attr">description</span>: <span class="string">&quot;Run a shell command&quot;</span>, <span class="attr">parameters</span>: &#123;&#125; &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> seen = [];</span><br><span class="line"><span class="keyword">for</span> <span class="keyword">await</span> (<span class="keyword">const</span> ev <span class="keyword">of</span> stream) &#123;</span><br><span class="line">  seen.push(ev.type);</span><br><span class="line">  <span class="keyword">const</span> payload = ev.type.endsWith(<span class="string">&quot;_delta&quot;</span>) ? <span class="built_in">JSON</span>.stringify(ev.delta) : <span class="string">&quot;&quot;</span>;</span><br><span class="line">  <span class="built_in">console</span>.log(ev.type, payload);</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`共 <span class="subst">$&#123;seen.length&#125;</span> 个事件，事件类型种类 <span class="subst">$&#123;<span class="keyword">new</span> <span class="built_in">Set</span>(seen).size&#125;</span>`</span>);</span><br><span class="line"><span class="keyword">const</span> final = <span class="keyword">await</span> stream.result();</span><br><span class="line"><span class="built_in">console</span>.log(final.stopReason, final.content.map(<span class="function">(<span class="params">c</span>) =&gt;</span> c.type).join(<span class="string">&quot;, &quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>跑起来是这样（GIF 是真实终端输出录的，不是手绘）：</p>
+<p><img src="../images/pi-harness-faux-event-stream.gif" alt="faux provider 的真实事件流：思考、正文、工具调用三段增量依次到达"></p>
+<p>控制台里的原始输出（Node 24，2026-09-19）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">event  start</span><br><span class="line">event  thinking_start</span><br><span class="line">event  thinking_delta   &quot;先看看工作目录里有什么，再决定改&quot;</span><br><span class="line">event  thinking_delta   &quot;哪个文件。&quot;</span><br><span class="line">event  thinking_end</span><br><span class="line">event  text_start</span><br><span class="line">event  text_delta       &quot;我先列一下目录。&quot;</span><br><span class="line">event  text_end</span><br><span class="line">event  toolcall_start</span><br><span class="line">event  toolcall_delta   &quot;&#123;\&quot;command\&quot;:\&quot;ls -&quot;</span><br><span class="line">event  toolcall_delta   &quot;la\&quot;&#125;&quot;</span><br><span class="line">event  toolcall_end</span><br><span class="line">event  done             stopReason=toolUse</span><br><span class="line"></span><br><span class="line">共 13 个事件，事件类型种类 11</span><br><span class="line">toolUse  thinking, text, toolCall</span><br></pre></td></tr></table></figure>
+
+<p>delta 是按 token 块切的，所以一句话会被切成几段，逐字渲染靠的就是这个。事件类型一共 12 种，这一趟没出现 <code>error</code>，所以最后那行只数到 11 种。</p>
+<p>（faux 的切块大小是随机取的，所以每次跑出来的条数和切分点都略有不同，上面这份是其中一次。）</p>
+<p>这件事看着小，却是工程上的分水岭：<strong>当“模型”可以被一个确定性脚本替代，整个循环的测试就从碰运气变成了可复现。</strong> 上一篇文章里那个 9 秒的成绩是真实 API 跑出来的，但同样的路径可以拿 faux 反复走，不必再花钱。仓库的开发守则里写得很硬：<code>packages/coding-agent/test/suite/</code> 这套回归测试只准用 faux，不许用真实 API key 和付费 token。</p>
+<h2 id="三、为什么它快"><a href="#三、为什么它快" class="headerlink" title="三、为什么它快"></a>三、为什么它快</h2><p>现在回到开头那张成绩单：9 秒，3375 个 token，0.00007 美元。便宜和快是两回事，背后的机制也不一样，分开看下。</p>
+<h3 id="3-1-缓存这本账"><a href="#3-1-缓存这本账" class="headerlink" title="3.1 缓存这本账"></a>3.1 缓存这本账</h3><p>先说便宜。那 0.00007 美元。</p>
+<p>很多模型 API 对上下文缓存计费。如果这次请求的前缀和之前某次完全相同，命中的那部分就按远低于正常输入的价格算。这个差价有多大，看 pi 自己模型清单里的数字最直接：flash 档的缓存读价和输入价分别是 0.0028 和 0.14 每百万 token，差了 50 倍。（清单是随包发布的快照，未必等于官方页当下的挂牌价，但量级的一致性是它成立的前提。）</p>
+<p>所以 harness 的功课很像前端压榨 HTTP 缓存：让请求前缀尽量稳定。能命中的，永远是“从头开始、一字不差的那一段”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">两次请求的前缀：</span><br><span class="line">[tools][sys][u1][call][result1]</span><br><span class="line">[tools][sys][u1][call][result1][u2]</span><br><span class="line">└─────── 前缀一字不差 ───────┘</span><br></pre></td></tr></table></figure>
+
+<p>Pi 在这件事上做的事分两类：一类让命中真的发生，一类让命中看得见。</p>
+<p>能不能命中，前提是两次请求的前缀逐字节相同，所以下面这三条都在维护那个不变的前缀。</p>
+<ul>
+<li>请求级的 <code>cacheRetention</code> 默认就是 <code>&quot;short&quot;</code>，也就是缓存默认开着。听着不起眼，但它是前提，关着的话后面两条都无从谈起。</li>
+<li>system prompt 是请求级顶层字段，每轮原样重发，工具集和插件不变时逐字节一致。所以最贵的那一段（系统提示加工具清单）永远不变，对话在它后面怎么长都不影响它。</li>
+<li>打标记这件事，各家要求不一样，交给适配层去管。DeepSeek 这类是自动的，什么都不用标，前缀一样就命中（2.2 那份报文里一个缓存字段都没有，就是这个原因）。Anthropic 那类要手动打断点，标记打在哪儿、活多久，都得自己算。</li>
+</ul>
+<p>手动打的那一套，看 Anthropic 最清楚。所谓<strong>断点</strong>，就是在请求体里标一个位置，等于告诉服务端：从开头到这里的内容请存下来，下次前缀一样就能直接复用。标记本身就是 <code>cache_control</code>，它出现在哪个块上，断点就在哪。它的值是 <code>&#123;&quot;type&quot;: &quot;ephemeral&quot;&#125;</code>，ephemeral 是“临时的”，这是目前唯一的缓存类型，默认寿命 5 分钟，想延长到一小时要额外加 <code>ttl: &quot;1h&quot;</code>，写入按输入两倍计费。</p>
+<p>OpenAI Responses 侧是另一套，靠一个缓存键，<code>prompt_cache_key</code>，把 sessionId 截到 64 字符。Fireworks 这类靠副本路由命中的，得加一个 session-affinity 头，让请求尽量落到同一个缓存副本上。harness 要做的不是挑一种，而是各家都照顾到。</p>
+<p>让命中看得见的那一半在 usage 里：<code>cacheRead</code> 和 <code>cacheWrite</code> 是两个独立字段，成本按每家 provider 的缓存价单独算，连上面那种一小时缓存的写入按输入两倍计费，模型里也照样分开算。省了多少，账上明明白白。</p>
+<p>上一篇文章实测里，Pi 的缓存命中率是 91% 到 93%。算一下：九成多的输入按 1/50 计价，剩下不到一成按原价，两项加起来约为完全未命中时的十分之一。<strong>缓存把输入这一项压掉了大约九成。</strong></p>
+<p>但 0.00007 美元不是缓存一家的功劳。那笔账里至少还有两件事：总额只有 3375 个 token，而且用的是最便宜的 Flash 档。缓存是其中最大的一项，不是全部。上一篇也交代过，成本是各工具自己上报的数值，只宜做量级参考。</p>
+<p>缓存也不是纯赚的：读取便宜，写入要按输入价另算（Anthropic 是 1.25 倍）。所以一次性请求不值得缓存，Pi 会把它们的 <code>cacheRetention</code> 设成 <code>&quot;none&quot;</code>，写摘要那次调用就是。</p>
+<h3 id="3-2-不添乱"><a href="#3-2-不添乱" class="headerlink" title="3.2 不添乱"></a>3.2 不添乱</h3><p>再说快。9 秒里有很大一部分是模型自己在想、加上那 6 次命令跑掉的时间，harness 替不了这个忙。它能做的是别往上添东西，而 Pi 在这点上克制得有点反常：</p>
+<ul>
+<li>整个 system prompt 只有 2600 个字符，默认只挂 4 个工具，也就是 4 段 schema。这些东西每一轮都要原样重发，短一点，请求就轻一点。</li>
+<li>一批工具默认并行执行。同一次模型响应里要调的几个工具会一起发出去，而不是排队一个个来。基准那一趟看不出这条省了多少，因为那 6 次调用大多是串的（跑测试、改、再跑测试）。</li>
+<li>工具本身没有确认弹窗，该跑就跑。这里说的是工具层——第一次在一个带 <code>.pi</code> 资源（这个项目自己的扩展、提示词、技能）的目录里启动时，仍会有一次项目信任询问。</li>
+</ul>
+<p>这几条都不是什么发明，说到底只是没有被加上去。而忍住不加，本身也是一个设计决定。</p>
+<h3 id="3-3-只重画变化的行"><a href="#3-3-只重画变化的行" class="headerlink" title="3.3 只重画变化的行"></a>3.3 只重画变化的行</h3><p>界面这一层也是同一路数。Pi 没有用现成的终端 UI 框架，自己写了一个 pi-tui：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">重绘派：整块重写       Pi：只更新变化的行</span><br><span class="line">┌────────────┐        ┌────────────┐</span><br><span class="line">│  aaaaa     │        │  aaaaa     │</span><br><span class="line">│  bbbbb     │        │  bbbbb     │  ← 没变</span><br><span class="line">│  ccccc     │        │  CCCCC     │  ← 只发这行</span><br><span class="line">│  dddddd    │        │  dddddd    │</span><br><span class="line">└────────────┘        └────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>严格说它是区间语义：每帧先全量重算出整个行数组，再求出第一处和最后一处变化的行，中间没变的也跟着这一段一起写出去。只变一行时，才是图里画的最省情形。配合 CSI 2026 同步输出，终端先把一整帧攒齐再一次渲染，杜绝半帧闪烁。</p>
+<p>这和 3.1 那笔账是一回事的两面：<strong>把会变的部分和不会变的部分分开处理</strong>——缓存盯的是请求前缀，尽量让它不变；渲染盯的是屏幕，只把变了的行发出去。</p>
+<p>作者是游戏圈出身（libGDX 的作者），这套做法直接来自游戏渲染管线。仓库里还有个用它跑 DOOM 的示例，在 overlay 里以 35 FPS 实时渲染，算是这套思路的一个旁证。</p>
+<h2 id="四、它到底做对了什么"><a href="#四、它到底做对了什么" class="headerlink" title="四、它到底做对了什么"></a>四、它到底做对了什么</h2><p>拆到这里，可以说结论了。三件事，一件比一件反直觉。</p>
+<h3 id="4-1-循环是个函数"><a href="#4-1-循环是个函数" class="headerlink" title="4.1 循环是个函数"></a>4.1 循环是个函数</h3><p>前端的发展史告诉我们：<strong>“框架”替我们决定控制流，“库”把控制流还给我们。</strong> jQuery 是库，Angular 是框架，React 一度被争论到底算哪个。</p>
+<p>Pi 把这条审美写进了产品 README（<code>packages/coding-agent/README.md</code>）：</p>
+<blockquote>
+<p>Pi is a minimal terminal coding harness. Adapt pi to your workflows, not the other way around, without having to fork and modify pi internals.</p>
+</blockquote>
+<p>翻译过来是：让 Pi 适应你的工作流，而不是让你去适应它，而且你不需要 fork 它的源码就能做到。</p>
+<p>很多 coding agent 把循环藏在产品内部，你能调用的是它的命令行或者界面，循环本身不对外。Pi 是“库”，agent 循环是一个可以 <code>import</code> 进自己程序的 async 函数。CLI、批处理、RPC、SDK，都只是这个函数的不同宿主。</p>
+<p>看完第二章那一趟旅程，你会发现这有多实在：那套 <code>runLoop</code> 不认终端，不认 stdin，也不认任何界面。它只认一个 <code>Context</code> 和一份配置。所以它今天能跑在 CLI 里，明天就能跑在别人的 IDE 里。</p>
+<p>同一个内核对外有四种出口：交互式 TUI，一次性的 print 模式（可以选 JSON 事件流），跑在 stdin/stdout 上的 RPC 协议（给非 Node 的编辑器集成用），以及 SDK。同一个循环，四个出口，无数种驾驶舱。</p>
+<h3 id="4-2-把一切做成数据"><a href="#4-2-把一切做成数据" class="headerlink" title="4.2 把一切做成数据"></a>4.2 把一切做成数据</h3><p>会话是数据，所以可以 fork。压缩记录是数据，所以旧消息一条不丢。token 和缓存是消息上的一等字段，所以成本全程透明。</p>
+<p>前端工程师对这套东西不陌生：它就是不可变状态加时间旅行调试——把状态的变化存成数据，把回到过去变成一次指针操作。</p>
+<p>Pi 把说明书也放进了模型够得着的地方：系统提示词里给了三个指向已安装包内 README、docs、examples 的路径，并写明只在用户问起 Pi 本身时才读。意思是你可以直接问它“你自己是怎么工作的”，它会翻开自己的说明书作答。</p>
+<p>仓库 README 里有一句自我介绍：</p>
+<blockquote>
+<p>This is the home of the Pi agent harness project including our self extensible coding agent.</p>
+</blockquote>
+<p>“self extensible” 是它给自己贴的标签，而且贴得住。仓库根目录的 <code>.pi/</code> 里就是它自己用的扩展、提示词和技能，它拿自己开发自己。</p>
+<h3 id="4-3-敢不做"><a href="#4-3-敢不做" class="headerlink" title="4.3 敢不做"></a>4.3 敢不做</h3><p>Pi 的产品 README 里有一节叫 Philosophy，通篇是一个接一个的“No”，而且一个比一个反直觉：不做 MCP（不接外部工具与数据源那套协议），不做子代理（不派生分身去干活），不做权限弹窗，不做计划模式（不先出方案再动手），不做内置待办清单，不做后台 bash（不把命令丢到后台慢慢跑）。</p>
+<p>第 2.1 节那个没有白名单的 bash，就是这条清单最直接的样子。它不替你判断哪条命令危险，只负责把命令原样交给 shell。</p>
+<p>官网首页给这套减法起了个名字，叫 “Primitives, not features”。直译是“原语，而非功能”，也就是这篇文章标题里“积木，而非成品”的出处。</p>
+<p>最容易被误解的是“不做权限”。它的理由写得很清楚：</p>
+<blockquote>
+<p>Pi does not include a built-in permission system for restricting filesystem, process, network, or credential access. By default, it runs with the permissions of the user and process that launched it.</p>
+</blockquote>
+<p>安全文档里说得更绝：</p>
+<blockquote>
+<p>Real isolation needs to come from the operating system or a virtualization/container boundary.</p>
+</blockquote>
+<p>它的论证是：一个进程内的半吊子沙箱，容易被误当成真正的安全边界，因为它自己还得依赖宿主 shell、文件系统、包管理器和凭证。所以与其给一个让人误以为安全的假边界，不如明说没有边界，边界请到操作系统或容器层面去画。</p>
+<p>它给出的安全方案在进程外面：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│  pi-ai / pi-agent-core / pi-coding-agent │</span><br><span class="line">└────────────────────┬────────────────────┘</span><br><span class="line">                     │ Pi 核心以你的用户权限运行</span><br><span class="line">                     │ 想要更强的边界？套一层壳</span><br><span class="line">       ┌─────────────┼─────────────┐</span><br><span class="line">       ▼             ▼             ▼</span><br><span class="line">   Gondolin       纯 Docker    OpenShell</span><br></pre></td></tr></table></figure>
+
+<p>这几种边界都不在 Pi 里面，来源各不相同，隔离范围也不一样（官方文档列了四种，除了下面三个还有 Docker Sandboxes）：</p>
+<table>
+<thead>
+<tr>
+<th>壳</th>
+<th>隔离什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gondolin 扩展</td>
+<td>pi 与 provider 凭证留在宿主，内置工具与 <code>!command</code> 这种在输入框里直接跑 shell 的入口，都路由进本地 Linux 微 VM</td>
+</tr>
+<tr>
+<td>纯 Docker</td>
+<td>整个 pi 进程装进容器</td>
+</tr>
+<tr>
+<td>NVIDIA OpenShell</td>
+<td>整个 pi 进程进策略沙箱（文件、进程、网络、凭证、推理都可控），需要 gateway</td>
+</tr>
+</tbody></table>
+<p>这条清单的说法一直在调。2025 年 11 月这一节叫 “Security (YOLO by default)”，12 月 9 日改成 “No Permission System (YOLO Mode)”，八天之后整节被删，只剩一句 “No permission popups. Security theater.”。那句“安全表演”自己也没留住——2026 年 1 月底被删，今天同一条换成了“要么进容器，要么自己拿扩展拼一套确认流程”。严肃表述是 2026 年 6 月才补上的。立场没变，措辞一直在变。</p>
+<p>不做权限弹窗，那想要权限系统的人怎么办？自己拼一个。扩展系统里有现成的样板：<code>permission-gate.ts</code> 拦危险命令并弹确认，<code>protected-paths.ts</code> 保护 <code>.env</code> 和 <code>.git</code>。照 <code>permission-gate.ts</code> 抄一个自己的权限门，大概二十分钟的事。这就是“积木，而非成品”的注脚。</p>
+<p>不做的东西由谁来补？官方给的第一层是样板：<code>examples/extensions/</code> 里就躺着子代理、计划模式、待办清单这些现成例子，只是不装进核心。钩子也给得足，<code>ExtensionAPI</code> 一共 36 个事件，从输入到回合起止、压缩之前都有挂载点，日常用得上的四个就够：拦个工具、加个命令、改改提示词、压缩前插一手。</p>
+<p>再往外一层才是生态：npm 上每一层都能单独装，别人完全可以只取一层去拼自己的东西；官方不做的能力由第三方补上，连公开的会话数据集、第三方解读和教学仓库都已经有了。本篇参考里那几条，就是这份生态地图的入口。</p>
+<p>3.3 里那个自研的 pi-tui 也是这条清单的产物。现成的终端框架不是没有，但要按自己的方式渲染，就只能自己写。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>先把拆开的东西收进一张表，方便和上一篇那套“五件套”对照：</p>
+<table>
+<thead>
+<tr>
+<th>五件套</th>
+<th>Pi 的配法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>循环</td>
+<td>可 import 的函数，无轮次硬上限，工具可喊停</td>
+</tr>
+<tr>
+<td>工具</td>
+<td>内置 8 个、默认开 4 个，命令没有白名单，批量默认并行</td>
+</tr>
+<tr>
+<td>记忆</td>
+<td>会话是一棵 entry 树，压缩写摘要而不删历史</td>
+</tr>
+<tr>
+<td>权限</td>
+<td>没有内置权限系统，边界交给容器</td>
+</tr>
+<tr>
+<td>界面</td>
+<td>自研差分渲染 TUI。四种出口（interactive / print·json / rpc / SDK）共享同一个循环</td>
+</tr>
+</tbody></table>
+<p>一年时间，三个包长到十一个，每一层都是被需求催出来的，所以多数层能单独拿走；会话、分支、压缩、缓存全是数据，所以历史能被 fork、被摘要、被续跑；别人标配的功能它一个不做，把工作流那一层的决定权留给我们自己拼。</p>
+<p>这三件事指向同一句话：<strong>工作流那一层，它不替你做决定。</strong> 官网首页那句 “Primitives, not features”，还有那个曾经叫 shittycodingagent.ai 的域名，说的都是这件事。</p>
+<p>当然，默认值还是它替你选的。默认只开四个工具，压缩的两个阈值默认 16384 和 20000，项目信任默认要问一句。它让出来的不是“从不做选择”，而是“选择可以被改”。这两件事不一样，前面几章的例子也只在说后一件。</p>
+<p>它当然不是给所有人准备的。如果你要的是开箱即用的安全与周全，Claude Code 们更合适。但如果你想亲手掌控自己那副鞍具的每一颗螺丝，Pi 是这个品类里把选择权还回来还得最彻底的一个。上一篇文章结尾我说“马是谁不重要了，重要的是鞍具合不合手”，这篇的结尾想补一句：<strong>最好的鞍具，是你随时能拆开、能续上、还能请马自己讲讲它怎么跑的那一副。</strong></p>
+<p>还有一件正文没展开的事。第一章那张表里的 server、protocol、client 三个包，加上它们都依赖的 chord 运行时（chord 本身是个独立的插件组装框架，不依赖任何 Pi 包），是正在成型的另一套运行时：它把 agent 循环从进程内的函数，改造成可以落盘、可以跨进程接续的服务，目标是一个会话能被多个客户端同时接进来。这套东西目前只在 coding-agent 的 <code>experimental/</code> 路线里，官方文档把它标成 development-only，要 <code>PI_EXPERIMENTAL=1</code> 才启用，默认 CLI 走的仍是经典架构。写这篇文章时它的定位是演进方向，不是当前行为。</p>
+<p>想亲自上手验证这篇里的论断，最快的一条路是：装上 Pi，把官方 <code>examples/extensions/</code> 目录翻一遍，照着抄一个自己的扩展，再跑一次 2.6 节那段 faux demo。这比读十篇解剖文章都管用。别忘了上篇的提醒：给工具用独立的目录副本，别让它们互相剧透。</p>
+<h2 id="该警惕的地方"><a href="#该警惕的地方" class="headerlink" title="该警惕的地方"></a>该警惕的地方</h2><ol>
+<li>没有内置权限就是安全自负。这是设计，也是风险：让 Pi 在我们不完全信任的目录上裸奔，等于让任意提示词驱动我们的 shell。它的安全文档自己也认这一点：仓库文件、注释、文档、上下文文件、构建产物里的提示词注入属于本地 agent 的预期风险，“cannot be reliably prevented by pi”，Pi 只把你本人和 Pi 进程当同一个信任边界。在共享机器、CI、处理敏感数据时，先套壳。（顺带一提，它确实修过一个本地提权问题，CVE-2026-54328，影响 0.74.0 至 0.78.0，0.78.1 修掉；这个和权限模型无关，成因是临时扩展目录可预测。）</li>
+<li>版本与文档有代差。经典 API 和新 harness 并存，教学材料往往只讲其一。写代码、看文档前先确认自己在哪一代上。</li>
+<li>“不做 MCP、不做子代理、不做计划模式”的取舍不是免费的。这些能力要么靠社区包补，要么得自己写。对开箱即用党来说，它比 Claude Code 这类工具糙不少。</li>
+<li>仓库默认自动关闭新贡献者的 issue 和 PR，维护者每日人工复查。项目红火但门槛不低，别被拒了一次就以为是在针对自己。</li>
+</ol>
+<h2 id="彩蛋"><a href="#彩蛋" class="headerlink" title="彩蛋"></a>彩蛋</h2><p>2026 年 1 月，Pi 的官网长这样：</p>
+<p><img src="../images/pi-harness-old-site.png" alt="2026 年 1 月的 Pi 官网首页">
+<em>Wayback Machine 对 shittycodingagent.ai 的存档，抓取时间 2026-01-09</em></p>
+<p>那句 “There are many shitty coding agents, but this one is mine” 是冲着美国海军陆战队的步枪手誓词（Rifleman’s Creed）来的。原话是 “This is my rifle. There are many like it, but this one is mine”，《全金属外壳》里新兵齐声念的就是它。翻译过来大概是：烂编码 agent 有很多，但这一个是我的。</p>
+<p>安装命令里还留着当时的 scope，<code>@mariozechner/pi-coding-agent</code>，包名后来才挪到 <code>@earendil-works</code> 下。</p>
+<p>三个月后，README 顶上那个指向 shittycodingagent.ai 的 logo 链接被换成了 pi.dev。动手的那次提交，message 写的是 “feat(branding): corporate said we’re professionals”，意思是公司说我们得专业一点，提交人是 Armin Ronacher。pi.dev 这个域名是 exe.dev 友情捐赠的，致谢至今还写在 README 页脚里。</p>
+<p>那个老域名今天还活着，访问它会 301 跳到 pi.dev。存档页显示这段历史一共有 38 次抓取，跨度从 2025 年 12 月 17 日到 2026 年 9 月 14 日。</p>
+<p>一个敢把自己官网叫“烂编码 agent”的项目，大概也配得上“克制”这两个字。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>仓库：<a target="_blank" rel="noopener" href="https://github.com/earendil-works/pi">earendil-works/pi</a>（<a target="_blank" rel="noopener" href="https://pi.dev/">pi.dev</a> 官网与文档）</li>
+<li>作者博客：<a target="_blank" rel="noopener" href="https://mariozechner.at/posts/2025-11-30-pi-coding-agent/">《What I learned building an opinionated and minimal coding agent》</a>、<a target="_blank" rel="noopener" href="https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/">《What if you don’t need MCP at all?》</a></li>
+<li>我上一篇的横评：《<a href="https://springuper.github.io/agent-harness-comparison/">给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测</a>》（复现实测用同一提示词即可，命令见其附录）</li>
+<li>中文教学仓库：<a target="_blank" rel="noopener" href="https://github.com/cellinlab/how-pi-agent-works">cellinlab/how-pi-agent-works</a></li>
+<li>第三方解读：<a target="_blank" rel="noopener" href="https://walkinglabs.github.io/learn-harness-engineering/zh-TW/harness-designs/pi/">walkinglabs 的 harness 工程设计系列（Pi 篇）</a></li>
+<li>真实会话数据集：<a target="_blank" rel="noopener" href="https://huggingface.co/datasets/badlogicgames/pi-mono">badlogicgames/pi-mono on Hugging Face</a></li>
+</ul>
+<blockquote>
+<p>版本与核实说明：本文基于仓库 HEAD <code>9767ba2</code>（各包版本 0.85.1，2026-09-06 抓取）撰写，演进时间线里的日期与 commit 均取自仓库 git 历史，可按 commit 复核。版本号与生态数据随时间变化，引用请以当时为准。文中实跑的证据（faux 输出、会话文件）产生于 2026-09-19，比基于 HEAD <code>9767ba2</code> 的源码核对晚两周，是为了让它们和这一版正文对齐才重新跑的。文中的 faux 事件流 demo 是实跑输出（Node 24 + <code>@earendil-works/pi-ai@0.85.1</code>），不是手写示意。掌故类内容（名字来历、YOLO Mode、域名变更）同样按 git 历史核验，其中域名那条重定向在浏览器里可以直接复现。</p>
+</blockquote>
+
+    
+  </div>
+
+  
+  <!-- Post Copyright -->
+
+<div class="post-copyright">
+  <p class="copyright-item">
+    <span>Author: </span>
+    <a href="https://springuper.github.io">Chun Shang</a>
+  </p>
+  <p class="copyright-item">
+    <span>Link: </span>
+    <a href="https://springuper.github.io/pi-harness-anatomy/">https://springuper.github.io/pi-harness-anatomy/</a>
+  </p>
+  <p class="copyright-item">
+    <span>License: </span>
+    
+    <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+  </p>
+</div>
+
+    
+
+  
+
+  
+  <footer class="post-footer">
+    
+    <div class="post-tags">
+      
+      <a href="/tags/AI/">AI</a>
+      
+      <a href="/tags/Agent/">Agent</a>
+      
+      <a href="/tags/Harness/">Harness</a>
+      
+      <a href="/tags/Pi/">Pi</a>
+      
+      <a href="/tags/TypeScript/">TypeScript</a>
+      
+    </div>
+    
+      
+  <nav class="post-nav">  
+      
+      
+      <a class="next" href="/inward-attribution/">  
+        <span class="next-text nav-default">向内归因的人，手里永远多出几个选项</span>  
+        <span class="prev-text nav-mobile">Next</span>  
+        <i class="iconfont icon-right"></i>  
+      </a>  
+      
+  </nav>  
+  
+
+  </footer>
+  
+
+</article>
+        </div>
+          
+  <div class="comments" id="comments">  
+      
+      <div id="utterances-container"></div>  
+      
+  </div>  
+  
+
+      </div>
+    </main>
+    <footer id="footer" class="footer">
+      <!-- Social Links -->
+
+<div class="social-links">
+  
+  
+  
+  
+  <a href="mailto:springuper@gmail.com" class="iconfont icon-email" title="email"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://twitter.com/springuper" class="iconfont icon-twitter" title="twitter"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://www.linkedin.com/in/chun-shang-45a41241/" class="iconfont icon-linkedin" title="linkedin"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://github.com/springuper" class="iconfont icon-github" title="github"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/shang-chun" class="iconfont icon-zhihu" title="zhihu"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+  
+</div>
+
+
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+  <span class="division">|</span>
+  <span class="hosting-info">
+    footer.hosting
+  </span>
+
+  <span class="copyright-year">
+    <span>
+      
+      &copy;
+      
+      2011 - 2026      
+    </span>
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+
+    <span class="author">Chun Shang</span>
+  </span>
+
+</div>
+    </footer>
+    <div class="back-to-top" id="back-to-top"> <i class="iconfont icon-up"></i> </div>
+  </div>
+    
+    
+    
+    
+    
+  
+<script>
+  var container = document.getElementById('utterances-container');
+  var script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', 'springuper/springuper.github.io');
+  script.setAttribute('issue-term', 'pathname');
+  script.setAttribute('theme', 'github-light');
+  script.setAttribute('label', 'utterances');
+  script.crossorigin = 'anonymous';
+  script.async = true;
+
+  container.appendChild(script);
+</script>
+  
+    
+  
+
+  
+
+
+
+
+
+
+
+<script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+
+
+
+<script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+
+
+
+<script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+
+</html>

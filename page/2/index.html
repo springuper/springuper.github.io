@@ -175,6 +175,62 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/react-context/">基于 Context 做 React 状态管理</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2023-03-09
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>React Context 在一些弱交互的 Web 应用中被很多人用来作为全局状态管理的利器，理由非常简单：开箱即用，无需额外引入第三方工具，而且毕竟是“亲儿子”，对将来的 concurrent mode 等新特性支持良好。然而在略微复杂些的场景继续使用 context 有时会面临一定的性能问题，目前官方和社区都在探索可能的解决方案。期望通过本文的介绍，能让大家在这方面有一定概要性的理解。</p>
+<h2 id="痛点"><a href="#痛点" class="headerlink" title="痛点"></a>痛点</h2><p>官方文档中有这样一句话：</p>
+<blockquote>
+<p>Context lets you “broadcast” such data, and changes to it, to all components below.</p>
+</blockquote>
+<p>简单来说，一个 context 中的数据发生变化后，所有下层使用这一 context 的组件都会被更新。当 context 数据越来越多的时候，就会出现一些根本不必要的重复更新。</p>
+<p>让我们用一个例子来简单阐释下。假设我们有一个这样的应用：</p>
+<ul>
+<li>有一个名字的输入框以及一个姓氏的输入框，使用两个组件实现</li>
+<li>在另一个组件中展示欢迎信息，需要用到上面输入的名字和姓氏</li>
+</ul>
+<p>界面效果如下：
+<img src="../images/react-context-01.jpg"></p>
+<p>因为涉及到跨组件数据调用，我们使用 context 进行名字和姓氏数据的管理。简要代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Context &amp; Components</span></span><br><span class="line"><span class="keyword">const</span> PersonContext = createContext();</span><br><span class="line"><span class="keyword">const</span> PersonFirstName = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [state, dispatch] = useContext(PersonContext);</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="xml">      First Name:</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">input</span></span></span></span><br><span class="line"><span class="tag"><span class="xml">        <span class="attr">value</span>=<span class="string">&#123;state.firstName&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="xml">        <span class="attr">onChange</span>=<span class="string">&#123;event</span> =&gt;</span> dispatch(&#123; type: &quot;setFirstName&quot;, firstName: event.target.value &#125;)&#125;</span></span><br><span class="line"><span class="xml">      /&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> PersonFamilyName = <span class="function">() =&gt;</span> &#123; <span class="comment">/* similar to PersonFirstName */</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> Greeting = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [state] = useContext(PersonContext);</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>Hi, &#123;state.firstName&#125; &#123;state.familyName&#125;!<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Main App</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">PersonContext.Provider</span> <span class="attr">value</span>=<span class="string">&#123;useReducer(reducer,</span> <span class="attr">initialState</span>)&#125;&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">Greeting</span> /&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">PersonFirstName</span> /&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">PersonFamilyName</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">PersonContext.Provider</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    <div class="read-more">
+      <a href="/react-context/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/management-lever/">管理的杠杆</a>
       
     </h1>
@@ -637,60 +693,6 @@
 <p>为了彻底解决这一问题，在 React 团队的 Sebastian 等人的带领下，经过参考和探索诸如 <a target="_blank" rel="noopener" href="https://github.com/reactjs/react-future/blob/master/07%20-%20Returning%20State/01%20-%20Stateful%20Functions.js">Stateful Functions</a>、<a target="_blank" rel="noopener" href="http://displayscript.org/introduction.html">DisplayScript</a>、<a target="_blank" rel="noopener" href="https://github.com/ocamllabs/ocaml-effects-tutorial#2-effectful-computations-in-a-pure-setting">Algebraic effects in Multicore OCaml</a> 等方案后，给出了 React Hooks 方案。</p>
     <div class="read-more">
       <a href="/react-hooks/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/the-awakeing-age/">“觉醒年代”有感</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2021-08-12
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p>今天追完了“觉醒年代”，从来没有一部电视剧让我这样心潮澎湃，诸多思绪喷薄涌动，不吐不快。</p>
-<h2 id="总体"><a href="#总体" class="headerlink" title="总体"></a>总体</h2><p>我对民国这段历史的了解除了历史书本之外，主要就是国史大纲最后的缪缪数语，以及各种民国大师们的点滴片段。觉醒年代自 1915 年袁世凯和日本签订二十一条开始，至 1921 年中国共产党正式成立剧终，期间重点以新青年杂志引领的新文化运动、五四运动、建立党组织为主线，生动演绎了陈独秀、李大钊、教员、蔡元培、北洋政府等各色人等的精彩故事和心路历程。</p>
-<p>为了点题，剧中最为重要的一条线就是以陈独秀和李大钊为代表的，为探索救国救民道路奋斗不已的一群人的思想转变过程，最终找到了马克思主义这条真理。可以说是十分扣题的。这其中李大钊觉醒地最早也最为坚决，陈独秀紧随其后。教员显然道行更深，轻易不表态，坚持实践和检验，了解各种路线之后，最终一锤定音，并真的做到了“奋斗终生”。延年乔年也是多次尝试了无政府主义后，才在父亲的感召下幡然醒悟。这背后，还有被他们影响的一批青年志士。是他们这些觉醒者如星星之火，点燃了这个沉睡几百年的中国。</p>
-<p>毫无疑问，这段历史是如此地鲜活、奋进、激动人心。一批人愿意放弃优渥的生活，放弃人上人的特权，放弃自己无限美好的未来，只是为了一个简单朴素的理想：救国救民。我想不到有什么更钦佩的话来向他们致敬，可能这一句能聊表心意：</p>
-<blockquote>
-<p><em>中国总是被他们最勇敢的人保护</em>的<em>很好。</em><br>——基辛格《论<em>中国</em>》</p>
-</blockquote>
-<h2 id="教员"><a href="#教员" class="headerlink" title="教员"></a>教员</h2><p>剧中粉墨登场的主要有两个人，教员是第一个。相信看了那段出场片段的朋友都会印象深刻：雨中各色人等粉墨登场，豪华轿车里吃着西洋面包的小公子，街边卖儿卖女的难民，生动刻画出那个年代阶级的巨大差异。一个青年匆匆走来，他把这一切都看在了眼里，手里倾心呵护着拿生活费买来的几本新青年，步伐坚定，斗志昂扬。他来了~</p>
-<p>教员从湖南师范毕业，被引荐到北大担任图书馆管理员，从此和李大钊结识，因为思维深刻，很快成为良师益友。教员后来也曾说过早期李大钊对他影响巨大，侧面说明了这段时间他们交流的深入程度。</p>
-<p>有两个事情让我对教员有了更深的理解。</p>
-<p>其一是他为新青年投递的第一篇文章“体育之研究”：
-<img src="../images/the-awakeing-age-01.jpg"></p>
-<p>据说这是他对于陈独秀创刊词中的六大标准的补遗：强壮的而非懦弱的。他认为“国力恭弱，武风不振，民族之体质，日趋轻细。此甚可忧之现象也”。都说湘人彪悍，看来都非常注重体育锻炼。另外他能独立思考，拾漏补遗，并写出来这篇体育研究的开篇之作，确实体现出了一代雄主的韬略。</p>
-    <div class="read-more">
-      <a href="/the-awakeing-age/" class="read-more-link">Read more..</a>
     </div>
     
     

@@ -404,6 +404,9 @@ id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。这�
 
 上下文溢出，但响应本身正常结束了
   → 只压缩，不重试
+
+上下文用量越过阈值
+  → 只压缩，不重试
 ```
 
 除了出错，还有两件事是往循环里追加输入，Pi 把它们建模成了两个队列：
@@ -435,7 +438,7 @@ id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。这�
 
 上面这一路讲下来，你可能会问：这些机制我怎么确认它们真的在跑？
 
-Pi 自己给了一个办法。它内置了一个 faux provider（`packages/ai/src/providers/faux.ts`，实测 708 行），一个零网络的假模型：把调用方排队的响应脚本，按真实的 delta 事件流吐出来。它能限速来模拟慢模型，也能模拟 abort 和 deferred 异步响应，甚至能按 sessionId 前缀命中来仿真 prompt cache 的读写。
+Pi 自己给了一个办法。它内置了一个 faux provider（`packages/ai/src/providers/faux.ts`，共 708 行），一个零网络的假模型：把调用方排队的响应脚本，按真实的 delta 事件流吐出来。它能限速来模拟慢模型，也能模拟 abort 和 deferred 异步响应，甚至能按 sessionId 前缀命中来仿真 prompt cache 的读写。
 
 ```bash
 npm i @earendil-works/pi-ai@0.85.1
@@ -519,7 +522,7 @@ delta 是按 token 块切的，所以一句话会被切成几段，逐字渲染�
 
 先说便宜。那 0.00007 美元。
 
-很多模型 API 对上下文缓存计费。如果这次请求的前缀和之前某次完全相同，命中的那部分就按远低于正常输入的价格算。按 DeepSeek 官方价目，缓存命中的输入价约为未命中的 1/50。模型清单里 flash 档的这两个数是 0.0028 和 0.14，正好差 50 倍。
+很多模型 API 对上下文缓存计费。如果这次请求的前缀和之前某次完全相同，命中的那部分就按远低于正常输入的价格算。这个差价有多大，看 pi 自己模型清单里的数字最直接：flash 档的缓存读价和输入价分别是 0.0028 和 0.14 每百万 token，差了 50 倍。（清单是随包发布的快照，未必等于官方页当下的挂牌价，但量级的一致性是它成立的前提。）
 
 所以 harness 的功课很像前端压榨 HTTP 缓存：让请求前缀尽量稳定。能命中的，永远是“从头开始、一字不差的那一段”：
 
@@ -588,7 +591,7 @@ OpenAI Responses 侧是另一套，靠一个缓存键，`prompt_cache_key`，把
 
 前端的发展史告诉我们：**“框架”替我们决定控制流，“库”把控制流还给我们。** jQuery 是库，Angular 是框架，React 一度被争论到底算哪个。
 
-Pi 把这条审美写进了 README：
+Pi 把这条审美写进了产品 README（`packages/coding-agent/README.md`）：
 
 > Pi is a minimal terminal coding harness. Adapt pi to your workflows, not the other way around, without having to fork and modify pi internals.
 

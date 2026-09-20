@@ -317,52 +317,29 @@ while (true) {                                    // 外层：follow-up
 
 ### 2.4 结果回到树上
 
-这一趟只调了一个工具，真实的修复任务不会这么简单。上一篇文章那次任务里，模型和工具来回走了 6 轮，每一轮都在会话文件里留下记录。那 6 轮长什么样，看文件最直接。
+这一趟只调了一个工具，真实的修复任务不会这么简单。上一篇文章那次任务里，模型和工具来回走了 6 轮，每一轮都在会话文件里留下记录。6 轮在文件里怎么排布，看文件本身最直接。
 
-我让 Pi 真的写了一个会话文件。真实文件是每行一条记录的 JSONL，我从里面挑了一个回合，把四条记录缩进展开（缩进只是免得你横向滚动，字段结构和取值都照实）。
-
-usage 和 cost 里的数字是示意值，原因下面会说；完整文件长得多，这四条只是其中一段：
+我让 Pi 真的写了一个会话文件。真实文件是每行一条记录的 JSONL：每条记录一层外壳，消息本体挂在外壳里。这一节只关心树怎么长出来，所以下面把外壳里与树无关的字段都收起来，只留每条的身份和它的父节点——被收起来的 `usage` 和 `cost` 后面还要回来交代，先放一放。完整文件长得多，下面这四条只是其中一段：
 
 ```jsonc
-// 第 1 行：header
-{ "type": "session", "version": 3,
-  "id": "01a0b81f-b94f-7559-bfee-67609da12709",
-  "timestamp": "2026-09-19T05:24:41.936Z", "cwd": "/tmp/demo-repo" }
+// 第 1 行：header，整个文件只有这一条
+{ "type": "session", "version": 3, "cwd": "/tmp/demo-repo",
+  "id": "01a0b81f-b94f-7559-bfee-67609da12709" }
 
-// 第 2 行：用户消息
+// 第 2 行 / m1：用户消息，parentId 为 null，所以它是根
 { "type": "message", "id": "a5c1c471", "parentId": null,
-  "timestamp": "2026-09-19T05:24:41.937Z",
-  "message": { "role": "user",
-               "content": "修复这个仓库里的 bug，让 npm test 全部通过",
-               "timestamp": 1789795481937 } }
+  "message": { /* 消息本体，形状同 2.1 */ } }
 
-// 第 3 行：assistant，带工具调用与 usage
+// 第 3 行 / m2：assistant，挂在 m1 下面
 { "type": "message", "id": "678f354f", "parentId": "a5c1c471",
-  "timestamp": "2026-09-19T05:24:42.104Z",
-  "message": {
-    "role": "assistant", "api": "openai-completions",
-    "provider": "deepseek", "model": "deepseek-v4-flash",
-    "usage": { "input": 1240, "output": 96,
-               "cacheRead": 1080, "cacheWrite": 0,
-               "totalTokens": 2416,
-               "cost": { "input": 0, "output": 0, "cacheRead": 0,
-                         "cacheWrite": 0, "total": 0 } },
-    "stopReason": "toolUse",
-    "content": [ { "type": "toolCall", "id": "call_1",
-                   "name": "bash",
-                   "arguments": { "command": "npm test" } } ],
-    "timestamp": 1789795481937 } }
+  "message": { /* 消息本体：内容 + usage + cost */ } }
 
-// 第 4 行：工具结果
+// 第 4 行 / m3：工具结果，挂在 m2 下面
 { "type": "message", "id": "423c01c8", "parentId": "678f354f",
-  "timestamp": "2026-09-19T05:24:45.318Z",
-  "message": { "role": "toolResult", "toolCallId": "call_1",
-               "toolName": "bash",
-               "content": [ { "type": "text", "text": "3 failing" } ],
-               "isError": false, "timestamp": 1789795481937 } }
+  "message": { /* 消息本体：工具输出 */ } }
 ```
 
-这四行里藏着三样东西。
+外壳里只剩 `type`、`id`、`parentId` 三样，但这棵树已经在里面了。
 
 第一行是 header，之后每一行是一个 entry，每个 entry 都指向自己的 parentId，`null` 表示它是根。所以一个文件里天然长着一棵树，而不是一条线：
 
@@ -372,9 +349,9 @@ m1 ─ m2 ─ m3 ─┬─ m4 ─ m5   ← 叶子 A
               └─ m6 ─ m7   ← 叶子 B
 ```
 
-id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。这份文件是我用假模型在本地写的，所以 `cost` 全是 0，`usage` 里那几个数字也是示意值，真实会话里这里会填上真金白银和真实计量。assistant 那条消息上挂着 `usage`，缓存命中量是里面一个独立字段（上面这份文件里是 `cacheRead: 1080`）。这一趟花了多少缓存，会话文件里就记着多少。
+id 是 8 位 hex，比如 `a5c1c471`，只用来定位，不参与语义。被收起来的 `usage` 挂在每条 assistant 记录上，缓存命中量是其中独立的一个字段——这次实录里是 `cacheRead: 1080`。这份文件是我用假模型在本地写的，所以 `cost` 全是 0、`usage` 里那几个数字也只是示意值，真实会话里会填上真金白银和真实计量。这一趟花了多少缓存，会话文件里就记着多少。
 
-当前对话位置就是树的某片叶子，我们刚才那 6 次工具调用，是在这棵树上走出的一条路径。想回到历史里的某个岔路口，那就是一次“切分支”。对应的命令有三个：
+图里的 m1 到 m3 就是上面那三条记录，再往后是这次实录之外的部分。当前对话位置永远是树的某片叶子，我们刚才那 6 次工具调用，是在这棵树上走出的一条路径。想回到历史里的某个岔路口，那就是一次“切分支”。对应的命令有三个：
 
 - `/tree`：查看整棵树，在文件内跳转、切换分支。
 - `/fork`：选中某条 user 消息，把它之前的路径复制成一个新的会话文件，并把那条 prompt 放回输入框供我们改写。

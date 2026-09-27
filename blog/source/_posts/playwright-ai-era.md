@@ -44,6 +44,13 @@ await page.getByRole('button', { name: '提交' }).click();
 
 Selenium 是这一行的老前辈，它的核心遗产是协议：WebDriver。2018 年 WebDriver 成为 W3C Recommendation，从此"用任何语言驱动任何浏览器"有了标准。（顺带说清一个容易被夸大的说法：升级成标准的只有 Level 1，现行的 [Level 2](https://www.w3.org/TR/webdriver2/) 和 [WebDriver BiDi](https://www.w3.org/TR/webdriver-bidi/) 到 2026 年 9 月都还是 Working Draft。）
 
+说它"面向企业的测试生态"，是四件很具体的事：
+
+- 六种语言绑定：Java、Python、C#、Ruby、JavaScript、Kotlin。一个公司里后端写 Java、数据写 Python、前端写 JS，都能用同一套协议写测试，不必为了统一测试工具去统一技术栈。
+- Grid 负责编排：把一套测试分发到几十台机器、几十个浏览器版本上并行跑。这是"企业级"最实在的那部分需求，也是别的工具基本不碰的部分，Puppeteer 的官方 FAQ 就明说 Grid 超出它的范围。
+- [云厂商按协议供货](https://www.selenium.dev/sponsor/)：BrowserStack、TestMu AI（原 LambdaTest）都是 Selenium 官方列出的 Development Partner，测试基建不用自己搭，买就行。
+- 中立治理：Selenium 自 [2011 年](https://sfconservancy.org/news/2011/feb/02/selenium-joins/)起就是 Software Freedom Conservancy 的成员项目，不属于任何一家浏览器厂商。企业敢把它写进五年规划，靠的正是这一点。
+
 这套协议换来了跨语言与跨厂商的自由，代价是把两件麻烦事留给了使用者：等待和会话。[官方文档](https://www.selenium.dev/documentation/webdriver/waits/)写得很直白：显式等待就是"你写在代码里的轮询循环"。也就是说，WebDriver 本身没有内建的"这个元素现在能不能点了"的判定。这件事得你自己写。
 
 于是就有了第一代前端测试工程师的必修课：`sleep` 多久才够。这门课的挂科率，的确就是后来所有人嘴里的 flake。
@@ -107,6 +114,20 @@ Playwright 出现在 2019 年底（npm 上最早可见的版本是 2019-12-05 �
 
 "连续两帧不变"这种抠到帧的定义，是我见过对"把经验变成接口"最字面的注解：**它把老工程师嘴里那句"等它别动了再点"直接写成了代码。**
 
+说得再顺口，也不如跑一次。我做了个很小的实验：按钮先 `disabled` 600 毫秒（模拟慢接口），点成功就往页面上写一行「已提交」。同一颗按钮，三种点法，结果不一样：
+
+| 点法 | 页面结果 | 说明 |
+|---|---|---|
+| 按坐标立刻点 `page.mouse.click(x, y)` | `（未提交）` | 按钮还禁用着，真实鼠标事件被吞掉 |
+| `locator.dispatchEvent('click')` | `（已提交）` | 事件绕过了检查，看着成功，其实是假成功 |
+| `getByRole('button').click()` | `（已提交）`，等了 846 毫秒 | 条件成立才动手 |
+
+<!-- TODO(gif): 录 8 秒，三种点法并排跑一遍，让"假成功"一眼可见 -->
+
+第三行那 846 毫秒不是浪费，是它在等条件成立。但更值得琢磨的是第一行和第二行的对比：**不做检查的自动化，最危险的地方不是失败，而是它能给你一个假成功。** 一个"禁用状态也照样点进去"的脚本会在 CI 里一直绿着，直到上线被真实用户教做人。
+
+这也是为什么那种天真写法在 Playwright 里反而不好写：等待焊在动作内部，除非你显式调用跳过检查的 API，否则绕不过去。
+
 ### 2. Locator 是「描述」，不是「句柄」
 
 `page.getByRole('button', { name: '提交' })` 返回的不是一个元素引用，而是一句描述：官方定义是"一种在任何时刻都能找到元素的方式"。它是惰性重解析的（见 [Locators 文档](https://playwright.dev/docs/locators)）。
@@ -114,6 +135,27 @@ Playwright 出现在 2019 年底（npm 上最早可见的版本是 2019-12-05 �
 这个区别倒是实在：描述可以重试、可以序列化、可以跨进程传递、可以直接印在报错里（下面马上会看到）。`ElementHandle` 倒是被官方文档[标上了 Discouraged](https://playwright.dev/docs/handles)（不推荐）。
 
 语义定位（`getByRole` / `getByLabel` / `getByText` / `getByPlaceholder` / `getByTestId`）背后的 role 来自 W3C ARIA 规范：这意味着你的测试代码开始长得像一份 UI 规范，而不是一串 DOM 路径。
+
+差别有多大？我拿同一颗按钮做了次实验。先把 class 从构建哈希 `btn-primary-9f2c1a` 改成 `btn-primary-4b8e77`（模拟一次重新构建），再跑两种写法：
+
+| 写法 | 重构之后 |
+|---|---|
+| `page.click('.btn-primary-9f2c1a')` | ❌ `Timeout 1200ms exceeded` + `waiting for locator('.btn-primary-9f2c1a')` |
+| `page.getByRole('button', { name: '提交订单' })` | ✅ 照样命中 |
+
+<!-- TODO(截图): 两行终端报错并排截图，右边打勾 -->
+
+不过语义定位有个前提，得说清楚：`getByRole` 不是凭空知道"这是个按钮"的。它读的是浏览器的可访问性树：原生标签自带隐式 role（`<button>`、`<a href>`、`<input type="checkbox">`），自定义组件就得自己补上 `role` 和可达名称（`aria-label`，或者 `aria-labelledby`、`<label for>`）。
+
+我拿一个只用 `<div onclick>` 拼的按钮试过：
+
+```
+getByRole('button').count()   →  0        # div 汤里没有"按钮"这个语义
+ARIA 快照里的那一项            →  - text: 提交订单   # 降级成一行普通文本
+补上 role="button" 之后         →  1
+```
+
+所以这条路对页面是有要求的：**你的界面得先有语义。** 这听着像额外成本，其实是一鱼三吃，同一套标记同时喂饱三件事：屏幕阅读器（可访问性）、`getByRole`（可测试性），以及 agent 读到的 ARIA 快照（可被理解）。我手头项目的 e2e 里就有个用例，断言的是"关键操作要有 `aria-label`、不要用 `title`"：一条测试顺手把无障碍规范也钉住了。
 
 ### 3. 一套 API，吃下三个内核
 
@@ -126,11 +168,31 @@ Chromium、Firefox、WebKit，这次不是"分别适配"，而是同一套 API�
 └── webkit-2227     # 真 WebKit，不是换皮
 ```
 
-（坦白说，这一点上 Cypress 和 Puppeteer 都给不了等价物。想测 Safari 的等价内核，几乎没有第二条路。）
+（这里的"等价物"指三个内核都由同一套 API 一等公民地支持，而不是"能不能跑起来"。Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。）
 
-架构上也值得记一笔，因为它解释了"为什么它敢说自己不是 WebDriver 的又一个绑定"：语言绑定 → 独立的 driver 子进程 → 自有协议（协议定义在仓库的 `packages/protocol/spec/*.yml`）。Chromium 走 CDP；Firefox 走打了补丁的 `-juggler-pipe`；WebKit 走 `--inspector-pipe`。官方在 `connectOverCDP` 的文档里留下一句很能说明态度的话：直连 CDP 的保真度 *"significantly lower fidelity than the Playwright protocol connection"*。
+上面这段我第一版写得很乱，重新理一遍。因为"开个 flag 就能驱起来"是个误解，这件事得分三层看：
 
-> 口径声明：上面这段架构来自官方文档与仓库源码。但要提醒一句："Juggler"这个词官方文档从不使用，它只出现在源码与补丁目录里，属于源码级证据，别当成官方术语引用。
+第一层：语言绑定和浏览器之间隔了一个进程。 你在 JS、Python、Java 里调的是同一份实现，它启动一个独立的 driver 子进程，再通过 Playwright 自有协议（定义在仓库的 `packages/protocol/spec/*.yml`）跟它说话。所以它既不是 WebDriver 的又一家的绑定，也不是 CDP 的封装。
+
+第二层：每个内核各走一条通道。
+
+| 内核 | 通道 | 说明 |
+|---|---|---|
+| Chromium | CDP | 用开源 Chromium 构建，能力直接来自上游 |
+| Firefox | 打了补丁的 `-juggler-pipe` | 官方文档原话：Playwright 依赖补丁，用不了品牌版 Firefox |
+| WebKit | `--inspector-pipe` | 仓库 `browser_patches/` 下同时维护 firefox 与 webkit 两套补丁 |
+
+第三层，也是最关键的一层：它自己编译并维护内核。 上面那两个 flag 不是"开关"，而是**只有打过补丁的构建里才存在的通道**。Playwright 每次发版同步更新三个内核的版本，`npx playwright install` 下载的就是这些自定义构建，我本机这份缓存已经 1.0 GB（chromium 324 MB、webkit 275 MB、firefox 253 MB）。
+
+那为什么别人做不到？不是开不了 flag，是改不了内核。
+
+- Cypress 的架构决定了它不往这个方向走。 官方原话是：*"Cypress is executed in the same run loop as your application."* 它把驱动注入浏览器、与被测应用同处一个事件循环（这也是它 devtools 联动调试体验好的原因）。这条路要求内核允许注入，而它无法自带打了补丁的 WebKit，所以官方对 WebKit 的措辞只能是 experimental。
+- Puppeteer 的定位是 CDP 的参考实现：用官方 Chromium 构建跑 Chrome 系，v23 起 Firefox 走 BiDi，WebKit 不在计划内。它不需要改内核，也就不会去改。
+- Selenium 走 W3C 协议：能力上限取决于各家厂商提供的 driver 实现。覆盖面最广，但每个内核能做什么由厂商说了算。
+
+代价也说清楚：这套"连内核一起维护"的赌注，换来了三内核一致和额外的自动化能力，付出的是每次升级都要重下几百 MB 的自定义浏览器，外加内核补丁的长年维护。官方在 `connectOverCDP` 的文档里留下一句很能说明态度的话：直连 CDP 的保真度 *"significantly lower fidelity than the Playwright protocol connection"*。
+
+> 口径声明：架构部分来自官方文档与仓库源码。"Juggler"这个词官方文档从不使用，只出现在源码与补丁目录里，属于源码级证据，别当成官方术语引用。
 
 ### 4. trace.zip：把失败变成一个可以传递的东西
 
@@ -150,8 +212,6 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
     ...
 ```
 
-（为了看得清，我把每行里那个很长的 `class` 属性省略成了 `...`，其余一字未改。）
-
 请仔细看这个报错的结构。它不只是说"你错了"：
 
 1. 它说明了为什么错（匹配到 20 个）；
@@ -162,7 +222,29 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 
 ## 三、转折点：这份接口的观众换人了
 
-到这里，前面讲的都还是"Playwright 是个设计得好的工具"。要解释"为什么偏偏是 AI 时代换代"，得回答一个更具体的问题：为什么这套抽象对模型特别友好？
+前面讲的都还是"Playwright 是个设计得好的工具"。但设计得好，不等于能被时代选中。所以在讲 AI 之前，得先把"AI 之前"补齐，否则容易得出一个偷懒的结论：它是被 AI 突然抬起来的。
+
+并不是。我把 npm 的年下载量拉了出来（同一口径，官方 API）：
+
+| 年份 | playwright | cypress | puppeteer |
+|---|---|---|---|
+| 2020 | 330 万 | 6,630 万 | 7,850 万 |
+| 2021 | 1,320 万 | 1.26 亿 | 1.22 亿 |
+| 2022 | 3,810 万 | 2.04 亿 | 1.76 亿 |
+| 2023 | 8,640 万 | 2.57 亿 | 2.39 亿 |
+| 2024 | 3.31 亿 | 2.77 亿 | 2.06 亿 |
+| 2025 | 9.70 亿 | 3.15 亿 | 2.68 亿 |
+| 2026（1 到 8 月） | 17.7 亿 | 2.39 亿 | 3.22 亿 |
+
+这张表有三个读法：
+
+1. 斜率早就在了。 2020 到 2023 年，playwright 每年大约翻三倍（330 万到 8,640 万），同期 Cypress 是温和上涨。也就是说趋势不是 AI 带来的，AI 之前它已经连着三年在抢地盘。
+2. 但反超发生在 2024 年。 这一年 playwright 3.31 亿首次超过 cypress 的 2.77 亿；2025 年拉到 3.1 倍，2026 年前八个月已经接近 7.4 倍。拐点可以标到年份。
+3. 时间线对得上。 2024 年 11 月 MCP 发布，2025 年 2 月 Claude Code 发布、3 月 playwright-mcp 建仓、4 月 Codex CLI 开源，这些正好压在 playwright 那条最陡的坡上。
+
+（口径：npm 下载量含 CI 重复安装与间接依赖，这里是量级不是用户数；2026 年只统计到 8 月 31 日。另外，下载量 2024 年就反超了，行业调查里的"使用率"要到 2025 年才反超，两个口径差一年，第四节会看到。）
+
+所以准确的说法是：**它先赢了工具本身的仗（2020 到 2023 的斜率），再赶上 AI 把这仗的价值放大了一档（2024 之后的陡增）。** 下面要解释的，正是第二段为什么成立。
 
 我用三个词来概括，每一个都能落到我抓到的原文上。
 
@@ -225,7 +307,13 @@ MCP 的 README 里还有一句我很喜欢的话，几乎是这个时代的判�
 
 ### 可重放 > 一次性
 
-把前面两条接起来看，就明白了为什么 trace 和 locator 的可序列化如此重要：**一个能被序列化的失败，就是一份能被自动修复的任务。**
+把前面两条接起来看，trace 和 locator 的"可序列化"到底解决什么，就能走出一条完整的链子：
+
+1. 修复的前提是复现。 一个失败如果只能在那台机器、那个进程里存在，换个人（或换个 agent）就只能靠猜。
+2. trace 把现场打包成一个文件（DOM 快照、网络、console、动作前后的状态），locator 把"该点哪儿"写成一段文本，所以它能被印进报错里，就像第 5 节那段 `aka`。
+3. 于是失败变成可传递的对象：在 CI 上产生，在本地打开，也能被另一个程序读取。官方 healer 干的就是这件事：读失败、定位、改 locator、再跑一遍。
+
+反过来看更清楚：如果失败信息里只剩一句"点击失败"、现场只有一张截图，那么修复者（不管人还是模型）都只能从头猜一遍。**可序列化不是"能被自动修复"的保证，但它是前提。**
 
 不用猜：官方自己就把这条链路做成了产品。[Playwright Test Agents](https://playwright.dev/docs/test-agents)（1.56，2025-10-06）内置三个 agent：
 
@@ -263,7 +351,7 @@ npx playwright init-agents --loop=vscode|claude|codex|opencode
 
 > *"…avoid loading large tool schemas and verbose accessibility trees into the model context."*
 
-**连 accessibility tree 都会被嫌啰嗦。** 这句话反而让整篇文章的论点更稳：被时代选中的从来不是某个功能，而是**"把网页表示成结构化语义"这件事本身。因为只有结构化的东西才能被裁剪、被检索、被压进预算。
+**连 accessibility tree 都会被嫌啰嗦。** 这句话反而让整篇文章的论点更稳：被时代选中的从来不是某个功能，而是"把网页表示成结构化语义"这件事本身。因为只有结构化的东西才能被裁剪、被检索、被压进预算。
 
 ### 数据上也看得到
 
@@ -291,31 +379,20 @@ npx playwright init-agents --loop=vscode|claude|codex|opencode
 
 **2025 年是 Playwright 使用率第一次超过 Cypress。** 但比使用率更值得看的，倒是留存：94% 对 57%。
 
-### 三年曲线：一个是斜坡，一个是平地
+### 当下这一周的量级差
 
-npm 月下载（同一口径，取自 [npm registry API](https://api.npmjs.org/downloads/point/last-week/playwright)）：
-
-| 时间 | playwright | cypress |
-|---|---|---|
-| 2024-01 | 1,568 万 | 2,327 万 |
-| 2025-01 | 4,956 万 | 2,373 万 |
-| 2026-08 | 3.50 亿（35,000 万） | 3,079 万 |
-
-同一个比例尺画出来，两条曲线的形状差别就很直观了（每格 ≈ 2,500 万次）：
+第三节那张年度表看的是趋势，这一周的横向差距更直接（npm 周下载，2026-09-10 到 09-16，取自 [npm registry API](https://api.npmjs.org/downloads/point/last-week/playwright)）：
 
 ```
-playwright 月下载
-2024-01  =
-2025-01  ==
-2026-08  ==============
+每格 ≈ 500 万次下载
 
-cypress 月下载（同一比例尺）
-2024-01  =
-2025-01  =
-2026-08  =
+playwright          =================
+puppeteer           ==
+cypress             =
+selenium-webdriver  -     （不足一格）
 ```
 
-近一周的差距是 14 倍（playwright 8,670 万 vs cypress 612 万）；对 Puppeteer 是 8 倍（1,059 万）；Selenium 的 JS 绑定 182 万。换了赛道以后，两边已经不在一个量级上了。
+对上 Puppeteer 是 8 倍，对 Cypress 是 14 倍，对 Selenium 的 JS 绑定是 47 倍。换了赛道以后，它们已经不在一个量级上了。
 
 ### 一个反直觉的数字
 

@@ -40,6 +40,8 @@ await page.getByRole('button', { name: '提交' }).click();
 
 想搞清楚换代，大概得先知道上一代各自解决了什么问题，以及它们的设计对象是谁。
 
+下面三家，我用同一件小事来演示各自的特点：点一颗"600 毫秒后才可用"的提交按钮。第二章里 Playwright 写的也是同一颗按钮，正好能横向比。
+
 ### Selenium：为「企业的测试生态」设计
 
 Selenium 是这一行的老前辈，它的核心遗产是协议：WebDriver。2018 年 WebDriver 成为 W3C Recommendation，从此"用任何语言驱动任何浏览器"有了标准。（顺带说清一个容易被夸大的说法：升级成标准的只有 Level 1，现行的 [Level 2](https://www.w3.org/TR/webdriver2/) 和 [WebDriver BiDi](https://www.w3.org/TR/webdriver-bidi/) 到 2026 年 9 月都还是 Working Draft。）
@@ -55,6 +57,22 @@ Selenium 是这一行的老前辈，它的核心遗产是协议：WebDriver。20
 
 于是就有了第一代前端测试工程师的必修课：`sleep` 多久才够。这门课的挂科率，的确就是后来所有人嘴里的 flake。
 
+拿那颗提交按钮写一遍，长这样（Selenium 4 的 Java 绑定）：
+
+```java
+WebDriver driver = new ChromeDriver();
+driver.get("https://example.com/order");
+
+Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+WebElement submit =
+    wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#submit")));
+submit.click();
+
+driver.quit();
+```
+
+要看的是第三行："按钮什么时候可点"这件事，是你**显式写出来**的。换成 Python、C# 或 Kotlin，这段逻辑只是换个绑定，协议还是同一个，这就是"六种语言绑定"在实际工作里的样子。顺便说一句，Selenium 官方"等待"那一页自己就摆了一个叫 `sleep()` 的例子，里面写的是 `Thread.sleep(1000)`：文档自个儿把这件事认了。
+
 ### Puppeteer：为「脚本作者」设计
 
 Puppeteer 是 2017 年从 Chrome 团队长出来的，本质是 Chrome DevTools Protocol（CDP）的一层好用的封装。它的使用者画像很清楚：写脚本的人、做抓取的人、需要精确控制浏览器的人。
@@ -62,6 +80,26 @@ Puppeteer 是 2017 年从 Chrome 团队长出来的，本质是 Chrome DevTools 
 它从来不是一个测试框架，[官方 FAQ](https://pptr.dev/faq) 到今天仍然这么定位自己：由 Chrome Browser Automation team 维护，是 CDP / WebDriver BiDi 的参考实现，并且明确写着"不是 Selenium 的替代品"，多语言绑定和 Grid 都不在它范围内。想要测试的便利，社区方案是另外装 `jest-puppeteer`。
 
 这里得纠正一个流传很广的说法："Puppeteer 只支持 Chrome"已经过时了。从 v23.0.0 起它同时支持 Chrome 与 Firefox（Chrome 默认走 CDP，Firefox 默认走 BiDi）。
+
+同一颗按钮，用 Puppeteer 写是这样：
+
+```js
+const browser = await puppeteer.launch();
+const page = await browser.newPage();
+await page.goto('https://example.com/order');
+
+await page.waitForFunction(() => {
+  const btn = document.querySelector('#submit');
+  return btn && !btn.disabled;        // 判据是你自己写的
+});
+await page.click('#submit');
+
+expect(await page.$eval('#result', (el) => el.textContent)).toBe('已提交');
+
+await browser.close();
+```
+
+`waitForFunction` 里那个判据是人写的，不是工具替你判断的；最后那句 `expect` 还得另外装 jest 才有。这就是"CDP 的参考实现，而不是测试框架"落在代码上的样子。
 
 <!-- TODO(gif): 3 秒动画：用一张图对比"Puppeteer 需要自己搭 runner + 断言 + 等待"与"Playwright 开箱即测"，体现工具定位差异 -->
 
@@ -81,6 +119,17 @@ Cypress 是 2015 年出现的，它的野心很不一样：把测试写成一件
 
 翻译一下：Cypress 会反复确认"那个按钮出现了没"，但 `.click()` 一旦执行失败，它不会重新点一次。检查做得很多，动作却不重试。这就是"给人设计"和"给机器设计"的分岔口：人盯着失败现场自己能重试，机器需要工具替它重试。
 
+同一颗按钮，Cypress 的写法最像英语，连 `await` 都不用：
+
+```js
+cy.visit('/order');
+cy.get('#submit').should('not.be.disabled');     // 查询与断言会一直重试
+cy.get('#submit').click();                       // 命令本身只出手一次
+cy.get('#result').should('have.text', '已提交');
+```
+
+写起来确实最舒服，代价就藏在第二行和第三行之间：`should` 会重试到通过为止，`click()` 只出手一次。前面那句官方措辞，落到代码里就是这两行的区别。
+
 ### 一张图看清这一代的分工
 
 ```
@@ -89,7 +138,7 @@ Cypress 是 2015 年出现的，它的野心很不一样：把测试写成一件
 抽象层级低    Selenium    Puppeteer
 ```
 
-四个工具都在"自动化浏览器"这一格，但**它们各自把抽象画在了不同的高度、面向了不同的读者**。接下来这一百年不变的规律是：读者的规模一变，抽象线就会跟着挪。
+四个工具都在"自动化浏览器"这一格，但**它们各自把抽象画在了不同的高度、面向了不同的读者**。同一颗按钮、四段代码，差别不在语法糖，而在把哪一层抽象留给你自己。接下来这一百年不变的规律是：读者的规模一变，抽象线就会跟着挪。
 
 ## 二、Playwright 做对了什么
 
@@ -114,7 +163,13 @@ Playwright 出现在 2019 年底（npm 上最早可见的版本是 2019-12-05 �
 
 "连续两帧不变"这种抠到帧的定义，是我见过对"把经验变成接口"最字面的注解：**它把老工程师嘴里那句"等它别动了再点"直接写成了代码。**
 
-说得再顺口，也不如跑一次。我做了个很小的实验：按钮先 `disabled` 600 毫秒（模拟慢接口），点成功就往页面上写一行「已提交」。同一颗按钮，三种点法，结果不一样：
+说得再顺口，也不如跑一次。回到第一章那颗按钮（`disabled` 600 毫秒，点成功就往页面上写一行「已提交」），Playwright 的写法就一行：
+
+```js
+await page.getByRole('button', { name: '提交订单' }).click();
+```
+
+没有显式等待，没有 `waitForFunction`，也没有判据。同一颗按钮，我给三种点法做了对照实验，结果不一样：
 
 | 点法 | 页面结果 | 说明 |
 |---|---|---|
@@ -555,4 +610,4 @@ const ok = await menuButton.isVisible({ timeout: 2000 }).catch(() => false);
 
 - [Cypress vs Playwright; Browser Included — Gleb Bahmutov](https://glebbahmutov.com/blog/cy-vs-pw-browser/)
 
-> 版本与核实说明：文中数据抓取于 2026-09-19，工具版本为 Playwright 1.63.0、Cypress 16、Selenium 4.49，Puppeteer 取官方 FAQ 与 v23 发布说明。ARIA 探针与那段报错原文是我在本机 Playwright 1.57.0 + Node 24.13.0 上实跑得到的，不是手写示意，探针脚本已内嵌在正文里，可自行复现。掌故与沿革类内容（Puppeteer 与 Playwright 的团队渊源、Cypress 的裁员、Selenium 归属 SFC 的时间、WebDriver 各层级的状态）同样按官方文档、官方博客或仓库源码核过；凡官方没有量化声明的地方，文中都写明了那是我自己量的。开源世界变化快，版本号与下载量都只是快照，引用请以当时为准。
+> 版本与核实说明：文中数据抓取于 2026-09-19，工具版本为 Playwright 1.63.0、Cypress 16、Selenium 4.49，Puppeteer 取官方 FAQ 与 v23 发布说明。ARIA 探针与那段报错原文是我在本机 Playwright 1.57.0 + Node 24.13.0 上实跑得到的，不是手写示意，探针脚本已内嵌在正文里，可自行复现；第一章里 Selenium、Puppeteer、Cypress 三家的示例代码按各自官方文档的 API 写法整理，未在本机逐一实跑。掌故与沿革类内容（Puppeteer 与 Playwright 的团队渊源、Cypress 的裁员、Selenium 归属 SFC 的时间、WebDriver 各层级的状态）同样按官方文档、官方博客或仓库源码核过；凡官方没有量化声明的地方，文中都写明了那是我自己量的。开源世界变化快，版本号与下载量都只是快照，引用请以当时为准。

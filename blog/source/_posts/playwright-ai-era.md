@@ -295,7 +295,7 @@ Chromium、Firefox、WebKit，这次不是"分别适配"，而是同一套 API�
 
 - 最关键的一层：它自己编译并维护内核。上面那两个 flag 不是"开关"，而是**只有打过补丁的构建里才存在的通道**。Playwright 每次发版同步更新三个内核的版本，`npx playwright install` 下载的就是这些自定义构建，我本机这份缓存已经 1.0 GB（chromium 324 MB、webkit 275 MB、firefox 253 MB）。
 
-那为什么别人做不到？其实不是开不了 flag，是改不了内核。Cypress 的架构决定了它不往这个方向走，官方原话是 *"Cypress is executed in the same run loop as your application."*，它把驱动注入浏览器、与被测应用同处一个事件循环（这也是它 devtools 联动调试体验好的原因），这条路要求内核允许注入，而它无法自带打了补丁的 WebKit。Puppeteer 的定位是 CDP 的参考实现，用官方 Chromium 构建跑 Chrome 系，v23 起 Firefox 走 BiDi，WebKit 不在计划内，它不需要改内核，也就不会去改。Selenium 走 W3C 协议，能力上限取决于各家厂商提供的 driver 实现：覆盖面最广，但每个内核能做什么由厂商说了算。
+那为什么别人做不到？其实不是开不了 flag，是改不了内核。Cypress 的架构决定了它不往这个方向走，官方原话是 *"Cypress is executed in the same run loop as your application."*，它把驱动注入浏览器、与被测应用同处一个事件循环，这条路要求内核允许注入，而它无法自带打了补丁的 WebKit。（反过来说，同一个原因也换来了它 devtools 联动调试更顺手：断点能把测试和应用一起停住，Playwright 的 runner 和应用则是两个进程。这条是 Gleb Bahmutov 在[个人博客](https://glebbahmutov.com/blog/cy-vs-pw-browser/)里的观点，不是官方结论。）Puppeteer 的定位是 CDP 的参考实现，用官方 Chromium 构建跑 Chrome 系，v23 起 Firefox 走 BiDi，WebKit 不在计划内，它不需要改内核，也就不会去改。Selenium 走 W3C 协议，能力上限取决于各家厂商提供的 driver 实现：覆盖面最广，但每个内核能做什么由厂商说了算。
 
 代价也说清楚：这套"连内核一起维护"的赌注，换来了三内核一致和额外的自动化能力，付出的是每次升级都要重下几百 MB 的自定义浏览器，外加内核补丁的长年维护。官方在 `connectOverCDP` 的文档里留下一句很能说明态度的话：直连 CDP 的保真度 *"significantly lower fidelity than the Playwright protocol connection"*。
 
@@ -465,30 +465,6 @@ selenium-webdriver  -     （不足一格）
 
 > 口径与免责：npm 下载量含 CI 里的重复安装、镜像同步和间接依赖，它是量级指标而不是用户数，`playwright` 这个包还被大量用于抓取，不全是测试。有一条数字其实是反过来的，得摆出来：按 [ecosyste.ms](https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/playwright) 统计，cypress 被 6,559 个包反向依赖，playwright 只有 1,947 个，下载量赢 14 倍但"嵌进别人项目里"这件事 Cypress 仍然更多，这就是存量与增量的差别，不写出来就是选择性取证。正文里的耗时、报错、ARIA 比例都是我自己在本机量的，不是官方数据；版本号与下载量都只是 2026-09-19 的快照，引用请以当时为准。
 
-## 五、什么时候我不选 Playwright
-
-一篇只有正面论证的文章是软文。下面这些反驳我认，而且都有出处。
-
-**组件测试，我仍然会先看 Cypress。** 它有官方的 mounting library 和 bundler 集成（React 18-19、Vue 3、Angular 21-22、Svelte 5，以及 Vite / Webpack / Next.js 的配置）；Playwright 的组件测试到 2026 年才改成 `mount()` fixture + 自建 dev server，还移除了 `experimental-ct-*` 包，迁移成本实打实更高。
-
-**调试联动性，是 Playwright 的真实短板。** Cypress 的测试和应用跑在同一个 JS 事件循环里，在 devtools 里下一个断点，两边会一起停住；Playwright 的 runner 和应用则是两个进程，联动调试要麻烦得多。（口径：这是 Gleb Bahmutov 在 [2025-09-30 的个人博客](https://glebbahmutov.com/blog/cy-vs-pw-browser/)里的观点，不是官方结论，但的确是内行话。）
-
-另外两类场景也别硬换：Selenium 的六种语言绑定加 Grid 编排，是多语言或企业遗留团队的结构性优势；纯抓取和轻量脚本，谁也不想先装一个测试运行器。
-
-最后，坦白说点我自己的坏话。Playwright 不会自动消灭 flaky 测试，我手头一个项目（`apps/dsa-web`，用 `@playwright/test ^1.58.2`）里的 e2e 用例就同时存在"教科书示范"和"反面教材"：
-
-```ts
-// 好的一面：语义定位，读起来像需求
-await expect(page.getByRole('button', { name: '复制纯文本' })).toBeVisible();
-
-// 坏的一面：类名定位、硬编码等待、软判断
-const firstHistoryItem = page.locator('.home-history-item').first();
-await page.waitForTimeout(1000);
-const ok = await menuButton.isVisible({ timeout: 2000 }).catch(() => false);
-```
-
-`waitForTimeout(1000)` 和 `sleep(800)` 是同一种东西，只是换了个更时髦的名字。**换工具不会消灭 flake，它只是把 flake 从"语言层面"挪到了"用法层面"。** 所以对"上个新工具就好了"这类说法，我一向的态度是：工具能给你更好的抽象，但不能替你写对的代码。
-
 ## 结语
 
 把全文收进一张表，方便你直接贴到团队文档里：
@@ -502,7 +478,14 @@ const ok = await menuButton.isVisible({ timeout: 2000 }).catch(() => false);
 
 一句话总结这篇长文：**浏览器是 agent 的手，而 Playwright 恰好是那只手上最适合被握住的接口。**
 
-不过也别把工具当成答案。换一副鞍具不会自动让马跑得更快（"鞍具"这个说法来自我上一篇横评，《[给大脑配一副好鞍具](https://springuper.github.io/agent-harness-comparison/)》，那里看的是同一件事的另一半：模型外面那层壳），文中那些我自己项目里的坏味道就是提醒：真正决定测试质量的，仍然是写它的人怎么想。
+不过也别把它当成答案。**换工具不会消灭 flake，它只是把 flake 从"语言层面"挪到了"用法层面"。** 我手头那个用 `@playwright/test` 的项目里就留着反面教材：
+
+```ts
+const firstHistoryItem = page.locator('.home-history-item').first();
+await page.waitForTimeout(1000);
+```
+
+`waitForTimeout(1000)` 和开头那个 `sleep(800)` 是同一种东西，只是换了个更时髦的名字。换一副鞍具也不会自动让马跑得更快（"鞍具"这个说法来自我上一篇横评，《[给大脑配一副好鞍具](https://springuper.github.io/agent-harness-comparison/)》，那里看的是同一件事的另一半：模型外面那层壳）。
 
 这篇里的数据我其实核了两遍，但开源世界变化快，难免有疏漏；我对 Playwright 的用法也还在摸索，谈不上什么最佳实践。如果你在迁移路上踩到了不一样的坑，或者发现文中哪里写错了，欢迎指出、欢迎交流。也可以不妨拿自己项目里最 flaky 的那条用例试一遍，再回来说说体会。权当这篇是一次公开的读书笔记，能对你有点用，就算是额外的收益了。
 

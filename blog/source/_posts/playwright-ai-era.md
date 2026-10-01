@@ -40,7 +40,31 @@ await page.getByRole('button', { name: '提交' }).click();
 
 想搞清楚换代，大概得先知道上一代各自解决了什么问题，以及它们的设计对象是谁。
 
-下面三家，我用同一件小事来演示各自的特点：点一颗"600 毫秒后才可用"的提交按钮。第二章里 Playwright 写的也是同一颗按钮，正好能横向比。
+下面三家，我用同一件小事来演示各自的特点：点一颗"600 毫秒后才可用"的提交按钮。第二章里 Playwright 写的是同一个页面，正好能横向比。
+
+先把被测页面摆出来，它就是一个存成 HTML 就能直接打开的静态文件：
+
+```html
+<!doctype html>
+<html lang="zh">
+<body>
+  <h1>下单</h1>
+  <button id="submit" disabled>提交订单</button>
+  <p id="result"></p>
+
+  <script>
+    // 模拟一个 600 毫秒才回来的接口：这期间按钮是禁用的
+    setTimeout(() => { document.getElementById('submit').disabled = false; }, 600);
+
+    document.getElementById('submit').addEventListener('click', () => {
+      document.getElementById('result').textContent = '已提交';
+    });
+  </script>
+</body>
+</html>
+```
+
+判断成没成功只看一件事：最后那行 `<p id="result">` 里有没有出现「已提交」。
 
 ### Selenium：为「企业的测试生态」设计
 
@@ -57,21 +81,36 @@ Selenium 是这一行的老前辈，它的核心遗产是协议：WebDriver。20
 
 于是就有了第一代前端测试工程师的必修课：`sleep` 多久才够。这门课的挂科率，的确就是后来所有人嘴里的 flake。
 
-拿那颗提交按钮写一遍，长这样（Selenium 4 的 Java 绑定）：
+拿那颗提交按钮写一遍，是一份完整的 Java 文件（Selenium 4）：
 
 ```java
-WebDriver driver = new ChromeDriver();
-driver.get("https://example.com/order");
+import java.time.Duration;
 
-Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-WebElement submit =
-    wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#submit")));
-submit.click();
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-driver.quit();
+public class OrderTest {
+    public static void main(String[] args) {
+        WebDriver driver = new ChromeDriver();
+        driver.get("file:///path/to/order.html");
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebElement submit =
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("submit")));
+        submit.click();
+
+        String result = driver.findElement(By.id("result")).getText();
+        System.out.println("页面上的结果：" + result);
+        driver.quit();
+    }
+}
 ```
 
-要看的是第三行："按钮什么时候可点"这件事，是你**显式写出来**的。换成 Python、C# 或 Kotlin，这段逻辑只是换个绑定，协议还是同一个，这就是"六种语言绑定"在实际工作里的样子。顺便说一句，Selenium 官方"等待"那一页自己就摆了一个叫 `sleep()` 的例子，里面写的是 `Thread.sleep(1000)`：文档自个儿把这件事认了。
+`import` 那一堆可以略过，要看的只有一行：`wait.until(...)`。"按钮什么时候可点"这件事，是你**显式写出来**的。换成 Python、C# 或 Kotlin，这段逻辑只是换个绑定，协议还是同一个，这就是"六种语言绑定"在实际工作里的样子。顺便说一句，Selenium 官方"等待"那一页自己就摆了一个叫 `sleep()` 的例子，里面写的是 `Thread.sleep(1000)`：文档自个儿把这件事认了。
 
 ### Puppeteer：为「脚本作者」设计
 
@@ -81,25 +120,41 @@ Puppeteer 是 2017 年从 Chrome 团队长出来的，本质是 Chrome DevTools 
 
 这里得纠正一个流传很广的说法："Puppeteer 只支持 Chrome"已经过时了。从 v23.0.0 起它同时支持 Chrome 与 Firefox（Chrome 默认走 CDP，Firefox 默认走 BiDi）。
 
-同一颗按钮，用 Puppeteer 写是这样：
+同一颗按钮，Puppeteer 的完整脚本是这样（Node，装上 puppeteer 就能跑）：
 
 ```js
-const browser = await puppeteer.launch();
-const page = await browser.newPage();
-await page.goto('https://example.com/order');
+const puppeteer = require('puppeteer');
 
-await page.waitForFunction(() => {
-  const btn = document.querySelector('#submit');
-  return btn && !btn.disabled;        // 判据是你自己写的
-});
-await page.click('#submit');
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto('file:///path/to/order.html');
 
-expect(await page.$eval('#result', (el) => el.textContent)).toBe('已提交');
+  await page.waitForFunction(() => {          // 判据得自己写
+    const btn = document.querySelector('#submit');
+    return btn && !btn.disabled;
+  });
+  await page.click('#submit');
 
-await browser.close();
+  const result = await page.$eval('#result', (el) => el.textContent);
+  console.log('页面上的结果：' + result);
+  await browser.close();
+})();
 ```
 
-`waitForFunction` 里那个判据是人写的，不是工具替你判断的；最后那句 `expect` 还得另外装 jest 才有。这就是"CDP 的参考实现，而不是测试框架"落在代码上的样子。
+输出：
+
+```text
+页面上的结果：已提交
+```
+
+**把中间那三行 `waitForFunction` 删掉会怎样？** 我把这一版也真跑了一遍：
+
+```text
+页面上的结果：""
+```
+
+点了，但什么也没发生：按钮还是禁用状态，浏览器把这次鼠标事件直接吞了。脚本没有报错，它只是"点过了"而已。`waitForFunction` 里那个判据是人写的，不是工具替你判断的；最后那句断言（我这里图省事用 `console.log` 代替）还得另外装 jest 才有。这就是"CDP 的参考实现，而不是测试框架"落在代码上的样子。
 
 <!-- TODO(gif): 3 秒动画：用一张图对比"Puppeteer 需要自己搭 runner + 断言 + 等待"与"Playwright 开箱即测"，体现工具定位差异 -->
 
@@ -113,22 +168,43 @@ Cypress 是 2015 年出现的，它的野心很不一样：把测试写成一件
 
 官方的检查清单包括 visible / disabled / detached / readonly / animations / covering / scrolling，比 Playwright 的四项还长；它也会盯着 DOM 不断重跑查询（[官方原文](https://docs.cypress.io/app/core-concepts/retry-ability)：*"Cypress will watch the DOM - re-running the queries…"*）。
 
-那它的分水岭在哪？就在紧挨着的下一句官方措辞里：
-
-> *"Only queries are retried… commands themselves only execute once"*（只有查询会被重试，命令本身只执行一次）
-
-翻译一下：Cypress 会反复确认"那个按钮出现了没"，但 `.click()` 一旦执行失败，它不会重新点一次。检查做得很多，动作却不重试。这就是"给人设计"和"给机器设计"的分岔口：人盯着失败现场自己能重试，机器需要工具替它重试。
-
-同一颗按钮，Cypress 的写法最像英语，连 `await` 都不用：
+"Cypress 不会自动等待"是流传很广的说法，我本来打算照抄，实测之后改了主意。先写一个**完全不带等待**的用例：
 
 ```js
-cy.visit('/order');
-cy.get('#submit').should('not.be.disabled');     // 查询与断言会一直重试
-cy.get('#submit').click();                       // 命令本身只出手一次
+cy.visit('/order.html');
+cy.get('#submit').click();                       // 不写任何等待
 cy.get('#result').should('have.text', '已提交');
 ```
 
-写起来确实最舒服，代价就藏在第二行和第三行之间：`should` 会重试到通过为止，`click()` 只出手一次。前面那句官方措辞，落到代码里就是这两行的区别。
+它**通过了**，耗时 846 毫秒。也就是说它确实等了：600 毫秒后按钮一可用，点击才落下去。等待这件事，它和 Playwright 一样有。
+
+两者真正的边界写在紧挨着的官方那句话里：
+
+> *"Only queries are retried… commands themselves only execute once"*（只有查询会被重试，命令本身只执行一次）
+
+这句管的是**命令失败之后**要不要重来，不是"动作之前等不等"。把它读成"Cypress 没有自动等待"，就偏了。
+
+回到那颗按钮，一份完整的用例长这样（`cypress/e2e/order.cy.js`）：
+
+```js
+describe('下单', () => {
+  it('提交订单', () => {
+    cy.visit('/order.html');
+    cy.get('#submit').should('not.be.disabled');
+    cy.get('#submit').click();
+    cy.get('#result').should('have.text', '已提交');
+  });
+});
+```
+
+跑 `npx cypress run --spec cypress/e2e/order.cy.js`，输出末尾是这样（节选，原输出里那张汇总表有 100 列宽，这里只留两行）：
+
+```text
+  1 passing (799ms)
+    ✔  All specs passed!
+```
+
+代码是三家里看着最舒服的，但代价在别处，而且都跟它的架构有关：它必须有真正的浏览器外壳才能跑起来（我这次装完，npm 包只有 7.3 MB，真正的执行体是它下载到缓存里的 641 MB 应用），测试是被这个应用带着跑的，而不是被一行 `require` 拉起来的库。这些后面讲内核时会串起来。
 
 ### 一张图看清这一代的分工
 
@@ -163,13 +239,33 @@ Playwright 出现在 2019 年底（npm 上最早可见的版本是 2019-12-05 �
 
 "连续两帧不变"这种抠到帧的定义，是我见过对"把经验变成接口"最字面的注解：**它把老工程师嘴里那句"等它别动了再点"直接写成了代码。**
 
-说得再顺口，也不如跑一次。回到第一章那颗按钮（`disabled` 600 毫秒，点成功就往页面上写一行「已提交」），Playwright 的写法就一行：
+说得再顺口，也不如跑一次。回到第一章那颗按钮，Playwright 的完整脚本是这样（装好 playwright 并 `npx playwright install chromium` 就能跑）：
 
 ```js
-await page.getByRole('button', { name: '提交订单' }).click();
+const { chromium } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto('file:///path/to/order.html');
+
+  const started = Date.now();
+  await page.getByRole('button', { name: '提交订单' }).click();
+
+  console.log(`点击完成，用时 ${Date.now() - started} 毫秒`);
+  console.log('页面上的结果：' + await page.locator('#result').textContent());
+  await browser.close();
+})();
 ```
 
-没有显式等待，没有 `waitForFunction`，也没有判据。同一颗按钮，我给三种点法做了对照实验，结果不一样：
+输出：
+
+```text
+点击完成，用时 858 毫秒
+页面上的结果：已提交
+```
+
+和第一章三家比一比：Puppeteer 那三行 `waitForFunction` 不用写，Cypress 也没快多少（846 毫秒对 858 毫秒），**差别不在"等不等"，而在这一行 `click()` 自己就把等待包了进去**。同样是点这颗按钮，我给三种点法做了对照实验，结果不一样：
 
 | 点法 | 页面结果 | 说明 |
 |---|---|---|
@@ -610,4 +706,4 @@ const ok = await menuButton.isVisible({ timeout: 2000 }).catch(() => false);
 
 - [Cypress vs Playwright; Browser Included — Gleb Bahmutov](https://glebbahmutov.com/blog/cy-vs-pw-browser/)
 
-> 版本与核实说明：文中数据抓取于 2026-09-19，工具版本为 Playwright 1.63.0、Cypress 16、Selenium 4.49，Puppeteer 取官方 FAQ 与 v23 发布说明。ARIA 探针与那段报错原文是我在本机 Playwright 1.57.0 + Node 24.13.0 上实跑得到的，不是手写示意，探针脚本已内嵌在正文里，可自行复现；第一章里 Selenium、Puppeteer、Cypress 三家的示例代码按各自官方文档的 API 写法整理，未在本机逐一实跑。掌故与沿革类内容（Puppeteer 与 Playwright 的团队渊源、Cypress 的裁员、Selenium 归属 SFC 的时间、WebDriver 各层级的状态）同样按官方文档、官方博客或仓库源码核过；凡官方没有量化声明的地方，文中都写明了那是我自己量的。开源世界变化快，版本号与下载量都只是快照，引用请以当时为准。
+> 版本与核实说明：文中数据抓取于 2026-09-19，工具版本为 Playwright 1.63.0、Cypress 16、Selenium 4.49，Puppeteer 取官方 FAQ 与 v23 发布说明。第一章和第二章的代码都是在本机实跑过的：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，文中那些输出就是当时的终端原文，不是手写示意，探针脚本也内嵌在正文里，可自行复现。只有 Selenium 那段 Java 代码是按官方文档的 API 写法整理的，没有在本机实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。掌故与沿革类内容（Puppeteer 与 Playwright 的团队渊源、Cypress 的裁员、Selenium 归属 SFC 的时间、WebDriver 各层级的状态）同样按官方文档、官方博客或仓库源码核过；凡官方没有量化声明的地方，文中都写明了那是我自己量的。开源世界变化快，版本号与下载量都只是快照，引用请以当时为准。

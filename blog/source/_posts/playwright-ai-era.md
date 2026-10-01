@@ -425,17 +425,15 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 
 这句话反而让整篇文章的论点更稳，但得说清楚它稳在哪：前面我量出 ARIA 快照比 HTML 小 5.6 倍，官方现在又说它依然太占地方。两件事不矛盾，因为被时代选中的从来不是“小”，而是**可裁剪**：2,286 个字符照样塞不进上下文，但它可以被切片、被检索、按需取一部分，HTML 那 12,805 个字符不行。结构化的真正价值，是它有了“只取需要的那部分”的可能，而截图和 DOM 都没有这个可能。
 
-## 四、那 Cypress 呢
+## 四、什么情况下我不换
 
-到这里，第二、三节都在讲 Playwright 拿到了什么。但一篇只有正面论证的文章是软文，而且第一节里我也留了话没说完：Cypress 在“给人用”这件事上做得比它好。所以这一节把反面补齐，顺便回答开头那个问题。
+到这里，第二、三节都在讲 Playwright 拿到了什么。但“一层能力”这个说法有个副作用：它容易被读成“应用的形态过时了”。所以这一节得把边界补上：下面这四类场景，我至今都还是选另一个，也顺便回答开头那个问题。
 
 **组件测试，我仍然会先看 Cypress。** 它有官方的 mounting library 和 bundler 集成（React 18-19、Vue 3、Angular 21-22、Svelte 5，以及 Vite / Webpack / Next.js 的配置）。Playwright 的组件测试到 1.62 才改成 `mount()` fixture 加自建 dev server 的 stories 模型，官方在 1.63 的发布说明里宣布 `@playwright/experimental-ct-react`、`-react17`、`-vue` 三个包不再更新，迁移指引指向那个新模型。对一个以组件为主的团队来说，迁移成本是实打实的。
 
 **调试联动性，是 Playwright 的真实短板。** Cypress 的测试和应用跑在同一个 JS 事件循环里，在 devtools 里下一个断点，两边会一起停住；Playwright 的 runner 和应用则是两个进程，联动调试要麻烦得多。（口径：这是 Gleb Bahmutov 在[个人博客](https://glebbahmutov.com/blog/cy-vs-pw-browser/)里的观点，不是官方结论，但的确是内行话。）
 
 **另外两类场景也别硬换**：Selenium 的六种语言绑定加 Grid 编排，是多语言或企业遗留团队的结构性优势；纯抓取和轻量脚本，谁也不想先装一个测试运行器，Puppeteer 在这条路上仍然稳。
-
-**存量比增量更能说明 Cypress 没死。** 按 [ecosyste.ms](https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/playwright) 统计，cypress 被 6,559 个包反向依赖，playwright 只有 1,947 个：下载量赢了 14 倍，但“嵌进别人项目里”这件事 Cypress 依然更多。它也在动，2026-09-01 刚发 Cypress 16，还把赌注押在 AI 上：从 [UI Coverage](https://www.cypress.io/blog/introducing-ui-coverage)（2024-07）到 [AI 生成测试](https://www.cypress.io/blog/add-your-missing-tests-faster-with-test-generation-in-ui-coverage)（2025-05），再到文档里那篇 [Work with AI agents](https://docs.cypress.io/ui-coverage/work-with-ai-agents)，最后干脆出了一份《[Playwright → Cypress 迁移指南](https://docs.cypress.io/app/guides/migration/playwright-to-cypress)》。
 
 还有一件得坦白说：Playwright 不会自动消灭 flaky 测试。我手头那个用 `@playwright/test` 的项目里就留着反面教材：
 
@@ -474,7 +472,9 @@ selenium-webdriver  -     （不足一格）
 
 对上 Puppeteer 是 8 倍，对 Cypress 是 14 倍，对 Selenium 的 JS 绑定是 47 倍。还有个反直觉的数字：按 star 看，playwright（96,334）和 puppeteer（95,593）几乎打平，puppeteer 建仓还早了两年半。**star 数是“多少人觉得它值得收藏”，不是“多少人在用”**，星标打平、下载量差 8 倍，这个剪刀差的确就是“工具定位不同”最直观的证据：Puppeteer 仍然是抓取和脚本的第一选择，只是那条赛道上没有“测试”这件事。
 
-说“Cypress 完了”，其实既不准确也不厚道。它在下滑，但没停：2024-06-13 官方发了《[Update on Cypress's Workforce](https://www.cypress.io/blog/update-on-cypresss-workforce)》，裁员 11 人，目标是加速现金流平衡；2026-09-01 [Cypress 16](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support) 照常发布（HTTP/2 默认开启，限 Chromium 系且不含 Electron）。准确的说法是：相对动能下滑、转入守势，不是停更。Selenium 也一样还在跑（4.49，2026-09-09 发布），只是它 24% 的留存率把痛点写在了脸上，而那些痛点正是“等待和会话”这两件它当年留给用户的事。
+说“Cypress 完了”，其实既不准确也不厚道。它在下滑，但没停：2024-06-13 官方发了《[Update on Cypress's Workforce](https://www.cypress.io/blog/update-on-cypresss-workforce)》，裁员 11 人，目标是加速现金流平衡；2026-09-01 [Cypress 16](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support) 照常发布（HTTP/2 默认开启，限 Chromium 系且不含 Electron）；它还把赌注押在 AI 上，从 [UI Coverage](https://www.cypress.io/blog/introducing-ui-coverage)（2024-07）到 [AI 生成测试](https://www.cypress.io/blog/add-your-missing-tests-faster-with-test-generation-in-ui-coverage)（2025-05），再到文档里那篇 [Work with AI agents](https://docs.cypress.io/ui-coverage/work-with-ai-agents)，最后干脆出了一份《[Playwright → Cypress 迁移指南](https://docs.cypress.io/app/guides/migration/playwright-to-cypress)》。
+
+还有一条数字是反过来的，得摆在这儿：按 [ecosyste.ms](https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/playwright) 统计，cypress 被 6,559 个包反向依赖，playwright 只有 1,947 个。下载量赢了 14 倍，但“嵌进别人项目里”这件事 Cypress 仍然更多，这就是存量与增量的差别，不写出来就是选择性取证。准确的说法是：相对动能下滑、转入守势，不是停更。Selenium 也一样还在跑（4.49，2026-09-09 发布），只是它 24% 的留存率把痛点写在了脸上，而那些痛点正是“等待和会话”这两件它当年留给用户的事。
 
 有几条流传很广的说法，我顺手核了一遍（写这类文章最值钱的部分往往在这儿）：
 

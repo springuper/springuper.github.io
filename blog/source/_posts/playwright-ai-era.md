@@ -246,7 +246,8 @@ const { chromium } = require('playwright');
 | `locator.dispatchEvent('click')` | `（已提交）` | 事件绕过了检查，看着成功，其实是假成功 |
 | `getByRole('button').click()` | `（已提交）`，等了 846 毫秒 | 条件成立才动手 |
 
-<!-- TODO(gif): 录 8 秒，三种点法并排跑一遍，让"假成功"一眼可见 -->
+![同一颗按钮的三种点法：按坐标点没反应、dispatchEvent 假成功、getByRole 等到条件成立才点](../images/three-clicks.gif)
+*录制自真实运行（Playwright 1.57 + Chromium）：① 按坐标点，按钮还在禁用态，什么也没发生；② `dispatchEvent` 把事件直接发进去，结果栏变绿，其实是假成功；③ `click()` 等到按钮可用才动手*
 
 第三行等了 846 毫秒，倒不是白等，它在等条件成立。但更值得琢磨的是第一行和第二行的对比：**不做检查的自动化，最危险的地方不是失败，而是它能给你一个假成功。** 一个"禁用状态也照样点进去"的脚本会在 CI 里一直绿着，直到上线被真实用户教做人。
 
@@ -381,7 +382,8 @@ console.log(await p.locator('body').ariaSnapshot());   // 这行就是模型看�
 await b.close();
 ```
 
-<!-- TODO(截图): 左边 HTML、右边 ARIA 快照的并排对比图，比数字更直观 -->
+![左边是 HTML，右边是同一个页面的 ARIA 快照](../images/aria-compare.png)
+*同一个页面、同一时刻的两种表示，2026-09-19 用 Playwright 1.57.0 实测*
 
 ### 确定性 > 视觉启发式
 

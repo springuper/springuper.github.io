@@ -66,7 +66,7 @@ await page.getByRole('button', { name: '提交' }).click();
 
 Selenium 是这一行的老前辈，核心遗产是协议：WebDriver。2018 年它成了 W3C Recommendation，"用任何语言驱动任何浏览器"从此有了标准。（顺带说清一个容易被夸大的说法：升级成标准的只有 Level 1，现行的 [Level 2](https://www.w3.org/TR/webdriver2/) 和 [WebDriver BiDi](https://www.w3.org/TR/webdriver-bidi/) 到 2026 年 9 月都还是 Working Draft。）
 
-说它"面向企业"，是四件具体的事：六种语言绑定（Java、Python、C#、Ruby、JavaScript、Kotlin），让后端用 Java、数据用 Python 的团队不必为了统一测试工具去统一技术栈；Grid 负责把测试分发到几十台机器上并行跑，这部分别的工具基本不碰，Puppeteer 官方 FAQ 就明说 Grid 超出它范围；[云厂商按协议供货](https://www.selenium.dev/sponsor/)，BrowserStack、TestMu AI 都是官方列的 Development Partner，基建不用自己搭；再加上中立治理，它自 [2011 年](https://sfconservancy.org/news/2011/feb/02/selenium-joins/)起就挂在 Software Freedom Conservancy 名下，不属于任何一家浏览器厂商。
+说它"面向企业"，其实是很具体的四件事：六种语言绑定（Java、Python、C#、Ruby、JavaScript、Kotlin），让后端用 Java、数据用 Python 的团队不必为了统一测试工具去统一技术栈；Grid 负责把测试分发到几十台机器上并行跑，这部分别的工具基本不碰，Puppeteer 官方 FAQ 就明说 Grid 超出它范围；[云厂商按协议供货](https://www.selenium.dev/sponsor/)，BrowserStack、TestMu AI 都是官方列的 Development Partner，基建不用自己搭；再加上中立治理，它自 [2011 年](https://sfconservancy.org/news/2011/feb/02/selenium-joins/)起就挂在 Software Freedom Conservancy 名下，不属于任何一家浏览器厂商。
 
 这套协议换来了跨语言与跨厂商的自由，代价是把等待和会话留给了使用者。[官方文档](https://www.selenium.dev/documentation/webdriver/waits/)写得很直白：显式等待就是"你写在代码里的轮询循环"。所以就有了第一代前端测试工程师的必修课：`sleep` 多久才够，这门课的挂科率，的确就是后来所有人嘴里的 flake。
 
@@ -99,13 +99,13 @@ public class OrderTest {
 }
 ```
 
-`import` 那一堆可以略过，要看的只有一行：`wait.until(...)`。"按钮什么时候可点"这件事，是你**显式写出来**的。换成 Python、C# 或 Kotlin，这段逻辑只是换个绑定，协议还是同一个。顺便说一句，Selenium 官方"等待"那一页自己就摆了一个叫 `sleep()` 的例子，里面写的是 `Thread.sleep(1000)`：文档自个儿把这件事认了。
+`import` 那一堆倒是可以略过，要看的只有一行：`wait.until(...)`。"按钮什么时候可点"这件事，是你**显式写出来**的。换成 Python、C# 或 Kotlin，这段逻辑只是换个绑定，协议还是同一个。顺便说一句，Selenium 官方"等待"那一页自己就摆了一个叫 `sleep()` 的例子，里面写的是 `Thread.sleep(1000)`：文档自个儿把这件事认了。
 
 ### Puppeteer：为「脚本作者」设计
 
 Puppeteer 是 2017 年从 Chrome 团队长出来的，本质是 Chrome DevTools Protocol（CDP）的一层封装，使用者画像很清楚：写脚本的、做抓取的、需要精确控制浏览器的。
 
-它从来不是测试框架。[官方 FAQ](https://pptr.dev/faq) 到今天仍然这么定位自己：由 Chrome Browser Automation team 维护，是 CDP / WebDriver BiDi 的参考实现，明确写着"不是 Selenium 的替代品"，多语言绑定和 Grid 都不在它范围内。想要测试的便利，社区方案是另外装 `jest-puppeteer`。这里顺便纠正一个流传很广的说法：**"Puppeteer 只支持 Chrome"已经过时了**，从 v23.0.0 起它同时支持 Chrome 与 Firefox（前者默认走 CDP，后者默认走 BiDi）。
+它其实从来就不是测试框架。[官方 FAQ](https://pptr.dev/faq) 到今天仍然这么定位自己：由 Chrome Browser Automation team 维护，是 CDP / WebDriver BiDi 的参考实现，明确写着"不是 Selenium 的替代品"，多语言绑定和 Grid 都不在它范围内。想要测试的便利，社区方案是另外装 `jest-puppeteer`。这里顺便纠正一个流传很广的说法：**"Puppeteer 只支持 Chrome"已经过时了**，从 v23.0.0 起它同时支持 Chrome 与 Firefox（前者默认走 CDP，后者默认走 BiDi）。
 
 同一颗按钮，它的完整脚本是这样（Node，装上 puppeteer 就能跑）：
 
@@ -141,7 +141,7 @@ const puppeteer = require('puppeteer');
 页面上的结果：""
 ```
 
-点了，但什么也没发生：按钮还是禁用状态，浏览器把这次鼠标事件直接吞了。脚本没有报错，它只是"点过了"而已。判据得人写，最后那句断言还得另外装 jest 才有，这就是"参考实现，而不是测试框架"落在代码上的样子。
+点了，但的确什么也没发生：按钮还是禁用状态，浏览器把这次鼠标事件直接吞了。脚本没有报错，它只是"点过了"罢了。判据得人写，最后那句断言还得另外装 jest 才有，这就是"参考实现，而不是测试框架"落在代码上的样子。
 
 ### Cypress：为「人的开发者体验」设计
 
@@ -149,7 +149,7 @@ Cypress 是 2015 年出现的，野心很不一样：把测试写成一件愉快
 
 在"给人用"这件事上，它的确做到了极致。而且有个细节大概会让很多人意外：它的 actionability 检查项**比 Playwright 还多**（visible / disabled / detached / readonly / animations / covering / scrolling，比后者四项目长），它也会盯着 DOM 不断重跑查询（[官方原文](https://docs.cypress.io/app/core-concepts/retry-ability)：*"Cypress will watch the DOM - re-running the queries…"*）。
 
-"Cypress 不会自动等待"是流传很广的说法，我本来打算照抄，实测之后改了主意。我写了一个完全不带等待的用例：
+"Cypress 不会自动等待"是流传很广的说法，不妨自己验一下。我本来打算照抄，实测之后改了主意。我写了一个完全不带等待的用例：
 
 ```js
 cy.visit('/order.html');
@@ -189,7 +189,7 @@ describe('下单', () => {
 抽象层级低    Selenium    Puppeteer
 ```
 
-四个工具都在"自动化浏览器"这一格，但各自把抽象画在了不同的高度、面向了不同的读者。同一颗按钮、四段代码，差别不在语法糖，而在把哪一层抽象留给你自己。
+四个工具都在"自动化浏览器"这一格，但各自把抽象画在了不同的高度、面向了不同的读者。同一颗按钮、四段代码，差别倒是不在语法糖，而在把哪一层抽象留给你自己。
 
 ## 二、Playwright 做对了什么
 
@@ -248,7 +248,7 @@ const { chromium } = require('playwright');
 
 <!-- TODO(gif): 录 8 秒，三种点法并排跑一遍，让"假成功"一眼可见 -->
 
-第三行那 846 毫秒不是浪费，是它在等条件成立。但更值得琢磨的是第一行和第二行的对比：**不做检查的自动化，最危险的地方不是失败，而是它能给你一个假成功。** 一个"禁用状态也照样点进去"的脚本会在 CI 里一直绿着，直到上线被真实用户教做人。
+第三行等了 846 毫秒，倒不是白等，它在等条件成立。但更值得琢磨的是第一行和第二行的对比：**不做检查的自动化，最危险的地方不是失败，而是它能给你一个假成功。** 一个"禁用状态也照样点进去"的脚本会在 CI 里一直绿着，直到上线被真实用户教做人。
 
 ### 2. Locator 是描述，不是句柄
 
@@ -315,13 +315,13 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
     ...
 ```
 
-请仔细看它的结构。它不只是说"你错了"：它说明了为什么错（匹配到 20 个），给出了每个候选的真实身份，最关键的是那句 `aka`，把改正后的 locator 写法一条条列给你了。这不是给人看的礼貌提示，这是一份**写好的补丁**。而且它不是巧合：从 1.51 起，Playwright 直接在报错旁放了一个按钮，叫 Copy prompt。
+不妨仔细看它的结构。它不只是说"你错了"：它说明了为什么错（匹配到 20 个），给出了每个候选的真实身份，最关键的是那句 `aka`，把改正后的 locator 写法一条条列给你了。这不是给人看的礼貌提示，这是一份**写好的补丁**。而且这大概不是巧合：从 1.51 起，Playwright 直接在报错旁放了一个按钮，叫 Copy prompt。
 
 ## 三、转折点：这份接口的观众换人了
 
 前面讲的都还是"Playwright 是个设计得好的工具"。但设计得好，不等于能被时代选中。所以在讲 AI 之前，得先把"AI 之前"补齐，否则容易得出一个偷懒的结论：它是被 AI 突然抬起来的。
 
-并不是。我把 npm 的年下载量拉了出来（同一口径，官方 API）：
+倒也并不是。我把 npm 的年下载量拉了出来（同一口径，官方 API）：
 
 | 年份 | playwright | cypress | puppeteer |
 |---|---|---|---|
@@ -346,7 +346,7 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 
 用量上也看得出来：`@playwright/mcp` 的周下载是 597 万，而官方那个 Puppeteer MCP server 只有 2.7 万，差 220 倍。这一代 agent 想做浏览器操作时，默认的落脚点其实只剩一个了。
 
-那"结构化"到底省了多少？官方没有给过任何量化声明，所以我干脆自己量了一次。构造一个典型的组件库风格页面（20 行表格、class 哈希、内联 style、`__NEXT_DATA__`），用 `locator.ariaSnapshot()`（官方叫 [ARIA snapshots](https://playwright.dev/docs/aria-snapshots)）取同一页面的两种表示：
+那"结构化"到底省了多少？官方其实没有给过任何量化声明，所以我干脆自己量了一次。构造一个典型的组件库风格页面（20 行表格、class 哈希、内联 style、`__NEXT_DATA__`），用 `locator.ariaSnapshot()`（官方叫 [ARIA snapshots](https://playwright.dev/docs/aria-snapshots)）取同一页面的两种表示：
 
 | 表示 | 字符数 |
 |---|---|
@@ -393,7 +393,7 @@ MCP 的 README 里还有一句我很喜欢的话，几乎是这个时代的判�
 
 把前面两条接起来看，trace 和 locator 的"可序列化"到底解决什么，就能走出一条完整的链子：修复的前提是复现，一个失败如果只能在那台机器、那个进程里存在，换个人（或换个 agent）就只能靠猜；trace 把现场打包成一个文件，locator 把"该点哪儿"写成一段文本，所以它能被印进报错里，就像上面那段 `aka`；于是失败变成了可传递的对象，在 CI 上产生，在本地打开，也能被另一个程序读取。
 
-反过来看更清楚：如果失败信息里只剩一句"点击失败"、现场只有一张截图，那么修复者（不管人还是模型）都只能从头猜一遍。**可序列化不是"能被自动修复"的保证，但它是前提。**
+反过来看的确更清楚：如果失败信息里只剩一句"点击失败"、现场只有一张截图，那么修复者（不管人还是模型）都只能从头猜一遍。**可序列化不是"能被自动修复"的保证，但它是前提。**
 
 不用猜：官方自己就把这条链路做成了产品。[Playwright Test Agents](https://playwright.dev/docs/test-agents)（1.56，2025-10-06）内置三个 agent：
 
@@ -426,7 +426,7 @@ npx playwright init-agents --loop=vscode|claude|codex|opencode
 
 ## 四、把数字摆齐
 
-设计讲完了，还得看它有没有被采用。以下数据都是 2026-09-19 抓的。
+坦白说，设计讲完了还得看它有没有被采用。以下数据都是 2026-09-19 抓的。
 
 [State of JS 2025](https://2025.stateofjs.com/en-US/libraries/testing/)（13,002 人，调查期 2025-09-24 到 11-11）：
 
@@ -448,7 +448,7 @@ cypress             =
 selenium-webdriver  -     （不足一格）
 ```
 
-对上 Puppeteer 是 8 倍，对 Cypress 是 14 倍，对 Selenium 的 JS 绑定是 47 倍。还有个反直觉的数字：按 star 看，playwright（96,334）和 puppeteer（95,593）几乎打平，puppeteer 建仓还早了两年半。**star 数是"多少人觉得它值得收藏"，不是"多少人在用"**，星标打平、下载量差 8 倍，这个剪刀差本身就是"工具定位不同"最直观的证据：Puppeteer 仍然是抓取和脚本的第一选择，只是那条赛道上没有"测试"这件事。
+对上 Puppeteer 是 8 倍，对 Cypress 是 14 倍，对 Selenium 的 JS 绑定是 47 倍。还有个反直觉的数字：按 star 看，playwright（96,334）和 puppeteer（95,593）几乎打平，puppeteer 建仓还早了两年半。**star 数是"多少人觉得它值得收藏"，不是"多少人在用"**，星标打平、下载量差 8 倍，这个剪刀差的确就是"工具定位不同"最直观的证据：Puppeteer 仍然是抓取和脚本的第一选择，只是那条赛道上没有"测试"这件事。
 
 说"Cypress 完了"，其实既不准确也不厚道。它在下滑，但没停：2024-06-13 官方发了《[Update on Cypress's Workforce](https://www.cypress.io/blog/update-on-cypresss-workforce)》，裁员 11 人，目标是加速现金流平衡；2026-09-01 [Cypress 16](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support) 照常发布；它还把赌注押在 AI 上，从 [UI Coverage](https://www.cypress.io/blog/introducing-ui-coverage)（2024-07）到 [AI 生成测试](https://www.cypress.io/blog/add-your-missing-tests-faster-with-test-generation-in-ui-coverage)（2025-05），再到文档里那篇 [Work with AI agents](https://docs.cypress.io/ui-coverage/work-with-ai-agents)，最后干脆出了一份《[Playwright → Cypress 迁移指南](https://docs.cypress.io/app/guides/migration/playwright-to-cypress)》。准确的说法是：相对动能下滑、转入守势，不是停更。Selenium 也一样还在跑（4.49，2026-09-09 发布），只是它 24% 的留存率把痛点写在了脸上，而那些痛点正是"等待和会话"这两件它当年留给用户的事。
 
@@ -487,7 +487,7 @@ await page.waitForTimeout(1000);
 
 `waitForTimeout(1000)` 和开头那个 `sleep(800)` 是同一种东西，只是换了个更时髦的名字。换一副鞍具也不会自动让马跑得更快（"鞍具"这个说法来自我上一篇横评，《[给大脑配一副好鞍具](https://springuper.github.io/agent-harness-comparison/)》，那里看的是同一件事的另一半：模型外面那层壳）。
 
-这篇里的数据我其实核了两遍，但开源世界变化快，难免有疏漏；我对 Playwright 的用法也还在摸索，谈不上什么最佳实践。如果你在迁移路上踩到了不一样的坑，或者发现文中哪里写错了，欢迎指出、欢迎交流。也可以不妨拿自己项目里最 flaky 的那条用例试一遍，再回来说说体会。权当这篇是一次公开的读书笔记，能对你有点用，就算是额外的收益了。
+这篇里的数据我其实核了两遍，但开源世界变化快，难免有疏漏；我对 Playwright 的用法也还在摸索，谈不上什么最佳实践。如果你在迁移路上踩到了不一样的坑，或者发现文中哪里写错了，欢迎指出、欢迎交流。也不妨拿自己项目里最 flaky 的那条用例试一遍，再回来说说体会。权当这篇是一次公开的读书笔记，能对你有点用，就算是额外的收益了。
 
 ### 彩蛋
 

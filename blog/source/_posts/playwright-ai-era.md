@@ -316,7 +316,10 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
     ...
 ```
 
-不妨仔细看它的结构。它不只是说"你错了"：它说明了为什么错（匹配到 20 个），给出了每个候选的真实身份，最关键的是那句 `aka`，把改正后的 locator 写法一条条列给你了。这不是给人看的礼貌提示，这是一份**写好的补丁**。而且这大概不是巧合：从 1.51 起，Playwright 直接在报错旁放了一个按钮，叫 Copy prompt。
+不妨仔细看它的结构。它不只是说"你错了"：它说明了为什么错（匹配到 20 个），给出了每个候选的真实身份，最关键的是那句 `aka`，把改正后的 locator 写法一条条列给你了。这不是给人看的礼貌提示，这是一份**写好的补丁**。而且这大概不是巧合：从 1.51 起，Playwright 直接在报错旁放了一个按钮，叫 Copy prompt。这两样东西在 Trace Viewer 里是长在一起的：
+
+![Playwright Trace Viewer：左侧动作列表里那步失败的点击被标红选中，右侧是当时的页面快照，底部 Errors 面板里是报错正文与 Copy prompt 按钮](../images/trace-viewer.png)
+*Trace Viewer 实拍：失败的那步 Click 被标红选中，右边是它当时的页面快照，底部 Errors 面板给出报错正文（连 20 个候选都列出来了）和一个 Copy prompt 按钮。这份 trace 跑于 2026-09-19，Playwright 1.57.0，页面就是前面那个 20 行的订单列表*
 
 ## 三、转折点：这份接口的观众换人了
 

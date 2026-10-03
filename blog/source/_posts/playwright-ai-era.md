@@ -361,7 +361,7 @@ Selenium 也还在跑（4.50，2026-09-30 发布），只是 24% 的留存率把
 
 同一节里，他们给补丁安排了一个期限：补丁会持续往上游提，等关键改动能落地，就切回“上游优先”的模式；在那之前，WebKit 和 Firefox 的补丁“for now”放在 `browser_patches/` 下。六年后的今天，官方文档写的是“Playwright 依赖补丁，用不了品牌版 Firefox”，第三关那张表里的 Firefox 走的还是打过补丁的 `-juggler-pipe`，而 `browser_patches/` 这个目录还在，两套都在。那个“for now”，用了六年。
 
-还有个更小的。当年团队判断“能不能上生产”，靠的是挂在成员个人域名下的一个页面（那份 FAQ 里点名推荐过它），逐内核列出还没通过的测试。我今天打开，整页倒只剩一句：**Is Playwright ready? YES!** 六年的测试矩阵，被收进这两个词里。
+还有个更小的。当年团队判断“能不能上生产”，靠的是挂在维护者 `aslushnikov` 个人域名下的一个页面：[Is Playwright Ready?](https://aslushnikov.github.io/isplaywrightready/)（那份 FAQ 里点名推荐过它），逐内核列出还没通过的测试。我今天打开，整页倒只剩一句：**Is Playwright ready? YES!** 六年的测试矩阵，被收进这两个词里。
 
 **承诺会过期，目录不会。**
 
@@ -396,4 +396,4 @@ Selenium 也还在跑（4.50，2026-09-30 发布），只是 24% 的留存率把
 - 《[给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测](https://springuper.github.io/agent-harness-comparison/)》：同一个“形态决定上限”的问题，看的是模型外面那层壳
 - 《[积木，而非成品：Pi Agent Harness 的克制与精妙](https://springuper.github.io/pi-harness-anatomy/)》：同一套拆解方法的另一个样本
 
-> 版本与核实说明：数据（下载量、调查、star、反向依赖）抓取于 2026-10-03；文中代码都在本机实跑过：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。（Playwright 本机锁在 1.57，撰写时最新是 1.63，1.60 之后的能力都以官方发布说明为准。）Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。ARIA 对比图、按钮三态图与 HTML 报告截图都是 2026-10-01 在本机实拍的，字符数与 9 月 19 日那次一致。凡官方没有量化声明的地方，文中都写明了那是我自己量的。
+> 版本与核实说明：数据（下载量、调查、star、反向依赖）与彩蛋里那个页面的状态都核于 2026-10-03；文中代码都在本机实跑过：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。（Playwright 本机锁在 1.57，撰写时最新是 1.63，1.60 之后的能力都以官方发布说明为准。）Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。ARIA 对比图、按钮三态图与 HTML 报告截图都是 2026-10-01 在本机实拍的，字符数与 9 月 19 日那次一致。凡官方没有量化声明的地方，文中都写明了那是我自己量的。

@@ -17,7 +17,7 @@ tags:
 
 所以我想搞清楚一个问题：**这一轮换代，为什么是 Playwright？**
 
-趋势本身很清楚：2025 年的行业调查里，它的使用率第一次超过 Cypress（50% 对 47%），同一周的 npm 下载量是它的 17 倍。但数字只能说明趋势，说明不了原因。
+趋势本身很清楚：2025 年的行业调查里，它的使用率第一次超过 Cypress（50% 对 47%），而最新的周下载量是它的 17 倍。但数字只能说明趋势，说明不了原因。
 
 功能表也回答不了，得往下一层看：那一行 `click()` 在真的落下之前，究竟检查了什么。我拿一颗 600 毫秒之后才可点的按钮当尺子，把它拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。四道关看完，再回头说这两年的事。
 
@@ -134,7 +134,7 @@ await page.click('#submit');
 
 判断完了，动作得真的送出去。这一段路平时看不见，但它决定了这个工具最后能长成什么样：动作经由什么送出去，最后又落在哪个浏览器上。
 
-先说 Cypress，它走的是另一条路。Cypress 的 npm 包只有 7.3 MB，可真正的执行体是它下载到缓存里的 641 MB 应用：测试是被这个应用带着跑的，而不是被一行 `require` 拉起来的库。官方文档把原因说得很清楚：*"Cypress is executed in the same run loop as your application."*（见 [Why Cypress](https://docs.cypress.io/app/get-started/why-cypress)）
+先说 Cypress，它走的是另一条路。装完 `node_modules/cypress` 只有 7.3 MB，可真正的执行体是它下载到缓存里的 641 MB 应用：测试是被这个应用带着跑的，而不是被一行 `require` 拉起来的库。官方文档把原因说得很清楚：*"Cypress is executed in the same run loop as your application."*（见 [Why Cypress](https://docs.cypress.io/app/get-started/why-cypress)）
 
 ```
 Cypress 应用（一个自带浏览器）
@@ -191,7 +191,7 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 
 - Cypress 把驱动注入浏览器、与测试同处一个事件循环，内核不许注入它就没办法，自带不了打过补丁的 WebKit（反过来，这也是它的 devtools 联动调试更顺手的原因。Gleb Bahmutov 的[个人观点](https://glebbahmutov.com/blog/cy-vs-pw-browser/)，不是官方结论）。
 - Puppeteer 是 CDP 的参考实现，不需要改内核。不过这里还有段前情：Firefox 那边当年就有一条专门为 Puppeteer 做的自动化协议（[`puppeteer/juggler`](https://github.com/puppeteer/juggler)，2020 年 3 月之后就停了），Puppeteer 还据此发过一个[自带 Firefox 构建的原型包](https://github.com/puppeteer/puppeteer/blob/7f7887ed11930f96cb64bb086fad5c29086b8ef2/experimental/puppeteer-firefox/README.md)，后来标注废弃；正经的 Firefox 支持等到 2024 年的 v23，用的还是 W3C 标准的 WebDriver BiDi。能不能做是一回事，要不要长年养两个内核的分支是另一回事。
-- - Selenium 走的是相反的路线：它从一段跑在浏览器里的 JavaScript 起家（[官方 History](https://www.selenium.dev/history/)），因为出不了同源策略那道墙，才改成把浏览器当远端、中间放一台代理 server（Selenium RC），最后把这条路走成了公共契约（WebDriver，[Level 1 在 2018 年成了 W3C Recommendation](https://www.w3.org/TR/webdriver1/)）：覆盖面不由任何一家供给，代价是契约不替你管会话和等待。
+- Selenium 走的是相反的路线：它从一段跑在浏览器里的 JavaScript 起家（[官方 History](https://www.selenium.dev/history/)），因为出不了同源策略那道墙，才改成把浏览器当远端、中间放一台代理 server（Selenium RC），最后把这条路走成了公共契约（WebDriver，[Level 1 在 2018 年成了 W3C Recommendation](https://www.w3.org/TR/webdriver1/)）：覆盖面不由任何一家供给，代价是契约不替你管会话和等待。
 
 代价倒也说清楚：这套“连内核一起维护”的赌注，换来了三内核一致和额外的自动化能力，付出的是每次升级重下几百 MB 的自定义浏览器，外加内核补丁的长年维护。
 
@@ -396,4 +396,4 @@ Selenium 也还在跑（4.50，2026-09-30 发布），只是 24% 的留存率把
 - 《[给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测](https://springuper.github.io/agent-harness-comparison/)》：同一个“形态决定上限”的问题，看的是模型外面那层壳
 - 《[积木，而非成品：Pi Agent Harness 的克制与精妙](https://springuper.github.io/pi-harness-anatomy/)》：同一套拆解方法的另一个样本
 
-> 版本与核实说明：数据（下载量、调查、star、反向依赖）与彩蛋里那个页面的状态都核于 2026-10-03；文中代码都在本机实跑过：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。（Playwright 本机锁在 1.57，撰写时最新是 1.63，1.60 之后的能力都以官方发布说明为准。）Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。ARIA 对比图与按钮三态图都是 2026-10-01 在本机实拍的，字符数与 9 月 19 日那次一致。凡官方没有量化声明的地方，文中都写明了那是我自己量的。
+> 版本与核实说明：数据（下载量、调查、star、反向依赖）与彩蛋里那个页面的状态都核于 2026-10-03；文中代码都在本机实跑过：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。（Playwright 本机锁在 1.57，撰写时最新是 1.63，1.60 之后的能力都以官方发布说明为准。）Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。四张图都在本机实拍：三种点法的动图与 Trace Viewer 实拍摄于 2026-09-19，ARIA 对比图与按钮三态图摄于 2026-10-01（字符数与 9 月 19 日那次一致）。凡官方没有量化声明的地方，文中都写明了那是我自己量的。

@@ -236,7 +236,9 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 └── webkit-2227     # 真 WebKit，不是换皮
 ```
 
-这里的“一视同仁”指三个内核都由同一套 API 一等公民地支持，不是“能不能跑起来”：Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。至于“开个 flag 就能驱起来”那个误解，其实得分三层看：
+这里的“一视同仁”指三个内核都由同一套 API 一等公民地支持，不是“能不能跑起来”：Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。
+
+不过这件事看着像开个 flag 就行。真翻一遍，得分三层看：
 
 - 语言绑定和浏览器之间隔了一个进程。你在 JS、Python、Java 里调的是同一份实现，它启动一个独立的 driver 子进程，再通过 Playwright 自有协议（定义在仓库的 `packages/protocol/spec/*.yml`）跟它说话。所以它既不是 WebDriver 的又一家绑定，也不是 CDP 的封装。
 - 每个内核各走一条通道：
@@ -271,7 +273,7 @@ Puppeteer 的定位是 CDP 的参考实现，不需要改内核，也就不会�
 
 再看它给模型的工具描述，更直接：`browser_snapshot` 的说明是 *"this is better than screenshot"*，而 `browser_take_screenshot` 的说明是 *"You can't perform actions based on the screenshot"*。（视觉能力要显式开：`--caps=vision`。）
 
-用量上也看得出来：`@playwright/mcp` 的周下载是 597 万，而官方那个 Puppeteer MCP server 只有 2.7 万，差 220 倍。这一代 agent 想做浏览器操作时，默认的落脚点其实只剩一个了。
+用量上也看得出来：`@playwright/mcp` 的周下载是 597 万，而 MCP 官方仓库里的 Puppeteer server 只有 2.7 万，差 220 倍。这一代 agent 想做浏览器操作时，默认的落脚点其实只剩一个了。
 
 那“结构化”到底省了多少？官方没有给过量化声明，所以我干脆自己量了一次：构造一个组件库风格的页面（20 行表格、class 哈希、内联 style、`__NEXT_DATA__`），用 `locator.ariaSnapshot()`（[官方叫 ARIA snapshots](https://playwright.dev/docs/aria-snapshots)）取同一页面的两种表示：
 

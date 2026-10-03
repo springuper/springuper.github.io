@@ -13,26 +13,11 @@ tags:
   - Agent
 ---
 
-先交代被测的页面：一颗按钮，默认禁用，600 毫秒之后才可点。
+如果你这两年留意过前端测试圈，大概会注意到一件事：新项目的端到端测试，默认都写成 Playwright 了。可这件事有点说不通：Cypress 也会自动等待，它的检查项甚至比 Playwright 还多，代码读起来也更舒服。2025 年的行业调查里，Playwright 的使用率第一次超过它（50% 对 47%），同一周的 npm 下载量是它的 14 倍。
 
-```html
-<button id="submit" disabled>提交订单</button>
-<p id="result"></p>
-```
+所以我想搞清楚一个问题：**这一轮换代，为什么是 Playwright？**
 
-下面三行代码也在点它，结果却各不相同：
-
-```js
-await page.mouse.click(320, 210);                             // ① 按坐标点
-await page.locator('#submit').dispatchEvent('click');         // ② 直接派发事件
-await page.getByRole('button', { name: '提交订单' }).click();   // ③ 正常点
-```
-
-只有 ③ 会等。① 什么也没发生：按钮还禁用着，浏览器把那次鼠标事件吞了。② 结果栏变绿了，可那其实是假的，按钮当时根本点不动。
-
-老实说，写这篇文章是因为我一直觉得 Playwright 用起来“顺手”，却说不出这份顺手是哪来的；也因为这两年它在行业调查里第一次超过了 Cypress。所以这里不比功能表，只做一件事：把那一行 `click()` 拆开，看它在真的落下之前检查了什么、为什么你不需要写等待，以及这套检查为什么偏偏在这两年变得重要。
-
-拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。
+功能表回答不了这个问题。得往下一层看：那一行 `click()` 在真的落下之前，究竟检查了什么。我拿一颗 600 毫秒之后才可点的按钮当尺子，把它拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。四道关看完，再回头说这两年的事。
 
 <!--more-->
 
@@ -62,6 +47,16 @@ await page.getByRole('button', { name: '提交订单' }).click();   // ③ 正�
 
 ![正文那段 fixture 的三个状态：刚打开时按钮禁用、600 毫秒后恢复可点、点下去结果栏才出现「已提交」](../images/order-fixture-states.png)
 *被测页面就长这样（Playwright 1.57.0 + Chromium，2026-10-01 实拍，360 像素宽视口）：同一个脚本的三种状态，下面四道关对着的都是这一张页面*
+
+同一颗按钮，三种点法，结果却各不相同：
+
+```js
+await page.mouse.click(320, 210);                             // ① 按坐标点
+await page.locator('#submit').dispatchEvent('click');         // ② 直接派发事件
+await page.getByRole('button', { name: '提交订单' }).click();   // ③ 正常点
+```
+
+只有 ③ 会等。① 什么也没发生：按钮还禁用着，浏览器把那次鼠标事件吞了。② 结果栏变绿了，可那其实是假的，按钮当时根本点不动。这篇文章里的四道关，拆的就是 ③ 的那一行。
 
 ## 一、第一关：它怎么知道“找到了”
 
@@ -314,7 +309,7 @@ await page.waitForTimeout(1000);
 | Puppeteer | 42% | 70% | |
 | Selenium | 37% | 24% | 2022 年留存是 42% |
 
-**2025 年是 Playwright 使用率第一次超过 Cypress。** 比使用率更值得看的倒是留存：94% 对 57%。同一周（2026-09-10 到 09-16，取自 [npm registry API](https://api.npmjs.org/downloads/point/2026-09-10:2026-09-16/playwright)），playwright 的下载量是 8,670 万，Puppeteer 1,060 万，Cypress 612 万，Selenium 的 JS 绑定 182 万，也就是 8 倍、14 倍和 47 倍。按 star 看，playwright 96,334 颗，puppeteer 95,593 颗，几乎打平。**star 数是“多少人觉得它值得收藏”，不是“多少人在用”**，星标打平、下载量差 8 倍，这个剪刀差就是“工具定位不同”最直观的证据：Puppeteer 还是抓取和脚本的第一选择，只是那条赛道上没有测试。
+比使用率更值得看的倒是留存：94% 对 57%。同一周（2026-09-10 到 09-16，取自 [npm registry API](https://api.npmjs.org/downloads/point/2026-09-10:2026-09-16/playwright)），playwright 的下载量是 8,670 万，Puppeteer 1,060 万，Cypress 612 万，Selenium 的 JS 绑定 182 万，也就是 8 倍、14 倍和 47 倍。按 star 看，playwright 96,334 颗，puppeteer 95,593 颗，几乎打平。**star 数是“多少人觉得它值得收藏”，不是“多少人在用”**，星标打平、下载量差 8 倍，这个剪刀差就是“工具定位不同”最直观的证据：Puppeteer 还是抓取和脚本的第一选择，只是那条赛道上没有测试。
 
 说“Cypress 完了”，其实既不准确也不厚道。它在下滑，但没停：2024 年[裁员 11 人](https://www.cypress.io/blog/update-on-cypresss-workforce)，2026-09-01 照常发布 [Cypress 16](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support)；这两年它一直在 AI 上押注，甚至出了一份《[Playwright → Cypress 迁移指南](https://docs.cypress.io/app/guides/migration/playwright-to-cypress)》。守势是真的，停更不是。
 

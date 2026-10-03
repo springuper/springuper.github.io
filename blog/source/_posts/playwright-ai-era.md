@@ -396,4 +396,4 @@ Selenium 也还在跑（4.50，2026-09-30 发布），只是 24% 的留存率把
 - 《[给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测](https://springuper.github.io/agent-harness-comparison/)》：同一个“形态决定上限”的问题，看的是模型外面那层壳
 - 《[积木，而非成品：Pi Agent Harness 的克制与精妙](https://springuper.github.io/pi-harness-anatomy/)》：同一套拆解方法的另一个样本
 
-> 版本与核实说明：数据（下载量、调查、star、反向依赖）与彩蛋里那个页面的状态都核于 2026-10-03；文中代码都在本机实跑过：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。（Playwright 本机锁在 1.57，撰写时最新是 1.63，1.60 之后的能力都以官方发布说明为准。）Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。ARIA 对比图、按钮三态图与 HTML 报告截图都是 2026-10-01 在本机实拍的，字符数与 9 月 19 日那次一致。凡官方没有量化声明的地方，文中都写明了那是我自己量的。
+> 版本与核实说明：数据（下载量、调查、star、反向依赖）与彩蛋里那个页面的状态都核于 2026-10-03；文中代码都在本机实跑过：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。（Playwright 本机锁在 1.57，撰写时最新是 1.63，1.60 之后的能力都以官方发布说明为准。）Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。ARIA 对比图与按钮三态图都是 2026-10-01 在本机实拍的，字符数与 9 月 19 日那次一致。凡官方没有量化声明的地方，文中都写明了那是我自己量的。

@@ -175,6 +175,51 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/playwright-click-anatomy/">Playwright 赢的不是测试：它赢的是“被调用的能力”</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2026-10-03
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>如果你这两年留意过前端测试圈，大概会注意到一件事：新项目的端到端测试，默认都写成 Playwright 了。可这件事有点说不通：Cypress 也会自动等待，它的检查项甚至比 Playwright 还多，代码读起来也更舒服。</p>
+<p>所以我想搞清楚一个问题：<strong>这一轮换代，为什么是 Playwright？</strong></p>
+<p>趋势本身很清楚：2025 年的行业调查里，它的使用率第一次超过 Cypress（50% 对 47%），而最新的周下载量是它的 17 倍。但数字只能说明趋势，说明不了原因。</p>
+<p>功能表也回答不了，得往下一层看：那一行 <code>click()</code> 在真的落下之前，究竟检查了什么。我拿一颗 600 毫秒之后才可点的按钮当尺子，把它拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。四道关看完，再回头说这两年的事。</p>
+    <div class="read-more">
+      <a href="/playwright-click-anatomy/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/pi-harness-anatomy/">积木，而非成品：Pi Agent Harness 的克制与精妙</a>
       
     </h1>
@@ -598,56 +643,6 @@
 <img src="../images/Svelte-03.jpg"></p>
     <div class="read-more">
       <a href="/Svelte/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/ask-with-answers/">带着“答案”去提问</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2023-05-30
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p>前几天，一位美国团队的负责人跟我谈到了他团队里的两位工程师。其中一个工程师每周和他一对一沟通的时候都提出了好几个技术性的问题，诸如：</p>
-<ul>
-<li>调试过程中发现本地环境遇到一个错误跑不起来</li>
-<li>在测试环境下面各种参数如何调节</li>
-<li>压力测试中发现的一些新的不及预期的现象</li>
-</ul>
-<p>如此等等。总结下来，他感觉这位高级工程师更像是一个 Problem Maker，在不断地需要他介入到特别细枝末节的地方，给出具体的意见后才能进一步开展工作。</p>
-<p>相比之下，另一位工程师则会在一对一沟通中除了汇报主要进展外，也会提出一两个接下来需要重点关注的问题。不同的是，那位工程师除了抛出问题外，还会提出几个他考虑到的可行性方案，并虚心跟他讨教。这位负责人笑着跟我说这样的团队成员才是他心目中称职的“高级”工程师，是典型的 Problem Solver。</p>
-<p>这个案例彰显出“带着答案去提问”的重要价值，尤其在远程协作或者大型组织等沟通渠道弥足珍贵的环境中，这种能力更值得重视和培养。接下来我们从几个方面阐释其中的内涵。</p>
-    <div class="read-more">
-      <a href="/ask-with-answers/" class="read-more-link">Read more..</a>
     </div>
     
     

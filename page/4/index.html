@@ -175,6 +175,78 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/frontend-component-practice/">前端组件化开发实践</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2015-06-29
+      </span>
+      
+      <span class="post-author">
+        / springuper@gmail.com
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一位计算机前辈曾说过：</p>
+<pre><code>Controlling complexity is the essence of computer programming.
+</code></pre>
+<p>随着前端开发复杂度的日益提升，组件化开发应运而生，并随着 FIS、React 等优秀框架的出现遍地开花。这一过程同样发生在美团，面临业务规模的快速发展和工程师团队的不断扩张，我们历经引入组件化解决资源整合问题、逐步增强组件功能促进开发效率、重新打造新一代组件化方案适应全栈开发和共享共建等阶段，努力“controlling complexity”。本文将介绍我们组件化开发的实践过程。</p>
+<h3 id="组件化-1-0：资源重组"><a href="#组件化-1-0：资源重组" class="headerlink" title="组件化 1.0：资源重组"></a>组件化 1.0：资源重组</h3><p>在美团早期，前端资源是按照页面或者类似业务页面集合的形式进行组织的。例如 order.js 对应订单相关页面的交互，account.css 对应账户相关页面的样式。这种方式在过去的较长一段时间内，持续支撑了整个项目的正常推进，功勋卓著。</p>
+<center><img src="/images/frontend-component-practice/legacy-flow.png" alt="legacy-flow" width="500"></center>
+
+
+<p>随着业务规模的增加和开发团队的扩张，这套机制逐渐显示出它的一些不足：</p>
+<ol>
+<li><strong>资源冗余</strong>
+页面的逐渐增加，交互的逐渐复杂化，导致对应的 css 和 js 都有大幅度增长，进而出现为了依赖某个 js 中的一个函数，需要加载整个模块，或者为了使用某个 css 中的部分样式依赖整个 css，冗余资源较多</li>
+<li><strong>对应关系不直观</strong>
+没有显而易见的对应规则，导致的一个问题是修改某个业务模块的 css 或者 js 时，几乎只能依靠 grep。靠人来维护页面模块 html、css 和 js 之间的依赖关系，容易犯错，常常出现内容已经删除但是 css 或 js 还存在的问题</li>
+<li><strong>难于单元测试</strong>
+以页面为最小粒度进行资源整合，不同功能的业务模块相互影响，复杂度太高，自动化测试难以推进</li>
+</ol>
+<p>2013 年开始，在调研了 FIS、BEM 等方案之后，结合美团开发框架的实际，我们初步实现了一套轻量级的组件化开发方案。主要的改进是：</p>
+<ul>
+<li>以页面功能组件为单位聚合前端资源</li>
+<li>自动加载符合约定的 css、js 资源</li>
+<li>将业务数据到渲染数据的转换过程独立出来</li>
+</ul>
+<center><img src="/images/frontend-component-practice/component-flow.png" alt="component-flow" width="500"></center>
+
+<p>举例来说，美团顶部的搜索框就被实现为一个组件。</p>
+<center><img src="/images/frontend-component-practice/smart-box.png" alt="smart-box" width="500"></center>
+    <div class="read-more">
+      <a href="/frontend-component-practice/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/promise-insight/">剖析 Promise 之基础篇</a>
       
     </h1>
@@ -633,53 +705,6 @@
 <p>本次我们介绍的是比较基础的两个对象<code>Y.EventHandle</code>和<code>Y.Do</code>。千里之行积于跬步，YUI整套事件机制也是从这两个对象开始构筑的。</p>
     <div class="read-more">
       <a href="/event-do/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/extend-and-augment/">Y.extend与Y.augment</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2012-02-11
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p>很长一段时间内，我都没有搞懂YUI3 OOP模块中的<code>Y.extend</code>方法与<code>Y.augment</code>之间的区别，尽管它们的名称如此显著。现在有些时间，我相信分析源码是最好的解决方法。为了减少不必要的干扰，我简化了这两个方法，使它们仅处理类构造器。</p>
-<h2 id="Y-extend"><a href="#Y-extend" class="headerlink" title="Y.extend"></a>Y.extend</h2><p><code>Y.extend</code>方法应用的场景很简单，就是继承。我们知道，JavaScript有多种继承方式，例如原型继承、构造器继承、组合继承、寄生继承等等。YUI采取的为寄生组合继承（Parasitic combination inheritance）。</p>
-<p><code>Y.extend</code>的简化代码如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Y.extend = <span class="function"><span class="keyword">function</span> (<span class="params">r, s</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> sp = s.prototype, rp = Y.Object(sp);</span><br><span class="line">    r.prototype = rp;</span><br><span class="line"></span><br><span class="line">    rp.constructor = r;</span><br><span class="line">    r.superclass = sp;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Y.Object = <span class="function"><span class="keyword">function</span> (<span class="params">o</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> F = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line">    F.prototype = o;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> F();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>首先获取一个<code>__proto__</code>指向父类原型的空对象<code>rp</code>，然后将其作为子类原型，这样子类实例就可以沿原型链父类原型方法。然后设置子类的<code>superclass</code>属性为父类原型，使得子类构造器可以访问到父类。</p>
-    <div class="read-more">
-      <a href="/extend-and-augment/" class="read-more-link">Read more..</a>
     </div>
     
     

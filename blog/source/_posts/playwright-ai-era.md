@@ -75,7 +75,7 @@ await page.getByRole('button', { name: '提交' }).click();
 
 契约式设计的好处是覆盖面，而且这份覆盖面不由任何一家供给。六种语言绑定（Java、Python、C#、Ruby、JavaScript、Kotlin）让后端用 Java、数据用 Python 的团队不必为了统一测试工具去统一技术栈。
 
-Grid 把测试分发到几十台机器上并行跑，这部分别的工具基本不碰，Puppeteer 官方 FAQ 就明说 Grid 超出它范围；不想自己搭基建的，云厂商会[按协议供货](https://www.selenium.dev/sponsor/)，BrowserStack、TestMu AI 都是官方列的 Development Partner。它也不属于任何一家浏览器厂商，一直挂在 Software Freedom Conservancy 名下。**所谓“面向企业的测试生态”，说的就是这些：那些能力不是它的功能，是它的生态。**
+Grid 把测试分发到几十台机器上并行跑，这部分别的工具基本不碰，Puppeteer 官方 FAQ 就明说 Grid 超出它范围；不想自己搭基建的，云厂商会[按协议供货](https://www.selenium.dev/sponsor/)，BrowserStack、TestMu AI 都是官方列的 Development Partner。这份覆盖面之所以成立，是因为它不属于任何一家浏览器厂商。**所谓“面向企业的测试生态”，说的就是这些：那些能力不是它的功能，是它的生态。**
 
 代价也在同一句话里：契约不替你管会话和等待，那些就落在使用者手上。[官方文档](https://www.selenium.dev/documentation/webdriver/waits/)写得很直白：显式等待是“loops added to the code that poll the application for a specific condition to evaluate as true before it exits the loop”，说白了就是一段写在代码里、反复轮询到条件成立的循环。
 
@@ -495,7 +495,7 @@ Selenium 也一样还在跑（4.49，2026-09-09 发布），只是它 24% 的留
 | 常见说法 | 实际情况 |
 |---|---|
 | “Puppeteer 只支持 Chrome” | v23.0.0（2024-08）起同时支持 Chrome 与 Firefox（Firefox 走 BiDi） |
-| “Selenium 近年移交给了 SFC” | 自 2011-02-02 起就是 Software Freedom Conservancy 成员项目，不是“近年” |
+| “Selenium 近年移交给了 SFC” | 自 [2011-02-02](https://sfconservancy.org/news/2011/feb/02/selenium-joins/) 起就是 Software Freedom Conservancy 成员项目，不是“近年” |
 | “WebDriver 是 W3C 标准” | 只有 Level 1 是 2018 Recommendation；[Level 2](https://www.w3.org/TR/webdriver2/) 与 [WebDriver BiDi](https://www.w3.org/TR/webdriver-bidi/) 至今仍是 Working Draft |
 | “Browser Use / Stagehand 都是基于 Playwright 的” | 均未见直接依赖：Browser Use 用自研 `cdp-use`，发布出来的 `@browserbasehq/stagehand` 依赖 `@browserbasehq/sdk`（同一个 monorepo 里的 integrations、evals 包倒是把 playwright 列成了 devDependency）；Skyvern 才是直接依赖 `playwright` |
 | “Cypress 已经停更了” | 2026-09-01 刚发 Cypress 16，仓库持续提交 |

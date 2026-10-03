@@ -222,9 +222,6 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 
 第一关那道“必须恰好命中一个”的检查，在这里的确显出价值了。它不只是说“你错了”：它说明了为什么错（匹配到 20 个），给出了每个候选的真实身份，最关键的是那句 `aka`，把改正后的 locator 写法一条条列给你了。这不是给人看的礼貌提示，这是一份写好的补丁。而且这大概不是巧合：从 1.51 起，Playwright 在 HTML 报告、Trace Viewer 和 UI Mode 的报错旁都放了一个按钮，叫 Copy prompt（见[发布说明](https://playwright.dev/docs/release-notes)）。
 
-![Playwright HTML 报告里的同一条报错：Errors 面板列出候选，右上角是 Copy prompt 按钮](../images/report-copy-prompt.png)
-*同一个用例在 HTML 报告里的样子（Playwright 1.57.0，2026-10-01 实跑）：报错正文、候选列表和那个 Copy prompt 按钮挤在同一块面板里*
-
 修复的前提是复现：一个失败如果只活在那台机器上，换个人（或者换个 agent）就只能靠猜。好在它现在有了载体，现场在 `trace.zip` 里，该点哪儿写在 locator 里。于是同一个失败能在 CI 上产生，在本地打开，也能被另一个程序读。
 
 **可序列化不是“能被自动修复”的保证，但它是前提。**

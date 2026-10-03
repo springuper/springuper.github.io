@@ -17,7 +17,7 @@ tags:
 
 所以我想搞清楚一个问题：**这一轮换代，为什么是 Playwright？**
 
-趋势本身很清楚：2025 年的行业调查里，它的使用率第一次超过 Cypress（50% 对 47%），同一周的 npm 下载量是它的 14 倍。但数字只能说明趋势，说明不了原因。
+趋势本身很清楚：2025 年的行业调查里，它的使用率第一次超过 Cypress（50% 对 47%），同一周的 npm 下载量是它的 17 倍。但数字只能说明趋势，说明不了原因。
 
 功能表也回答不了，得往下一层看：那一行 `click()` 在真的落下之前，究竟检查了什么。我拿一颗 600 毫秒之后才可点的按钮当尺子，把它拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。四道关看完，再回头说这两年的事。
 
@@ -252,7 +252,7 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 | 1.62 | 2026-07-24 | 把 MCP server 与 playwright-cli 打包进来（`npx playwright mcp`） |
 | 1.63 | 2026-09-04 | trace 里记录 aria 快照，Trace Viewer 新增 Display Aria 模式 |
 
-2025 年 3 月，微软把 Playwright 包成了一个 MCP server（[playwright-mcp](https://github.com/microsoft/playwright-mcp)，建仓到 2026-09-19 已 37,727 star）。它的 README 第一段就把立场说透了：
+2025 年 3 月，微软把 Playwright 包成了一个 MCP server（[playwright-mcp](https://github.com/microsoft/playwright-mcp)，建仓到 2026-10-03 已 37,776 star）。它的 README 第一段就把立场说透了：
 
 > *"enables LLMs to interact with web pages through structured accessibility snapshots, bypassing the need for screenshots or visually-tuned models."*
 
@@ -308,7 +308,7 @@ await page.waitForTimeout(1000);
 
 ## 八、把数字摆齐
 
-坦白说，机制讲完了还得看采用。以下数据都是 2026-09-19 抓的。它们证明不了 Playwright 在所有测试场景都更好，只说明一件事：浏览器自动化正在往一处集中。
+坦白说，机制讲完了还得看采用。以下数据都是 2026-10-03 抓的。它们证明不了 Playwright 在所有测试场景都更好，只说明一件事：浏览器自动化正在往一处集中。
 
 [State of JS 2025](https://2025.stateofjs.com/en-US/libraries/testing/)（13,002 人，调查期 2025-09-24 到 11-11）：
 
@@ -319,13 +319,13 @@ await page.waitForTimeout(1000);
 | Puppeteer | 42% | 70% | |
 | Selenium | 37% | 24% | 2022 年留存是 42% |
 
-比使用率更值得看的倒是留存：94% 对 57%。同一周（2026-09-10 到 09-16，取自 [npm registry API](https://api.npmjs.org/downloads/point/2026-09-10:2026-09-16/playwright)），playwright 的下载量是 8,670 万，Puppeteer 1,060 万，Cypress 612 万，Selenium 的 JS 绑定 182 万，也就是 8 倍、14 倍和 47 倍。按 star 看，playwright 96,334 颗，puppeteer 95,593 颗，几乎打平。**star 数是“多少人觉得它值得收藏”，不是“多少人在用”**，星标打平、下载量差 8 倍，这个剪刀差就是“工具定位不同”最直观的证据：Puppeteer 还是抓取和脚本的第一选择，只是那条赛道上没有测试。
+比使用率更值得看的倒是留存：94% 对 57%。同一周（2026-09-26 到 10-02，取自 [npm registry API](https://api.npmjs.org/downloads/point/2026-09-26:2026-10-02/playwright)），playwright 的下载量是 1.09 亿，Puppeteer 1,200 万，Cypress 621 万，Selenium 的 JS 绑定 187 万，也就是 9 倍、17 倍和 58 倍。按 star 看，playwright 97,029 颗，puppeteer 95,644 颗，几乎打平。**star 数是“多少人觉得它值得收藏”，不是“多少人在用”**，星标打平、下载量差 9 倍，这个剪刀差就是“工具定位不同”最直观的证据：Puppeteer 还是抓取和脚本的第一选择，只是那条赛道上没有测试。
 
 说“Cypress 完了”，其实既不准确也不厚道。它在下滑，但没停：2024 年[裁员 11 人](https://www.cypress.io/blog/update-on-cypresss-workforce)，2026-09-01 照常发布 [Cypress 16](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support)；这两年它一直在 AI 上押注，甚至出了一份《[Playwright → Cypress 迁移指南](https://docs.cypress.io/app/guides/migration/playwright-to-cypress)》。守势是真的，停更不是。
 
 还有一条数字倒是反过来的，得摆在这儿：按 [ecosyste.ms](https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/playwright) 统计，cypress 被 6,559 个包反向依赖，playwright 只有 1,947 个。下载量赢了 14 倍，但“嵌进别人项目里”这件事 Cypress 仍然更多，这是存量与增量的差别，不写出来就是选择性取证。
 
-Selenium 也还在跑（4.49，2026-09-09 发布），只是 24% 的留存率把痛点写在了脸上：正是“等待和会话”这两件它当年留给用户的事。
+Selenium 也还在跑（4.50，2026-09-30 发布），只是 24% 的留存率把痛点写在了脸上：正是“等待和会话”这两件它当年留给用户的事。
 
 有几条流传很广的说法，我顺手核了一遍：
 
@@ -336,7 +336,7 @@ Selenium 也还在跑（4.49，2026-09-09 发布），只是 24% 的留存率把
 | “Browser Use / Stagehand 都是基于 Playwright 的” | 均未见直接依赖：Browser Use 用自研 `cdp-use`，发布出来的 `@browserbasehq/stagehand` 依赖 `@browserbasehq/sdk`（同一个 monorepo 里的 integrations、evals 包倒是把 playwright 列成了 devDependency）；Skyvern 才是直接依赖 `playwright` |
 | “Claude Code / Codex / Cursor 官方默认推荐 Playwright” | 未验证。能确认的只有 Playwright 侧提供了这几家的接入命令，反向的官方表态我没找到 |
 
-> 口径与免责：npm 下载量含 CI 里的重复安装、镜像同步和间接依赖，它是量级指标而不是用户数，`playwright` 这个包还被大量用于抓取，不全是测试。正文里的耗时、报错、ARIA 比例都是我自己在本机量的；版本号与下载量都只是 2026-09-19 的快照，引用请以当时为准。
+> 口径与免责：npm 下载量含 CI 里的重复安装、镜像同步和间接依赖，它是量级指标而不是用户数，`playwright` 这个包还被大量用于抓取，不全是测试。正文里的耗时、报错、ARIA 比例都是我自己在本机量的；版本号与下载量都只是 2026-10-03 的快照，引用请以当时为准。
 
 ## 结语
 
@@ -381,7 +381,7 @@ Selenium 也还在跑（4.49，2026-09-09 发布），只是 24% 的留存率把
 数据与观点来源：
 
 - [State of JavaScript 2025 - Testing](https://2025.stateofjs.com/en-US/libraries/testing/)
-- [npm registry downloads API](https://api.npmjs.org/downloads/point/2026-09-10:2026-09-16/playwright)（对比 [cypress](https://api.npmjs.org/downloads/point/2026-09-10:2026-09-16/cypress)、[puppeteer](https://api.npmjs.org/downloads/point/2026-09-10:2026-09-16/puppeteer)）
+- [npm registry downloads API](https://api.npmjs.org/downloads/point/2026-09-26:2026-10-02/playwright)（对比 [cypress](https://api.npmjs.org/downloads/point/2026-09-26:2026-10-02/cypress)、[puppeteer](https://api.npmjs.org/downloads/point/2026-09-26:2026-10-02/puppeteer)）
 - [ecosyste.ms（反向依赖统计）](https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/playwright)
 - [Cypress vs Playwright; Browser Included — Gleb Bahmutov（个人观点）](https://glebbahmutov.com/blog/cy-vs-pw-browser/)
 
@@ -390,4 +390,4 @@ Selenium 也还在跑（4.49，2026-09-09 发布），只是 24% 的留存率把
 - 《[给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测](https://springuper.github.io/agent-harness-comparison/)》：同一个“形态决定上限”的问题，看的是模型外面那层壳
 - 《[积木，而非成品：Pi Agent Harness 的克制与精妙](https://springuper.github.io/pi-harness-anatomy/)》：同一套拆解方法的另一个样本
 
-> 版本与核实说明：数据（下载量、调查、star、反向依赖）抓取于 2026-09-19；文中代码都在本机实跑过，用的是撰写期的最新版：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。ARIA 对比图、按钮三态图与 HTML 报告截图都是 2026-10-01 在本机实拍的，字符数与 9 月 19 日那次一致。凡官方没有量化声明的地方，文中都写明了那是我自己量的。
+> 版本与核实说明：数据（下载量、调查、star、反向依赖）抓取于 2026-10-03；文中代码都在本机实跑过：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。（Playwright 本机锁在 1.57，撰写时最新是 1.63，1.60 之后的能力都以官方发布说明为准。）Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。ARIA 对比图、按钮三态图与 HTML 报告截图都是 2026-10-01 在本机实拍的，字符数与 9 月 19 日那次一致。凡官方没有量化声明的地方，文中都写明了那是我自己量的。

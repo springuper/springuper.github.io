@@ -355,9 +355,15 @@ Selenium 也还在跑（4.50，2026-09-30 发布），只是 24% 的留存率把
 
 ### 彩蛋
 
-文章里我最喜欢的一处证据，其实是那段报错原文。它把 20 个候选元素的“正确答案”一条条列出来，再配上一个叫 Copy prompt 的按钮，**它等于在明说：我知道你要把我这段话粘给谁看。** 一个工具用了六年时间，终于把自己的错误信息写成了一份 prompt。
+第三关引过的那份 2020 年的 FAQ 里，有一节专门回答“Playwright 用哪些浏览器版本”，开头第一句是：
 
-其实还有个更小的彩蛋。Playwright 判定元素“可点”的四个条件里，`opacity: 0` 被算作可见，也就是说一个完全透明的按钮，工具认为你可以点。这条定义来自官方文档，我第一次读到时，大概盯着看了三遍。人类的直觉说“看不见就是没有”，协议的直觉说“它有框、能命中，那就是存在”：抽象层的分歧，往往就在这种一行的细节里。
+> Playwright **does not patch the rendering engines**. It either uses stock versions of the browsers (Chromium) or extends remote debugging protocols of the respective browsers (WebKit, Firefox) for better automation. Our browsers are as pure as they can be.
+
+同一节里，他们给补丁安排了一个期限：补丁会持续往上游提，等关键改动能落地，就切回“上游优先”的模式；在那之前，WebKit 和 Firefox 的补丁“for now”放在 `browser_patches/` 下。六年后的今天，官方文档写的是“Playwright 依赖补丁，用不了品牌版 Firefox”，第三关那张表里的 Firefox 走的还是打过补丁的 `-juggler-pipe`，而 `browser_patches/` 这个目录还在，两套都在。那个“for now”，用了六年。
+
+还有个更小的。当年团队判断“能不能上生产”，靠的是挂在成员个人域名下的一个页面（那份 FAQ 里点名推荐过它），逐内核列出还没通过的测试。我今天打开，整页倒只剩一句：**Is Playwright ready? YES!** 六年的测试矩阵，被收进这两个词里。
+
+**承诺会过期，目录不会。**
 
 ---
 

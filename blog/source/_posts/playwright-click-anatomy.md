@@ -1,9 +1,8 @@
 ---
 layout: post
 title: "Playwright 赢的不是测试：它赢的是“被调用的能力”"
-date: 2026-09-20 20:00:00
-status: draft
-published: false
+date: 2026-10-03 20:00:00
+status: publish
 tags:
   - Frontend
   - Playwright

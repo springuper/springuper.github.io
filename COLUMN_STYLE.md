@@ -72,7 +72,7 @@
 ## 七、交付物与格式
 
 ### 目录与命名
-- 文章放 `blog/source/_posts/`，文件名用英文小写 + 连字符，如 `playwright-ai-era.md`。
+- 文章放 `blog/source/_posts/`，文件名用英文小写 + 连字符，如 `playwright-click-anatomy.md`。
 - 图片放 `blog/source/images/`，文件名 `文章名-序号.jpg`，正文用 `/images/xxx.jpg`。
 
 ### front matter 模板

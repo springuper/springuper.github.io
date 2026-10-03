@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "接口的观众：浏览器自动化从「一个应用」变成「一层能力」"
+title: "Playwright 赢的不是测试：它赢的是“被调用的能力”"
 date: 2026-09-20 20:00:00
 status: draft
 published: false

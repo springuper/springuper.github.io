@@ -175,6 +175,60 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/react-hooks/">React Hooks 原理剖析</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2021-08-31
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>自 19 年 <a target="_blank" rel="noopener" href="https://reactjs.org/blog/2019/02/06/react-v16.8.0.html">React 16.8</a> 正式发布 Hooks 以来，已然在社区中形成了席卷之势，甚至也影响到了很多其它前端库以及框架。目前介绍如何使用 Hooks 的文章汗牛充栋，本文着重从原理层面，从零开始构建一个简化版 Hooks 实现，期望能够让你知其然也知其所以然，更好地把握和运用 Hooks。</p>
+<h2 id="为什么要引入-Hooks？"><a href="#为什么要引入-Hooks？" class="headerlink" title="为什么要引入 Hooks？"></a>为什么要引入 Hooks？</h2><p>React 团队的解释是目前以 React.Component 类为主的组件实现方式下，存在如下<a target="_blank" rel="noopener" href="https://reactjs.org/docs/hooks-intro.html#motivation">三方面问题</a>：</p>
+<ol>
+<li><strong>组件之间一些包含状态的逻辑很难拆分复用</strong> 因为函数式组件不能处理状态，且之前 Mixin 模式已被证伪，目前社区主流的 HoC 和 render props  模式也被诟病导致 wrapper hell</li>
+<li><strong>复杂的大型组件越发难以理解和维护</strong> 关联紧密的逻辑被迫分散在各个 lifecycle 方法中，非常容易出现疏漏</li>
+<li><strong>组件类的方式对开发者和机器都不友好</strong> 难以理解的 this，回调函数需要手动绑定，还有很多诸如此类的组件类模式的认知成本，导致新手入门难度高。同样地，组件类因为有内部状态、继承逻辑等特征，对编译器的各种优化也非常不友好</li>
+</ol>
+<p>Dan 在 React Conf 2018 大会上介绍完这几个问题后，也再进一步地说明其实这三个问题本质是一个问题的三种体现而已。而这个本质的问题就是：</p>
+<blockquote>
+<p>React does not provide a simpler, smaller, lightweight primitive to add state and lifecycle than a class component.</p>
+</blockquote>
+<p>换言之，React 本身非常函数式的设计哲学， <img src="../images/react-hooks-01.jpg" alt="fn(data) = UI"> ，并没有被当前组件类模式很好地表达。</p>
+<p>为了彻底解决这一问题，在 React 团队的 Sebastian 等人的带领下，经过参考和探索诸如 <a target="_blank" rel="noopener" href="https://github.com/reactjs/react-future/blob/master/07%20-%20Returning%20State/01%20-%20Stateful%20Functions.js">Stateful Functions</a>、<a target="_blank" rel="noopener" href="http://displayscript.org/introduction.html">DisplayScript</a>、<a target="_blank" rel="noopener" href="https://github.com/ocamllabs/ocaml-effects-tutorial#2-effectful-computations-in-a-pure-setting">Algebraic effects in Multicore OCaml</a> 等方案后，给出了 React Hooks 方案。</p>
+    <div class="read-more">
+      <a href="/react-hooks/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/the-awakeing-age/">“觉醒年代”有感</a>
       
     </h1>
@@ -642,78 +696,6 @@
 <p>接下来的处理很简单，如果 ToBoolen 得到的结果 <code>oldValue</code> 是 true，那就返回 false，否则返回 true。</p>
     <div class="read-more">
       <a href="/bitwise-not-and-logical-not/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/frontend-component-practice/">前端组件化开发实践</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2015-06-29
-      </span>
-      
-      <span class="post-author">
-        / springuper@gmail.com
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>一位计算机前辈曾说过：</p>
-<pre><code>Controlling complexity is the essence of computer programming.
-</code></pre>
-<p>随着前端开发复杂度的日益提升，组件化开发应运而生，并随着 FIS、React 等优秀框架的出现遍地开花。这一过程同样发生在美团，面临业务规模的快速发展和工程师团队的不断扩张，我们历经引入组件化解决资源整合问题、逐步增强组件功能促进开发效率、重新打造新一代组件化方案适应全栈开发和共享共建等阶段，努力“controlling complexity”。本文将介绍我们组件化开发的实践过程。</p>
-<h3 id="组件化-1-0：资源重组"><a href="#组件化-1-0：资源重组" class="headerlink" title="组件化 1.0：资源重组"></a>组件化 1.0：资源重组</h3><p>在美团早期，前端资源是按照页面或者类似业务页面集合的形式进行组织的。例如 order.js 对应订单相关页面的交互，account.css 对应账户相关页面的样式。这种方式在过去的较长一段时间内，持续支撑了整个项目的正常推进，功勋卓著。</p>
-<center><img src="/images/frontend-component-practice/legacy-flow.png" alt="legacy-flow" width="500"></center>
-
-
-<p>随着业务规模的增加和开发团队的扩张，这套机制逐渐显示出它的一些不足：</p>
-<ol>
-<li><strong>资源冗余</strong>
-页面的逐渐增加，交互的逐渐复杂化，导致对应的 css 和 js 都有大幅度增长，进而出现为了依赖某个 js 中的一个函数，需要加载整个模块，或者为了使用某个 css 中的部分样式依赖整个 css，冗余资源较多</li>
-<li><strong>对应关系不直观</strong>
-没有显而易见的对应规则，导致的一个问题是修改某个业务模块的 css 或者 js 时，几乎只能依靠 grep。靠人来维护页面模块 html、css 和 js 之间的依赖关系，容易犯错，常常出现内容已经删除但是 css 或 js 还存在的问题</li>
-<li><strong>难于单元测试</strong>
-以页面为最小粒度进行资源整合，不同功能的业务模块相互影响，复杂度太高，自动化测试难以推进</li>
-</ol>
-<p>2013 年开始，在调研了 FIS、BEM 等方案之后，结合美团开发框架的实际，我们初步实现了一套轻量级的组件化开发方案。主要的改进是：</p>
-<ul>
-<li>以页面功能组件为单位聚合前端资源</li>
-<li>自动加载符合约定的 css、js 资源</li>
-<li>将业务数据到渲染数据的转换过程独立出来</li>
-</ul>
-<center><img src="/images/frontend-component-practice/component-flow.png" alt="component-flow" width="500"></center>
-
-<p>举例来说，美团顶部的搜索框就被实现为一个组件。</p>
-<center><img src="/images/frontend-component-practice/smart-box.png" alt="smart-box" width="500"></center>
-    <div class="read-more">
-      <a href="/frontend-component-practice/" class="read-more-link">Read more..</a>
     </div>
     
     

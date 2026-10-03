@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Website mata -->
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<!-- Disable transformation -->
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<!-- Website description -->
+
+<meta name="description" content="Playwright 赢的不是测试：它赢的是“被调用的能力”" />
+
+
+<!-- Website keywords -->
+
+<meta name="keywords" content="AI, Agent, Frontend, Playwright, Testing, E2E, Shang Chun" />
+
+
+
+
+<!-- Website rss -->
+
+<link rel="alternate" href="/atom.xml" title="Shang Chun" type="application/atom+xml">
+
+
+<!-- Website favicon -->
+
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+
+
+<!-- Canonical, good for google search engine -->
+<link rel="canonical" href="https://springuper.github.io/playwright-click-anatomy/" />
+
+<!-- Fancybox styling -->
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+
+
+<!-- MathJax (LaTeX) support -->
+
+
+<!-- Noto Sans Mono CJK SC (CJK monospace font for ASCII art alignment) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&display=swap">
+
+<!-- Theme styling -->
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Analytics and push -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-48551774-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+
+  gtag('config', 'UA-48551774-1');
+</script>
+
+  
+
+
+
+<!-- LeanCloud Counter -->
+
+
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"latex":false};
+</script>
+  
+  <title>Playwright 赢的不是测试：它赢的是“被调用的能力” - Shang Chun</title>
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div class="scrollPercentage"></div>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Shang Chun</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    
+    <a href="/">
+      <li class="mobile-menu-item">
+        
+        
+        Home              </li>
+    </a>
+    
+    <a href="/archives/">
+      <li class="mobile-menu-item">
+        
+        
+        Archives              </li>
+    </a>
+    
+    <a href="/tags/">
+      <li class="mobile-menu-item">
+        
+        
+        Tags              </li>
+    </a>
+    
+  </ul>
+</nav>
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+      <div class="logo-wrapper">  
+  <a href="/." class="logo">Shang Chun</a>  
+</div>  
+  
+<nav class="site-navbar">  
+    
+    <ul id="menu" class="menu">  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/">  
+              
+              
+              Home  
+              
+          </a>  
+        </li>  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/archives/">  
+              
+              
+              Archives  
+              
+          </a>  
+        </li>  
+        
+        <li class="menu-item">  
+          <a class="menu-item-link" href="/tags/">  
+              
+              
+              Tags  
+              
+          </a>  
+        </li>  
+        
+    </ul>  
+    
+</nav>  
+
+    </header>
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
+      Playwright 赢的不是测试：它赢的是“被调用的能力”
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2026-10-03
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+  <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%AC%AC%E4%B8%80%E5%85%B3%EF%BC%9A%E5%AE%83%E6%80%8E%E4%B9%88%E7%9F%A5%E9%81%93%E2%80%9C%E6%89%BE%E5%88%B0%E4%BA%86%E2%80%9D"><span class="toc-number">1.</span> <span class="toc-text">一、第一关：它怎么知道“找到了”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%AC%AC%E4%BA%8C%E5%85%B3%EF%BC%9A%E5%AE%83%E6%80%8E%E4%B9%88%E5%88%A4%E6%96%AD%E2%80%9C%E8%83%BD%E7%82%B9%E4%BA%86%E2%80%9D"><span class="toc-number">2.</span> <span class="toc-text">二、第二关：它怎么判断“能点了”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%9B%9E%E5%A4%B4%E8%AF%B4%E5%BC%80%E7%AF%87%E9%82%A3%E4%B8%AA%E2%80%9C%E5%81%87%E6%88%90%E5%8A%9F%E2%80%9D"><span class="toc-number">3.</span> <span class="toc-text">三、回头说开篇那个“假成功”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%AC%AC%E4%B8%89%E5%85%B3%EF%BC%9A%E5%8A%A8%E4%BD%9C%E6%80%8E%E4%B9%88%E9%80%81%E8%BF%9B%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="toc-number">4.</span> <span class="toc-text">四、第三关：动作怎么送进浏览器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E7%AC%AC%E5%9B%9B%E5%85%B3%EF%BC%9A%E5%A4%B1%E8%B4%A5%E7%95%99%E4%B8%8B%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-number">5.</span> <span class="toc-text">五、第四关：失败留下了什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E8%BF%99%E4%B8%A4%E5%B9%B4"><span class="toc-number">6.</span> <span class="toc-text">六、为什么是这两年</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E6%88%91%E4%B8%8D%E6%8D%A2"><span class="toc-number">7.</span> <span class="toc-text">七、什么时候我不换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%8A%8A%E6%95%B0%E5%AD%97%E6%91%86%E9%BD%90"><span class="toc-number">8.</span> <span class="toc-text">八、把数字摆齐</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">9.</span> <span class="toc-text">结语</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%A9%E8%9B%8B"><span class="toc-number">9.1.</span> <span class="toc-text">彩蛋</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">10.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </div>
+  
+
+  <div class="post-content">
+    
+    <p>如果你这两年留意过前端测试圈，大概会注意到一件事：新项目的端到端测试，默认都写成 Playwright 了。可这件事有点说不通：Cypress 也会自动等待，它的检查项甚至比 Playwright 还多，代码读起来也更舒服。</p>
+<p>所以我想搞清楚一个问题：<strong>这一轮换代，为什么是 Playwright？</strong></p>
+<p>趋势本身很清楚：2025 年的行业调查里，它的使用率第一次超过 Cypress（50% 对 47%），而最新的周下载量是它的 17 倍。但数字只能说明趋势，说明不了原因。</p>
+<p>功能表也回答不了，得往下一层看：那一行 <code>click()</code> 在真的落下之前，究竟检查了什么。我拿一颗 600 毫秒之后才可点的按钮当尺子，把它拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。四道关看完，再回头说这两年的事。</p>
+<span id="more"></span>
+
+<p>被测的页面很小，存成 HTML 双击就能打开：一个标题、一颗 600 毫秒之后才可点的按钮、一行结果。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!doctype <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;zh&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h1</span>&gt;</span>下单<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">disabled</span>&gt;</span>提交订单<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span> <span class="attr">id</span>=<span class="string">&quot;result&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="comment">// 模拟一个 600 毫秒才回来的接口：这期间按钮是禁用的</span></span></span><br><span class="line"><span class="javascript">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123; <span class="built_in">document</span>.getElementById(<span class="string">&#x27;submit&#x27;</span>).disabled = <span class="literal">false</span>; &#125;, <span class="number">600</span>);</span></span><br><span class="line"><span class="javascript"></span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">&#x27;submit&#x27;</span>).addEventListener(<span class="string">&#x27;click&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">      <span class="built_in">document</span>.getElementById(<span class="string">&#x27;result&#x27;</span>).textContent = <span class="string">&#x27;已提交&#x27;</span>;</span></span><br><span class="line"><span class="javascript">    &#125;);</span></span><br><span class="line"><span class="javascript">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>判断成没成功只看一件事：最后那行 <code>&lt;p id=&quot;result&quot;&gt;</code> 里有没有出现「已提交」。</p>
+<p><img src="../images/order-fixture-states.png" alt="正文那段 fixture 的三个状态：刚打开时按钮禁用、600 毫秒后恢复可点、点下去结果栏才出现「已提交」">
+<em>被测页面就长这样（Playwright 1.57.0 + Chromium，2026-10-01 实拍，360 像素宽视口）：同一个脚本的三种状态，下面四道关对着的都是这一张页面</em></p>
+<p>同一颗按钮，三种点法，结果却各不相同：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">await</span> page.mouse.click(<span class="number">320</span>, <span class="number">210</span>);                             <span class="comment">// ① 按坐标点</span></span><br><span class="line"><span class="keyword">await</span> page.locator(<span class="string">&#x27;#submit&#x27;</span>).dispatchEvent(<span class="string">&#x27;click&#x27;</span>);         <span class="comment">// ② 直接派发事件</span></span><br><span class="line"><span class="keyword">await</span> page.getByRole(<span class="string">&#x27;button&#x27;</span>, &#123; <span class="attr">name</span>: <span class="string">&#x27;提交订单&#x27;</span> &#125;).click();   <span class="comment">// ③ 正常点</span></span><br></pre></td></tr></table></figure>
+
+<p>只有 ③ 会等。① 什么也没发生：按钮还禁用着，浏览器把那次鼠标事件吞了。② 结果栏变绿了，可那其实是假的，按钮当时根本点不动。这篇文章里的四道关，拆的就是 ③ 的那一行。</p>
+<h2 id="一、第一关：它怎么知道“找到了”"><a href="#一、第一关：它怎么知道“找到了”" class="headerlink" title="一、第一关：它怎么知道“找到了”"></a>一、第一关：它怎么知道“找到了”</h2><p>我们习惯说“拿到一个元素”，但在 Playwright 里，<code>page.getByRole(&#39;button&#39;, &#123; name: &#39;提交订单&#39; &#125;)</code> 拿到的不是一个元素，而是一句描述。官方管它叫 locator，定义是“一种在任何时刻都能找到元素的方式”（见 <a target="_blank" rel="noopener" href="https://playwright.dev/docs/locators">Locators</a>）。</p>
+<p>这句话听着像修辞，其实有个很实在的后果：每次要动手之前，它会拿这句描述重新解析一遍。所以我那个实验才有意义。把 class 从构建哈希 <code>btn-primary-9f2c1a</code> 改成 <code>btn-primary-4b8e77</code>，模拟一次重新构建，<code>page.click(&#39;.btn-primary-9f2c1a&#39;)</code> 当场超时，报 <code>Timeout 1200ms exceeded</code>；那句按角色和名字写的描述照样命中。</p>
+<p>解析出来之后其实还有一道更严的检查：必须恰好命中一个。这就是“找到”在这套实现里的定义。一句描述如果同时匹配到 20 个元素，它不会随便挑一个，而是停下来告诉你匹配到了 20 个。（这个决定的好处，第四关会看到。）</p>
+<p>那“角色是 button、名字是提交订单”这些词从哪儿来？来自浏览器的可访问性树：浏览器会把页面另外解析成一棵树，每个节点带三样东西，角色（role）、名字（name）和状态（state）。屏幕阅读器读的就是它，<code>getByRole</code> 读的也是它，第六节那个 ARIA 快照还是它。</p>
+<p>原生标签自带隐式的 role（<code>&lt;button&gt;</code>、<code>&lt;a href&gt;</code>、<code>&lt;input type=&quot;checkbox&quot;&gt;</code> 都有），自定义组件就得自己补上：<code>aria-label</code>、<code>aria-labelledby</code>，或者 <code>&lt;label for&gt;</code>。我拿一个只用 <code>&lt;div onclick&gt;</code> 拼的按钮试过：<code>getByRole(&#39;button&#39;).count()</code> 是 0，它在快照里降级成了一行普通文本；补上 <code>role=&quot;button&quot;</code> 之后才是 1。</p>
+<p>所以第一关交出来的东西，其实是一句“此刻唯一命中的描述”。反过来，那种“真的抓到一个元素”的用法（<code>ElementHandle</code>）被官方<a target="_blank" rel="noopener" href="https://playwright.dev/docs/handles">标上了 Discouraged</a>。</p>
+<h2 id="二、第二关：它怎么判断“能点了”"><a href="#二、第二关：它怎么判断“能点了”" class="headerlink" title="二、第二关：它怎么判断“能点了”"></a>二、第二关：它怎么判断“能点了”</h2><p>找到了不等于能点。这一关是 Playwright 最出名的地方，官方叫 <a target="_blank" rel="noopener" href="https://playwright.dev/docs/actionability">actionability</a>，原话是：</p>
+<blockquote>
+<p>It auto-waits for all the relevant checks to pass and only then performs the requested action.</p>
+</blockquote>
+<p>翻成人话：动手之前，它会把下面四条逐个等到成立。</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>官方定义（人话版）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Visible</td>
+<td>有非空 bounding box，且不是 <code>visibility: hidden</code>；<code>opacity: 0</code> 算可见</td>
+</tr>
+<tr>
+<td>Stable</td>
+<td>连续两帧 bounding box 不变（还在动的元素不点）</td>
+</tr>
+<tr>
+<td>Receives Events</td>
+<td>命中测试时这个点上真的是它，不是被别的元素盖住</td>
+</tr>
+<tr>
+<td>Enabled</td>
+<td>没 <code>disabled</code>，祖先也没有 <code>aria-disabled</code></td>
+</tr>
+</tbody></table>
+<p>四条里我最喜欢第二条。“连续两帧不变”这种抠到帧的定义，等于把老工程师嘴里那句“等它别动了再点”直接写成了代码。这一关干的就是这件事：<strong>把人的经验变成可判定的条件。</strong></p>
+<p>回到那颗按钮，这一关跑完是 858 毫秒。它倒不是睡得久，是一直在等条件成立。</p>
+<p>这里得补一句公道话，不然容易被读成 Playwright 的独家本事：自动等待其实不是它发明的。Cypress 早就有，检查项比这四个还多（多出 detached、readonly、covering 三项），它也会盯着 DOM 不断重跑查询（<a target="_blank" rel="noopener" href="https://docs.cypress.io/app/core-concepts/interacting-with-elements">官方原文</a>：*”Cypress will watch the DOM - re-running the queries that yielded the current subject…”*）。我实测过，一条完全不带等待的 Cypress 用例照样通过，耗时 846 毫秒，和 Playwright 的 858 毫秒几乎一样。</p>
+<p>真正没有它的是上一代那两家。<a target="_blank" rel="noopener" href="https://www.selenium.dev/documentation/webdriver/waits/">Selenium 的文档</a>把话说得很直白：显式等待是“loops added to the code that poll the application for a specific condition”，说白了就是一段写在代码里、反复轮询到条件成立的循环；它那一页自己还摆了个 <code>sleep()</code> 的例子，里面写的是 <code>Thread.sleep(1000)</code>。<a target="_blank" rel="noopener" href="https://pptr.dev/faq">Puppeteer</a> 也一样，判据得自己写：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">await</span> page.waitForFunction(<span class="function">() =&gt;</span> &#123;          <span class="comment">// 判据得自己写</span></span><br><span class="line">  <span class="keyword">const</span> btn = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#submit&#x27;</span>);</span><br><span class="line">  <span class="keyword">return</span> btn &amp;&amp; !btn.disabled;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">await</span> page.click(<span class="string">&#x27;#submit&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>把中间这三行删掉会怎样？我倒是真跑了一遍：脚本不报错，输出是空的。按钮还禁用着，浏览器把那次点击吞了。</p>
+<p>所以第一关和第二关合起来说的是一件事：<strong>“什么时候能动”这件判断，从使用者的代码里搬进了工具里。</strong> 差别不在“等不等”，而在那一行 <code>click()</code> 里到底有没有检查。</p>
+<h2 id="三、回头说开篇那个“假成功”"><a href="#三、回头说开篇那个“假成功”" class="headerlink" title="三、回头说开篇那个“假成功”"></a>三、回头说开篇那个“假成功”</h2><p>开篇那三种点法里，② 为什么能“成功”？因为 actionability 有四条检查，但也留了后门。官方文档写得倒是很直白：给 <code>click()</code> 传 <code>force: true</code>，就会跳过“非必要”的检查，比如“这个点上真的能收到点击事件吗”这一条。<code>dispatchEvent(&#39;click&#39;)</code> 更彻底，它连点击都不模拟，直接把事件塞给元素。</p>
+<p>三种点法摆在一起是这样：</p>
+<table>
+<thead>
+<tr>
+<th>点法</th>
+<th>页面结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>按坐标立刻点 <code>page.mouse.click(x, y)</code></td>
+<td><code>（未提交）</code></td>
+<td>按钮还禁用着，真实鼠标事件被吞掉</td>
+</tr>
+<tr>
+<td><code>locator.dispatchEvent(&#39;click&#39;)</code></td>
+<td><code>（已提交）</code></td>
+<td>事件绕过了检查，看着成功，其实是假成功</td>
+</tr>
+<tr>
+<td><code>getByRole(&#39;button&#39;).click()</code></td>
+<td><code>（已提交）</code>，等了 858 毫秒</td>
+<td>条件成立才动手</td>
+</tr>
+</tbody></table>
+<p><img src="../images/three-clicks.gif" alt="同一颗按钮的三种点法：按坐标点没反应、dispatchEvent 假成功、getByRole 等到条件成立才点">
+<em>录制自真实运行（Playwright 1.57 + Chromium）：① 按坐标点，按钮还在禁用态，什么也没发生；② <code>dispatchEvent</code> 把事件直接发进去，结果栏变绿，其实是假成功；③ <code>click()</code> 等到按钮可用才动手</em></p>
+<p>我把这三条路都跑了一遍。按钮还禁用时，按坐标点没反应，用 DOM 自己的 <code>element.click()</code> 也没反应，唯独 <code>dispatchEvent(&#39;click&#39;)</code> 让结果栏变成了「已提交」。</p>
+<p>原因是浏览器的“禁用”只拦两样东西：真实的指针事件，和元素自己的 <code>click()</code>。它拦不住直接用事件接口投递的那一下。所以这个“假成功”不是“什么都没发生”：监听器执行了，DOM 也变了（这个页面里没有表单，“已提交”就是结果栏那行字被改了），只不过<strong>它走的是一条真实用户走不到的路</strong>。真实用户那一刻点不动这颗按钮，你的用例却认为点成功了。</p>
+<p><strong>不做检查的自动化，最危险的地方不是失败，而是它能给你一个假成功。</strong> 一条“禁用状态也照样点进去”的用例会在 CI 里一直绿着，直到上线被真实用户教做人。</p>
+<h2 id="四、第三关：动作怎么送进浏览器"><a href="#四、第三关：动作怎么送进浏览器" class="headerlink" title="四、第三关：动作怎么送进浏览器"></a>四、第三关：动作怎么送进浏览器</h2><p>判断完了，动作得真的送出去。这一段路平时看不见，但它决定了这个工具最后能长成什么样：动作经由什么送出去，最后又落在哪个浏览器上。</p>
+<p>先说 Cypress，它走的是另一条路。装完 <code>node_modules/cypress</code> 只有 7.3 MB，可真正的执行体是它下载到缓存里的 641 MB 应用：测试是被这个应用带着跑的，而不是被一行 <code>require</code> 拉起来的库。官方文档把原因说得很清楚：*”Cypress is executed in the same run loop as your application.”*（见 <a target="_blank" rel="noopener" href="https://docs.cypress.io/app/get-started/why-cypress">Why Cypress</a>）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Cypress 应用（一个自带浏览器）</span><br><span class="line">├── 测试代码 + Cypress 驱动</span><br><span class="line">└── iframe：被测应用</span><br><span class="line">    （两者共用一个事件循环）</span><br></pre></td></tr></table></figure>
+
+<p>一个浏览器里同时住着测试代码和被测应用，两者共用一个事件循环。这个设计的确换来了很好的调试体验（后面会替它说话），代价是它只能以“一个应用”的形式存在：模块 API 文档里一共只有三个函数，<code>cypress.run()</code>、<code>cypress.open()</code>、<code>cypress.cli.parseRunArguments()</code>（见 <a target="_blank" rel="noopener" href="https://docs.cypress.io/app/references/module-api">Module API</a>）。你能用 Node 启动一次运行，但拿不到一个页面：没有 <code>page</code>，也没有任何能在自己进程里操作的对象。</p>
+<p>Playwright 反过来。<code>@playwright/test</code> 是一个测试 runner，但它建在 <code>playwright-core</code> 这个库上，<code>chromium.launch()</code> 在任何 Node 进程里都能跑起来：你可以在自己的脚本里开一个浏览器，做完事再关掉，全程不进 runner。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">你的进程（测试，或任意脚本）</span><br><span class="line">   └── browser / page 对象</span><br><span class="line">        │  Playwright 自有协议</span><br><span class="line">        ▼</span><br><span class="line">   浏览器进程（三选一）</span><br><span class="line">   ├── Chromium</span><br><span class="line">   ├── Firefox</span><br><span class="line">   └── WebKit</span><br></pre></td></tr></table></figure>
+
+<p>（Python、Java 这类绑定中间还会多一个 driver 进程。）</p>
+<p>那三个内核可以只装一个，也可以一起用。我本机上装着的的确就是三个：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">~/Library/Caches/ms-playwright/</span><br><span class="line">├── chromium-1200</span><br><span class="line">├── firefox-1497</span><br><span class="line">└── webkit-2227     # 真 WebKit，不是换皮</span><br></pre></td></tr></table></figure>
+
+<p>这里的“一视同仁”指三个内核都由同一套 API 支持，而不是“能不能跑起来”：Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。</p>
+<p>三个内核共用一套 API 这件事，看着像开个 flag 就行，其实翻一遍是三层叠起来的。</p>
+<p>第一层，语言绑定和浏览器之间隔了一层协议。JS、Python、Java 里调的是同一份实现，通过 Playwright 自有协议（仓库里的 <code>packages/protocol/spec/*.yml</code>）跟浏览器说话。</p>
+<p>第二层，三个内核走三条通道，要的东西却不一样。这张表是整件事的关键：</p>
+<table>
+<thead>
+<tr>
+<th>内核</th>
+<th>要不要打补丁</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chromium</td>
+<td>不要</td>
+<td>它原生就说 CDP。Playwright 用开源 Chromium 构建，甚至领先品牌版一个大版本</td>
+</tr>
+<tr>
+<td>Firefox</td>
+<td>要</td>
+<td>走 <code>-juggler-pipe</code>；Juggler 就是当年 Firefox 为 Puppeteer 做的那套自动化协议，官方文档也明说用不了品牌版 Firefox</td>
+</tr>
+<tr>
+<td>WebKit</td>
+<td>要，而且不是 Safari</td>
+<td>走 <code>--inspector-pipe</code>，补丁在仓库 <code>browser_patches/</code> 下。官方原话：*”Playwright’s WebKit is derived from the latest WebKit main branch sources, often before these updates are incorporated into Apple Safari”*，它测的是引擎，不是 Safari 那个 App</td>
+</tr>
+</tbody></table>
+<p>第三层，也是最关键的一层：它自己编译并维护内核。上面那两个 flag 不是“开关”，而是<strong>只有打过补丁的构建里才存在的通道</strong>。Playwright 每次发版同步更新三个内核的版本，<code>npx playwright install</code> 下载的就是这些自定义构建，我本机这份缓存已经 1.0 GB：chromium 324 MB、webkit 275 MB、firefox 253 MB，另有 headless shell 与 ffmpeg。</p>
+<p>只跑一个内核其实不必这么重。<code>npx playwright install chromium</code> 的下载量约 250 MB，CI 上加个 <code>--only-shell</code> 能压到 90 MB；一个字节都不下也行：配上 <code>channel: &#39;chrome&#39;</code>，直接用机器上现成的 Chrome。</p>
+<p>那为什么别人做不到？其实不是开不了 flag，是改不了内核。</p>
+<ul>
+<li>Cypress 把驱动注入浏览器、与测试同处一个事件循环，内核不许注入它就没办法，自带不了打过补丁的 WebKit（反过来，这也是它的 devtools 联动调试更顺手的原因。Gleb Bahmutov 的<a target="_blank" rel="noopener" href="https://glebbahmutov.com/blog/cy-vs-pw-browser/">个人观点</a>，不是官方结论）。</li>
+<li>Puppeteer 是 CDP 的参考实现，不需要改内核。不过这里还有段前情：Firefox 那边当年就有一条专门为 Puppeteer 做的自动化协议（<a target="_blank" rel="noopener" href="https://github.com/puppeteer/juggler"><code>puppeteer/juggler</code></a>，2020 年 3 月之后就停了），Puppeteer 还据此发过一个<a target="_blank" rel="noopener" href="https://github.com/puppeteer/puppeteer/blob/7f7887ed11930f96cb64bb086fad5c29086b8ef2/experimental/puppeteer-firefox/README.md">自带 Firefox 构建的原型包</a>，后来标注废弃；正经的 Firefox 支持等到 2024 年的 v23，用的还是 W3C 标准的 WebDriver BiDi。能不能做是一回事，要不要长年养两个内核的分支是另一回事。</li>
+<li>Selenium 走的是相反的路线：它从一段跑在浏览器里的 JavaScript 起家（<a target="_blank" rel="noopener" href="https://www.selenium.dev/history/">官方 History</a>），因为出不了同源策略那道墙，才改成把浏览器当远端、中间放一台代理 server（Selenium RC），最后把这条路走成了公共契约（WebDriver，<a target="_blank" rel="noopener" href="https://www.w3.org/TR/webdriver1/">Level 1 在 2018 年成了 W3C Recommendation</a>）：覆盖面不由任何一家供给，代价是契约不替你管会话和等待。</li>
+</ul>
+<p>代价倒也说清楚：这套“连内核一起维护”的赌注，换来了三内核一致和额外的自动化能力，付出的是每次升级重下几百 MB 的自定义浏览器，外加内核补丁的长年维护。</p>
+<p><strong>能当零件用，还是只能当整机用，这是 Cypress 和 Playwright 的分界线。</strong> 所谓“一层能力”，不是 API 多，而是它可以脱离原来的应用形态，被另一个程序直接拿起来、观察、调用、组合、复现。这一关最要紧的产出就是这个：动作经由一条自有通道送出去，而这条通道可以被任何进程调用。</p>
+<blockquote>
+<p>口径：架构部分来自官方文档与仓库源码。“Juggler”这个词官方文档从不使用，只出现在源码与补丁目录里，属于源码级证据，别当成官方术语引用。</p>
+</blockquote>
+<h2 id="五、第四关：失败留下了什么"><a href="#五、第四关：失败留下了什么" class="headerlink" title="五、第四关：失败留下了什么"></a>五、第四关：失败留下了什么</h2><p>前三关讲的是动作怎么成功。可在 CI 上，你更常面对的是失败。</p>
+<p>测试失败时，Playwright 会给你一个 <code>trace.zip</code>，里面装着每一步的动作与耗时、动作前后的全量 DOM 快照、截图、源码、日志和网络记录（见 <a target="_blank" rel="noopener" href="https://playwright.dev/docs/trace-viewer">Trace Viewer</a>）。它把“一次性现象”变成了一个文件：能塞进 CI 产物，能在别人机器上打开，从 1.59 起还能直接用命令读（<code>npx playwright trace</code>）。</p>
+<p>这里不妨先说人的收益，因为它跟 AI 没关系：以前 CI 挂了，你得把那台机器复现出来；现在工件跟着失败一起被存下来。至于模型也能读它，那是顺带的。</p>
+<p><img src="../images/trace-viewer.png" alt="Playwright Trace Viewer：左侧动作列表里那步失败的点击被标红选中，右侧是当时的页面快照，底部 Errors 面板里是报错正文与 Copy prompt 按钮">
+<em>Trace Viewer 实拍（Playwright 1.57.0，2026-09-19）：左边那步失败的 Click 被标红选中，右边是当时的页面快照，底部 Errors 面板给出报错正文与 Copy prompt 按钮</em></p>
+<p>然后是我最喜欢的那段报错原文。我构造了一个 20 行订单列表，故意用模糊定位去点它：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">locator.click: Error: strict mode violation: getByRole(&#x27;button&#x27;, &#123; name: &#x27;查看&#x27; &#125;) resolved to 20 elements:</span><br><span class="line">    1) &lt;button aria-label=&quot;查看订单 SO-1001 详情&quot; ...&gt; aka getByRole(&#x27;button&#x27;, &#123; name: &#x27;查看订单 SO-1001 详情&#x27; &#125;)</span><br><span class="line">    2) &lt;button aria-label=&quot;查看订单 SO-1002 详情&quot; ...&gt; aka getByRole(&#x27;button&#x27;, &#123; name: &#x27;查看订单 SO-1002 详情&#x27; &#125;)</span><br><span class="line">    3) &lt;button aria-label=&quot;查看订单 SO-1003 详情&quot; ...&gt; aka getByRole(&#x27;button&#x27;, &#123; name: &#x27;查看订单 SO-1003 详情&#x27; &#125;)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>第一关那道“必须恰好命中一个”的检查，在这里的确显出价值了。它不只是说“你错了”：它说明了为什么错（匹配到 20 个），给出了每个候选的真实身份，最关键的是那句 <code>aka</code>，把改正后的 locator 写法一条条列给你了。这不是给人看的礼貌提示，这是一份写好的补丁。而且这大概不是巧合：从 1.51 起，Playwright 在 HTML 报告、Trace Viewer 和 UI Mode 的报错旁都放了一个按钮，叫 Copy prompt（见<a target="_blank" rel="noopener" href="https://playwright.dev/docs/release-notes">发布说明</a>）。</p>
+<p>修复的前提是复现：一个失败如果只活在那台机器上，换个人（或者换个 agent）就只能靠猜。好在它现在有了载体，现场在 <code>trace.zip</code> 里，该点哪儿写在 locator 里。于是同一个失败能在 CI 上产生，在本地打开，也能被另一个程序读。</p>
+<p><strong>可序列化不是“能被自动修复”的保证，但它是前提。</strong></p>
+<h2 id="六、为什么是这两年"><a href="#六、为什么是这两年" class="headerlink" title="六、为什么是这两年"></a>六、为什么是这两年</h2><p>四道关讲完了。这四件事其实 2020 年就做完了，只不过那时它们的读者只有人。为什么会用的机器多起来之后，它们突然都变得重要？</p>
+<table>
+<thead>
+<tr>
+<th>四道关</th>
+<th>对人</th>
+<th>对 Agent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>找到元素（locator 是描述）</td>
+<td>不用记 class 哈希</td>
+<td>一句能生成、能重放的描述</td>
+</tr>
+<tr>
+<td>判断能点（actionability）</td>
+<td>不用写等待</td>
+<td>动作有确定性</td>
+</tr>
+<tr>
+<td>送进浏览器（自有协议）</td>
+<td>一套 API 跑三个内核</td>
+<td>能被任何进程调用</td>
+</tr>
+<tr>
+<td>留下现场（trace）</td>
+<td>CI 挂了能复现</td>
+<td>失败是可传递的工件</td>
+</tr>
+</tbody></table>
+<p>换句话说，技术的价值常常要等另一个时代来证明。Playwright 不是为 agent 发明的，但它恰好把这四样东西都备齐了。</p>
+<p>先把官方自己的动作排一排（来源：<a target="_blank" rel="noopener" href="https://playwright.dev/docs/release-notes">发布说明</a>，日期取自 npm registry 的发布时间）：</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>时间</th>
+<th>与“给模型用”有关的动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.49</td>
+<td>2024-11-18</td>
+<td><code>toMatchAriaSnapshot</code> 断言落地</td>
+</tr>
+<tr>
+<td>1.51</td>
+<td>2025-03-06</td>
+<td>报错旁出现 Copy prompt 按钮</td>
+</tr>
+<tr>
+<td>1.56</td>
+<td>2025-10-06</td>
+<td><a target="_blank" rel="noopener" href="https://playwright.dev/docs/test-agents">Test Agents</a>（planner / generator / healer）</td>
+</tr>
+<tr>
+<td>1.57</td>
+<td>2025-11-25</td>
+<td>移除 <code>page.accessibility</code>，把能力收拢到结构化快照上</td>
+</tr>
+<tr>
+<td>1.59</td>
+<td>2026-04-01</td>
+<td><code>npx playwright trace</code>：命令行里分析 trace，给 agent 用</td>
+</tr>
+<tr>
+<td>1.60</td>
+<td>2026-05-11</td>
+<td>给快照加 <code>boxes</code> 选项，官方措辞：*”useful for AI consumption”*</td>
+</tr>
+<tr>
+<td>1.62</td>
+<td>2026-07-24</td>
+<td>把 MCP server 与 playwright-cli 打包进来（<code>npx playwright mcp</code>）</td>
+</tr>
+<tr>
+<td>1.63</td>
+<td>2026-09-04</td>
+<td>trace 里记录 aria 快照，Trace Viewer 新增 Display Aria 模式</td>
+</tr>
+</tbody></table>
+<p>2025 年 3 月，微软把 Playwright 包成了一个 MCP server（<a target="_blank" rel="noopener" href="https://github.com/microsoft/playwright-mcp">playwright-mcp</a>，建仓到 2026-10-03 已 37,776 star）。它的 README 第一段就把立场说透了：</p>
+<blockquote>
+<p><em>“enables LLMs to interact with web pages through structured accessibility snapshots, bypassing the need for screenshots or visually-tuned models.”</em></p>
+</blockquote>
+<p>再看它给模型的工具描述：<code>browser_snapshot</code> 的说明是 *”this is better than screenshot”*，而 <code>browser_take_screenshot</code> 是 *”You can’t perform actions based on the screenshot”*。（视觉能力要显式开：<code>--caps=vision</code>。）</p>
+<p>那“结构化”到底省了多少？官方其实没有给过量化声明，所以我自己量了一次：同一张组件库风格的页面（20 行表格、class 哈希、内联 style、<code>__NEXT_DATA__</code>），<code>page.content()</code> 出来是 12,805 个字符，<code>locator.ariaSnapshot()</code>（<a target="_blank" rel="noopener" href="https://playwright.dev/docs/aria-snapshots">ARIA snapshots</a>）出来是 2,286 个，17.9%。</p>
+<p>但体积其实只是副产品，形态才是重点。不妨看一眼 ARIA 快照长什么样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- heading &quot;订单工作台&quot; [level=1]</span><br><span class="line">- form &quot;筛选&quot;:</span><br><span class="line">  - textbox &quot;关键词&quot;:</span><br><span class="line">    - /placeholder: 输入订单号</span><br><span class="line">  - combobox &quot;状态&quot;:</span><br><span class="line">    - option &quot;全部&quot; [selected]</span><br><span class="line">- row &quot;SO-1001 张三 ¥1,280.00 待发货&quot;</span><br></pre></td></tr></table></figure>
+
+<p>没有 <code>css-1x1q7</code>，没有 <code>ant-table-cell</code>，没有构建产物留下的哈希。模型拿到的是词汇表（role、name、state），而不是渲染残渣，这恰好就是 <code>getByRole</code> 需要的输入：同一个抽象层，人和模型都能读。人看的是渲染出来的界面，模型看的是同一棵树，换的是观察方式，不是那一层。</p>
+<p><img src="../images/aria-vs-pixels.png" alt="左边是页面渲染出来的样子（像素），右边是同一个页面的 ARIA 快照（结构）">
+<em>同一个页面、同一时刻的两种表示：左边是人看到的像素，右边是模型读到的结构（Playwright 1.57.0，2026-10-01 复现并截图；左图是 620 像素宽视口的页面顶部 8 行）</em></p>
+<p>不过这里有个反转得说。同样是官方 README，在 2026 年给出了一个降温的说法：playwright-mcp 现在推荐 coding agent 改用 CLI + Skills（<a target="_blank" rel="noopener" href="https://github.com/microsoft/playwright-cli">microsoft/playwright-cli</a>），理由是 *”…avoid loading large tool schemas and verbose accessibility trees into the model context.”*。连 accessibility tree 都会被嫌啰嗦。</p>
+<p>这句话其实反而让整篇文章的论点更稳，但得说清楚它稳在哪：前面我量出 ARIA 快照比 HTML 小 5.6 倍，官方现在又说它依然太占地方。两件事不矛盾，因为被时代选中的从来不是“小”，而是可裁剪：2,286 个字符照样塞不进上下文，但它可以被切片、按需取一部分，HTML 那 12,805 个字符不行。</p>
+<p>所以这两年真正稀缺的东西，其实是好的工具接口：能描述、能观察、能行动、能验证、能留下现场，还能被另一个程序重新消费。</p>
+<p><strong>当“给模型消费”这几个字开始出现在发布说明里，剩下的就不用我多说了。</strong></p>
+<h2 id="七、什么时候我不换"><a href="#七、什么时候我不换" class="headerlink" title="七、什么时候我不换"></a>七、什么时候我不换</h2><p>第六节说的是 Playwright 拿到了什么。但“一层能力”这个说法有个副作用：容易被读成“应用的形态过时了”。所以这里得把边界补上。</p>
+<p><strong>组件测试，我仍然会先看 Cypress。</strong> 它有官方的 mounting library 和 bundler 集成（React、Vue、Angular、Svelte 都有）。Playwright 的组件测试到 1.62 才换成 <code>mount()</code> fixture 加自建 dev server 的 stories 模型，1.63 又宣布三个 <code>experimental-ct-*</code> 包不再更新。对以组件为主的团队来说，迁移成本是实打实的。</p>
+<p><strong>调试联动性，是 Playwright 的真实短板。</strong> Cypress 的测试和应用跑在同一个 JS 事件循环里，在 devtools 里下一个断点，两边会一起停住；Playwright 的 runner 和应用则是两个进程，联动调试要麻烦得多。（口径：这是 Gleb Bahmutov 的<a target="_blank" rel="noopener" href="https://glebbahmutov.com/blog/cy-vs-pw-browser/">个人观点</a>，不是官方结论，但的确是内行话。）</p>
+<p><strong>另外两类场景也别硬换</strong>：Selenium 的六种语言绑定加 Grid 编排，是多语言或企业遗留团队的结构性优势；纯抓取和轻量脚本，谁也不想先装一个测试运行器，Puppeteer 在这条路上仍然稳。</p>
+<p>还有一件得坦白说：Playwright 不会自动消灭 flaky 测试。我手头那个用 <code>@playwright/test</code> 的项目里就留着反面教材：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> firstHistoryItem = page.locator(<span class="string">&#x27;.home-history-item&#x27;</span>).first();</span><br><span class="line"><span class="keyword">await</span> page.waitForTimeout(<span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<p><code>waitForTimeout(1000)</code> 和开头那个 <code>sleep(800)</code> 是同一种东西，只是换了个更时髦的名字。<strong>换工具不会消灭 flake，它只是把 flake 从“语言层面”挪到了“用法层面”。</strong> 换一副鞍具也不会自动让马跑得更快（“鞍具”这个说法来自上一篇横评《<a href="https://springuper.github.io/agent-harness-comparison/">给大脑配一副好鞍具</a>》，再往前那篇《<a href="https://springuper.github.io/pi-harness-anatomy/">积木，而非成品</a>》拆的是同一个问题的另一个样本）。</p>
+<p>所以这一节的结论是：<strong>Cypress 不是被打败的，是被“换了用法”绕过去的。</strong> 你如果只写给人看的组件测试，它仍然是好选择；你要的如果是一层能被别的程序消费的能力，那现在只有 Playwright 够用。这两件事不是同一个问题的两个答案，是两个问题。</p>
+<h2 id="八、把数字摆齐"><a href="#八、把数字摆齐" class="headerlink" title="八、把数字摆齐"></a>八、把数字摆齐</h2><p>坦白说，机制讲完了还得看采用。以下数据都是 2026-10-03 抓的。它们证明不了 Playwright 在所有测试场景都更好，只说明一件事：浏览器自动化正在往一处集中。</p>
+<p><a target="_blank" rel="noopener" href="https://2025.stateofjs.com/en-US/libraries/testing/">State of JS 2025</a>（13,002 人，调查期 2025-09-24 到 11-11）：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>使用率</th>
+<th>留存率</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Playwright</td>
+<td>50%</td>
+<td>94%</td>
+<td>2024 年是 36%，+14pp，官方称与 Vitest 并列最大涨幅</td>
+</tr>
+<tr>
+<td>Cypress</td>
+<td>47%</td>
+<td>57%</td>
+<td>2022 年留存是 84%</td>
+</tr>
+<tr>
+<td>Puppeteer</td>
+<td>42%</td>
+<td>70%</td>
+<td></td>
+</tr>
+<tr>
+<td>Selenium</td>
+<td>37%</td>
+<td>24%</td>
+<td>2022 年留存是 42%</td>
+</tr>
+</tbody></table>
+<p>比使用率更值得看的倒是留存：94% 对 57%。同一周（2026-09-26 到 10-02，取自 <a target="_blank" rel="noopener" href="https://api.npmjs.org/downloads/point/2026-09-26:2026-10-02/playwright">npm registry API</a>），playwright 的下载量是 1.09 亿，Puppeteer 1,200 万，Cypress 621 万，Selenium 的 JS 绑定 187 万，也就是 9 倍、17 倍和 58 倍。按 star 看，playwright 97,029 颗，puppeteer 95,644 颗，几乎打平。<strong>star 数是“多少人觉得它值得收藏”，不是“多少人在用”</strong>，星标打平、下载量差 9 倍，这个剪刀差就是“工具定位不同”最直观的证据：Puppeteer 还是抓取和脚本的第一选择，只是那条赛道上没有测试。</p>
+<p>说“Cypress 完了”，其实既不准确也不厚道。它在下滑，但没停：2024 年<a target="_blank" rel="noopener" href="https://www.cypress.io/blog/update-on-cypresss-workforce">裁员 11 人</a>，2026-09-01 照常发布 <a target="_blank" rel="noopener" href="https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support">Cypress 16</a>；这两年它一直在 AI 上押注，甚至出了一份《<a target="_blank" rel="noopener" href="https://docs.cypress.io/app/guides/migration/playwright-to-cypress">Playwright → Cypress 迁移指南</a>》。守势是真的，停更不是。</p>
+<p>还有一条数字倒是反过来的，得摆在这儿：按 <a target="_blank" rel="noopener" href="https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/playwright">ecosyste.ms</a> 统计，cypress 被 6,559 个包反向依赖，playwright 只有 1,947 个。下载量赢了 17 倍，但“嵌进别人项目里”这件事 Cypress 仍然更多，这是存量与增量的差别，不写出来就是选择性取证。</p>
+<p>Selenium 也还在跑（4.50，2026-09-30 发布），只是 24% 的留存率把痛点写在了脸上：正是“等待和会话”这两件它当年留给用户的事。</p>
+<p>有几条流传很广的说法，我顺手核了一遍：</p>
+<table>
+<thead>
+<tr>
+<th>常见说法</th>
+<th>实际情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“Puppeteer 只支持 Chrome”</td>
+<td>v23.0.0（2024-08）起同时支持 Chrome 与 Firefox（Firefox 走 BiDi）</td>
+</tr>
+<tr>
+<td>“WebDriver 是 W3C 标准”</td>
+<td>只有 Level 1 是 2018 Recommendation；<a target="_blank" rel="noopener" href="https://www.w3.org/TR/webdriver2/">Level 2</a> 与 <a target="_blank" rel="noopener" href="https://www.w3.org/TR/webdriver-bidi/">WebDriver BiDi</a> 至今仍是 Working Draft</td>
+</tr>
+<tr>
+<td>“Browser Use / Stagehand 都是基于 Playwright 的”</td>
+<td>均未见直接依赖：Browser Use 用自研 <code>cdp-use</code>，发布出来的 <code>@browserbasehq/stagehand</code> 依赖 <code>@browserbasehq/sdk</code>（同一个 monorepo 里的 integrations、evals 包倒是把 playwright 列成了 devDependency）；Skyvern 才是直接依赖 <code>playwright</code></td>
+</tr>
+<tr>
+<td>“Claude Code / Codex / Cursor 官方默认推荐 Playwright”</td>
+<td>未验证。能确认的只有 Playwright 侧提供了这几家的接入命令，反向的官方表态我没找到</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>口径与免责：npm 下载量含 CI 里的重复安装、镜像同步和间接依赖，它是量级指标而不是用户数，<code>playwright</code> 这个包还被大量用于抓取，不全是测试。正文里的耗时、报错、ARIA 比例都是我自己在本机量的；版本号与下载量都只是 2026-10-03 的快照，引用请以当时为准。</p>
+</blockquote>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>把全文收进一张表，方便你直接贴到团队文档里：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>形态</th>
+<th>抽象画在哪</th>
+<th>读者</th>
+<th>2026 年的处境</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Selenium</td>
+<td>协议 + 各家 driver</td>
+<td>协议层，等待交给人</td>
+<td>人</td>
+<td>仍在维护，留存率下滑</td>
+</tr>
+<tr>
+<td>Puppeteer</td>
+<td>库</td>
+<td>浏览器控制层</td>
+<td>脚本作者</td>
+<td>抓取场景稳固，测试场景不参与</td>
+</tr>
+<tr>
+<td>Cypress</td>
+<td>应用（测试在它里面跑）</td>
+<td>链式 DSL + 浏览器内运行</td>
+<td>人</td>
+<td>转入守势，组件测试仍有优势</td>
+</tr>
+<tr>
+<td>Playwright</td>
+<td>库（runner 建在库上）</td>
+<td>语义定位 + 可序列化 + 可回放</td>
+<td>人，以及模型</td>
+<td>使用率与留存双第一</td>
+</tr>
+</tbody></table>
+<p>一句话总结这篇长文：<strong>浏览器自动化从“一个应用”变成了一层“可以被调用的能力”。Playwright 赢的不是测试，它赢的是这一层。</strong> 至于 AI，它不是这场换代的原因，它是把这件事的价值放大了一档的那阵风。</p>
+<p>这篇里的数据我其实核了两遍，但开源世界变化快，难免有疏漏；我对 Playwright 的用法也还在摸索，谈不上什么最佳实践。如果你在迁移路上踩到了不一样的坑，或者发现文中哪里写错了，欢迎指出、欢迎交流。也不妨拿自己项目里最 flaky 的那条用例试一遍，再回来说说体会。权当这篇是一次公开的读书笔记，能对你有点用，就算是额外的收益了。</p>
+<h3 id="彩蛋"><a href="#彩蛋" class="headerlink" title="彩蛋"></a>彩蛋</h3><p>第三关引过的那份 2020 年的 FAQ 里，有一节专门回答“Playwright 用哪些浏览器版本”，开头第一句是：</p>
+<blockquote>
+<p>Playwright <strong>does not patch the rendering engines</strong>. It either uses stock versions of the browsers (Chromium) or extends remote debugging protocols of the respective browsers (WebKit, Firefox) for better automation. Our browsers are as pure as they can be.</p>
+</blockquote>
+<p>同一节里，他们给补丁安排了一个期限：补丁会持续往上游提，等关键改动能落地，就切回“上游优先”的模式；在那之前，WebKit 和 Firefox 的补丁“for now”放在 <code>browser_patches/</code> 下。六年后的今天，官方文档写的是“Playwright 依赖补丁，用不了品牌版 Firefox”，第三关那张表里的 Firefox 走的还是打过补丁的 <code>-juggler-pipe</code>，而 <code>browser_patches/</code> 这个目录还在，两套都在。那个“for now”，用了六年。</p>
+<p>还有个更小的。当年团队判断“能不能上生产”，靠的是挂在维护者 <code>aslushnikov</code> 个人域名下的一个页面：<a target="_blank" rel="noopener" href="https://aslushnikov.github.io/isplaywrightready/">Is Playwright Ready?</a>（那份 FAQ 里点名推荐过它），逐内核列出还没通过的测试。我今天打开，整页倒只剩一句：<strong>Is Playwright ready? YES!</strong> 六年的测试矩阵，被收进这两个词里。</p>
+<p><strong>承诺会过期，目录不会。</strong></p>
+<hr>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>官方文档与发布说明：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://playwright.dev/docs/actionability">Playwright - Actionability（可操作性判定）</a></li>
+<li><a target="_blank" rel="noopener" href="https://playwright.dev/docs/locators">Playwright - Locators</a> / <a target="_blank" rel="noopener" href="https://playwright.dev/docs/handles">ElementHandle（已标注不推荐）</a></li>
+<li><a target="_blank" rel="noopener" href="https://playwright.dev/docs/aria-snapshots">Playwright - ARIA snapshots</a> / <a target="_blank" rel="noopener" href="https://playwright.dev/docs/trace-viewer">Trace Viewer</a></li>
+<li><a target="_blank" rel="noopener" href="https://playwright.dev/docs/test-agents">Playwright - Test Agents（planner / generator / healer）</a> / <a target="_blank" rel="noopener" href="https://playwright.dev/docs/release-notes">Release notes</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/microsoft/playwright-mcp">microsoft/playwright-mcp（README）</a> / <a target="_blank" rel="noopener" href="https://github.com/microsoft/playwright-cli">microsoft/playwright-cli（CLI + Skills）</a></li>
+<li><a target="_blank" rel="noopener" href="https://pptr.dev/faq">Puppeteer - FAQ（定位与浏览器支持）</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/puppeteer/juggler">puppeteer/juggler（已归档：Firefox 为 Puppeteer 写的自动化协议）</a> / <a target="_blank" rel="noopener" href="https://github.com/puppeteer/puppeteer/blob/7f7887ed11930f96cb64bb086fad5c29086b8ef2/experimental/puppeteer-firefox/README.md">puppeteer-firefox（已废弃的原型，自带 Firefox 构建）</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.cypress.io/app/references/module-api">Cypress - Module API（只有 run / open / parseRunArguments）</a> / <a target="_blank" rel="noopener" href="https://docs.cypress.io/app/get-started/why-cypress">Why Cypress（同一事件循环）</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.cypress.io/app/core-concepts/interacting-with-elements">Cypress - Interacting with elements（七项检查）</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support">Cypress 16 发布</a> / <a target="_blank" rel="noopener" href="https://www.cypress.io/blog/update-on-cypresss-workforce">Update on Cypress’s Workforce</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.selenium.dev/history/">Selenium - History（同源策略与 driven 模式）</a> / <a target="_blank" rel="noopener" href="https://www.selenium.dev/documentation/webdriver/waits/">Waits（显式等待即轮询循环）</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.w3.org/TR/webdriver1/">W3C WebDriver Level 1（2018 Recommendation）</a> / <a target="_blank" rel="noopener" href="https://www.w3.org/TR/webdriver2/">Level 2（Working Draft）</a> / <a target="_blank" rel="noopener" href="https://www.w3.org/TR/webdriver-bidi/">WebDriver BiDi（Working Draft）</a></li>
+</ul>
+<p>数据与观点来源：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://2025.stateofjs.com/en-US/libraries/testing/">State of JavaScript 2025 - Testing</a></li>
+<li><a target="_blank" rel="noopener" href="https://api.npmjs.org/downloads/point/2026-09-26:2026-10-02/playwright">npm registry downloads API</a>（对比 <a target="_blank" rel="noopener" href="https://api.npmjs.org/downloads/point/2026-09-26:2026-10-02/cypress">cypress</a>、<a target="_blank" rel="noopener" href="https://api.npmjs.org/downloads/point/2026-09-26:2026-10-02/puppeteer">puppeteer</a>）</li>
+<li><a target="_blank" rel="noopener" href="https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/playwright">ecosyste.ms（反向依赖统计）</a></li>
+<li><a target="_blank" rel="noopener" href="https://glebbahmutov.com/blog/cy-vs-pw-browser/">Cypress vs Playwright; Browser Included — Gleb Bahmutov（个人观点）</a></li>
+</ul>
+<p>延伸阅读（我自己的前几篇）：</p>
+<ul>
+<li>《<a href="https://springuper.github.io/agent-harness-comparison/">给大脑配一副好鞍具：五款 Agent Harness 的解剖与实测</a>》：同一个“形态决定上限”的问题，看的是模型外面那层壳</li>
+<li>《<a href="https://springuper.github.io/pi-harness-anatomy/">积木，而非成品：Pi Agent Harness 的克制与精妙</a>》：同一套拆解方法的另一个样本</li>
+</ul>
+<blockquote>
+<p>版本与核实说明：数据（下载量、调查、star、反向依赖）与彩蛋里那个页面的状态都核于 2026-10-03；文中代码都在本机实跑过：Playwright 1.57.0 + Node 24.13.0、Puppeteer 25.12.0 + Chrome for Testing 154、Cypress 16.1.1，输出是当时的终端原文，不是手写示意。（Playwright 本机锁在 1.57，撰写时最新是 1.63，1.60 之后的能力都以官方发布说明为准。）Selenium 那段沿革来自官方 History 页，没有实跑（跑它要另装 JDK、Maven 和 ChromeDriver）。四张图都在本机实拍：三种点法的动图与 Trace Viewer 实拍摄于 2026-09-19，ARIA 对比图与按钮三态图摄于 2026-10-01（字符数与 9 月 19 日那次一致）。凡官方没有量化声明的地方，文中都写明了那是我自己量的。</p>
+</blockquote>
+
+    
+  </div>
+
+  
+  <!-- Post Copyright -->
+
+<div class="post-copyright">
+  <p class="copyright-item">
+    <span>Author: </span>
+    <a href="https://springuper.github.io">Chun Shang</a>
+  </p>
+  <p class="copyright-item">
+    <span>Link: </span>
+    <a href="https://springuper.github.io/playwright-click-anatomy/">https://springuper.github.io/playwright-click-anatomy/</a>
+  </p>
+  <p class="copyright-item">
+    <span>License: </span>
+    
+    <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+  </p>
+</div>
+
+    
+
+  
+
+  
+  <footer class="post-footer">
+    
+    <div class="post-tags">
+      
+      <a href="/tags/AI/">AI</a>
+      
+      <a href="/tags/Agent/">Agent</a>
+      
+      <a href="/tags/Frontend/">Frontend</a>
+      
+      <a href="/tags/Playwright/">Playwright</a>
+      
+      <a href="/tags/Testing/">Testing</a>
+      
+      <a href="/tags/E2E/">E2E</a>
+      
+    </div>
+    
+      
+  <nav class="post-nav">  
+      
+      
+      <a class="next" href="/pi-harness-anatomy/">  
+        <span class="next-text nav-default">积木，而非成品：Pi Agent Harness 的克制与精妙</span>  
+        <span class="prev-text nav-mobile">Next</span>  
+        <i class="iconfont icon-right"></i>  
+      </a>  
+      
+  </nav>  
+  
+
+  </footer>
+  
+
+</article>
+        </div>
+          
+  <div class="comments" id="comments">  
+      
+      <div id="utterances-container"></div>  
+      
+  </div>  
+  
+
+      </div>
+    </main>
+    <footer id="footer" class="footer">
+      <!-- Social Links -->
+
+<div class="social-links">
+  
+  
+  
+  
+  <a href="mailto:springuper@gmail.com" class="iconfont icon-email" title="email"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://twitter.com/springuper" class="iconfont icon-twitter" title="twitter"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://www.linkedin.com/in/chun-shang-45a41241/" class="iconfont icon-linkedin" title="linkedin"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://github.com/springuper" class="iconfont icon-github" title="github"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/shang-chun" class="iconfont icon-zhihu" title="zhihu"></a>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+  
+</div>
+
+
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+  <span class="division">|</span>
+  <span class="hosting-info">
+    footer.hosting
+  </span>
+
+  <span class="copyright-year">
+    <span>
+      
+      &copy;
+      
+      2011 - 2026      
+    </span>
+
+    <span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+
+    <span class="author">Chun Shang</span>
+  </span>
+
+</div>
+    </footer>
+    <div class="back-to-top" id="back-to-top"> <i class="iconfont icon-up"></i> </div>
+  </div>
+    
+    
+    
+    
+    
+  
+<script>
+  var container = document.getElementById('utterances-container');
+  var script = document.createElement('script');
+  script.src = 'https://utteranc.es/client.js';
+  script.setAttribute('repo', 'springuper/springuper.github.io');
+  script.setAttribute('issue-term', 'pathname');
+  script.setAttribute('theme', 'github-light');
+  script.setAttribute('label', 'utterances');
+  script.crossorigin = 'anonymous';
+  script.async = true;
+
+  container.appendChild(script);
+</script>
+  
+    
+  
+
+  
+
+
+
+
+
+
+
+<script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+
+
+
+<script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+
+
+
+<script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+
+</html>

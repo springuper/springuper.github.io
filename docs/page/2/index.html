@@ -175,6 +175,56 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/ask-with-answers/">带着“答案”去提问</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2023-05-30
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>前几天，一位美国团队的负责人跟我谈到了他团队里的两位工程师。其中一个工程师每周和他一对一沟通的时候都提出了好几个技术性的问题，诸如：</p>
+<ul>
+<li>调试过程中发现本地环境遇到一个错误跑不起来</li>
+<li>在测试环境下面各种参数如何调节</li>
+<li>压力测试中发现的一些新的不及预期的现象</li>
+</ul>
+<p>如此等等。总结下来，他感觉这位高级工程师更像是一个 Problem Maker，在不断地需要他介入到特别细枝末节的地方，给出具体的意见后才能进一步开展工作。</p>
+<p>相比之下，另一位工程师则会在一对一沟通中除了汇报主要进展外，也会提出一两个接下来需要重点关注的问题。不同的是，那位工程师除了抛出问题外，还会提出几个他考虑到的可行性方案，并虚心跟他讨教。这位负责人笑着跟我说这样的团队成员才是他心目中称职的“高级”工程师，是典型的 Problem Solver。</p>
+<p>这个案例彰显出“带着答案去提问”的重要价值，尤其在远程协作或者大型组织等沟通渠道弥足珍贵的环境中，这种能力更值得重视和培养。接下来我们从几个方面阐释其中的内涵。</p>
+    <div class="read-more">
+      <a href="/ask-with-answers/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/react-context/">基于 Context 做 React 状态管理</a>
       
     </h1>
@@ -639,60 +689,6 @@
 </ul>
     <div class="read-more">
       <a href="/recruitment-driven-organization/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/react-hooks/">React Hooks 原理剖析</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2021-08-31
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p>自 19 年 <a target="_blank" rel="noopener" href="https://reactjs.org/blog/2019/02/06/react-v16.8.0.html">React 16.8</a> 正式发布 Hooks 以来，已然在社区中形成了席卷之势，甚至也影响到了很多其它前端库以及框架。目前介绍如何使用 Hooks 的文章汗牛充栋，本文着重从原理层面，从零开始构建一个简化版 Hooks 实现，期望能够让你知其然也知其所以然，更好地把握和运用 Hooks。</p>
-<h2 id="为什么要引入-Hooks？"><a href="#为什么要引入-Hooks？" class="headerlink" title="为什么要引入 Hooks？"></a>为什么要引入 Hooks？</h2><p>React 团队的解释是目前以 React.Component 类为主的组件实现方式下，存在如下<a target="_blank" rel="noopener" href="https://reactjs.org/docs/hooks-intro.html#motivation">三方面问题</a>：</p>
-<ol>
-<li><strong>组件之间一些包含状态的逻辑很难拆分复用</strong> 因为函数式组件不能处理状态，且之前 Mixin 模式已被证伪，目前社区主流的 HoC 和 render props  模式也被诟病导致 wrapper hell</li>
-<li><strong>复杂的大型组件越发难以理解和维护</strong> 关联紧密的逻辑被迫分散在各个 lifecycle 方法中，非常容易出现疏漏</li>
-<li><strong>组件类的方式对开发者和机器都不友好</strong> 难以理解的 this，回调函数需要手动绑定，还有很多诸如此类的组件类模式的认知成本，导致新手入门难度高。同样地，组件类因为有内部状态、继承逻辑等特征，对编译器的各种优化也非常不友好</li>
-</ol>
-<p>Dan 在 React Conf 2018 大会上介绍完这几个问题后，也再进一步地说明其实这三个问题本质是一个问题的三种体现而已。而这个本质的问题就是：</p>
-<blockquote>
-<p>React does not provide a simpler, smaller, lightweight primitive to add state and lifecycle than a class component.</p>
-</blockquote>
-<p>换言之，React 本身非常函数式的设计哲学， <img src="../images/react-hooks-01.jpg" alt="fn(data) = UI"> ，并没有被当前组件类模式很好地表达。</p>
-<p>为了彻底解决这一问题，在 React 团队的 Sebastian 等人的带领下，经过参考和探索诸如 <a target="_blank" rel="noopener" href="https://github.com/reactjs/react-future/blob/master/07%20-%20Returning%20State/01%20-%20Stateful%20Functions.js">Stateful Functions</a>、<a target="_blank" rel="noopener" href="http://displayscript.org/introduction.html">DisplayScript</a>、<a target="_blank" rel="noopener" href="https://github.com/ocamllabs/ocaml-effects-tutorial#2-effectful-computations-in-a-pure-setting">Algebraic effects in Multicore OCaml</a> 等方案后，给出了 React Hooks 方案。</p>
-    <div class="read-more">
-      <a href="/react-hooks/" class="read-more-link">Read more..</a>
     </div>
     
     

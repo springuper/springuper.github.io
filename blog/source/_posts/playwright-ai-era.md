@@ -36,7 +36,7 @@ await page.getByRole('button', { name: '提交' }).click();
 
 ## 一、同一颗按钮，四种写法
 
-要讲换代，得先知道上一代各自解决了什么问题，以及它们的设计对象是谁。
+要讲换代，得先把四家摆到同一件小事上，看看各自的设计对象是谁。
 
 我用同一件小事来演示：点一颗“600 毫秒后才可用”的提交按钮。下面四段代码都对着这一个页面写，被测文件就是一个存成 HTML 就能直接打开的静态文件：
 
@@ -67,7 +67,7 @@ await page.getByRole('button', { name: '提交' }).click();
 
 ### Selenium：为「企业的测试生态」设计
 
-要说清 Selenium 是什么，得先看它一开始卡在哪。它 2004 年出生在芝加哥的 ThoughtWorks，最早就是一段跑在浏览器里的 JavaScript，出不了同源策略那道墙：浏览器不许一段脚本去操作另一个域名的页面，跨域和跨窗口就动不了。
+要说清 Selenium 是什么，得先看它卡在哪。它 2004 年出生在芝加哥的 ThoughtWorks，最早就是一段跑在浏览器里的 JavaScript，出不了同源策略那道墙：浏览器不许一段脚本去操作另一个域名的页面，跨域和跨窗口就动不了。
 
 为了绕开这道墙，ThoughtWorks 的 Paul Hammant 提了一个“driven 模式”：把浏览器当成远端，用你熟悉的语言从外面发指令，中间再放一台 server 当代理。那台 server 就是 Selenium RC（沿革来自官方的 [Selenium History](https://www.selenium.dev/history/)）。
 
@@ -153,7 +153,7 @@ Cypress 是 2015 年出现的，野心很不一样：把测试写成一件愉快
 
 在“给人用”这件事上，它的确做到了极致。而且有个细节大概会让很多人意外：它的 actionability 检查项**比 Playwright 还多**（visible / disabled / detached / readonly / animations / covering / scrolling，七项，比后者四项多），它也会盯着 DOM 不断重跑查询（[官方原文](https://docs.cypress.io/app/core-concepts/interacting-with-elements)：*"Cypress will watch the DOM - re-running the queries that yielded the current subject…"*）。
 
-“Cypress 不会自动等待”是流传很广的说法，不妨自己验一下。我本来打算照抄，实测之后改了主意。我写了一个完全不带等待的用例：
+“Cypress 不会自动等待”是流传很广的说法，不妨自己验一下。我本来打算照抄，实测之后改了主意，写了一个完全不带等待的用例：
 
 ```js
 cy.visit('/order.html');
@@ -187,6 +187,30 @@ describe('下单', () => {
 
 最后这半句，是下一节的入口。
 
+### Playwright：为「人和机器」设计
+
+同一颗按钮，Playwright 这一段最短（`npm i -D playwright && npx playwright install chromium` 之后就能跑）：
+
+```js
+const { chromium } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto('file:///path/to/order.html');
+
+  await page.getByRole('button', { name: '提交订单' }).click();
+  console.log('页面上的结果：' + await page.locator('#result').textContent());
+  await browser.close();
+})();
+```
+
+没有 `waitForFunction`，没有 `sleep`，也没有断言库：条件什么时候成立，这一行 `click()` 自己判断。输出：
+
+```text
+页面上的结果：已提交
+```
+
 ### 一张图收束
 
 ```
@@ -195,7 +219,7 @@ describe('下单', () => {
 抽象层级低    Selenium    Puppeteer
 ```
 
-四个人都在“自动化浏览器”这一格，但各自把抽象画在了不同的高度、面向了不同的读者。同一颗按钮、四段代码，差别倒是不在语法糖，而在把哪一层抽象留给你自己。
+四个人都在“自动化浏览器”这一格，只是抽象画在不同的高度、面向不同的读者。同一颗按钮、四段代码，差别就在把哪一层抽象留给你自己。
 
 不过这张图倒是解释不了换代：**在“工具自己判断条件”这件事上，Cypress 和 Playwright 是同一档的**，它甚至在检查项上更多。所以换代的原因不在这里。下面两节分头回答两个问题：Playwright 凭什么赢，以及为什么偏偏是这两年。
 
@@ -213,7 +237,7 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 
 ### 第一样：一层能力可以供多个消费者
 
-同一份接口既能写测试，又能写脚本，还能喂给 agent。下载量上有个很直白的痕迹：`playwright` 这个包的量级远高于任何测试框架该有的水平，因为它同时被抓取、脚本和各种自动化工具在用。
+同一份接口既能写测试，又能写脚本，还能喂给 agent。下载量上有个痕迹：`playwright` 这个包的量级远高于测试框架该有的水平，因为抓取和别的自动化工具也在用它。
 
 反过来看更能说明问题：playwright-mcp 能在 2025 年 3 月被建起来，前提就是 Playwright 在别人的进程里跑得起来。Cypress 做不了这件事，不是没人写，是它的形态不允许。
 
@@ -236,7 +260,7 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 
 这里的“一视同仁”指三个内核都由同一套 API 一等公民地支持，不是“能不能跑起来”：Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。
 
-不过这件事看着像开个 flag 就行。真翻一遍，是三层叠起来的。
+这件事看着像开个 flag 就行。真翻一遍，是三层叠起来的。
 
 第一层，语言绑定和浏览器之间隔了一个进程。你在 JS、Python、Java 里调的是同一份实现，它启动一个独立的 driver 子进程，通过 Playwright 自有协议（仓库里的 `packages/protocol/spec/*.yml`）跟它说话。所以它既不是 WebDriver 的又一家绑定，也不是 CDP 的封装。
 
@@ -335,26 +359,7 @@ MCP 的 README 里还有一句我很喜欢的话，几乎是这个时代的判�
 
 这里不妨补一句公道话：这套检查 Cypress 也有，而且更多（它比这四个多出 detached、readonly、covering 三项）。所以 actionability 不是 Playwright 赢 Cypress 的地方，它赢的是上一代：Selenium 和 Puppeteer 把判据留给人写，而这两家都把它变成了默认行为。
 
-说得再顺口，也不如跑一次。回到第一节那颗按钮，Playwright 的完整脚本是这样（装好 playwright 并 `npx playwright install chromium` 就能跑）：
-
-```js
-const { chromium } = require('playwright');
-
-(async () => {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-  await page.goto('file:///path/to/order.html');
-
-  const started = Date.now();
-  await page.getByRole('button', { name: '提交订单' }).click();
-
-  console.log(`点击完成，用时 ${Date.now() - started} 毫秒`);
-  console.log('页面上的结果：' + await page.locator('#result').textContent());
-  await browser.close();
-})();
-```
-
-输出：
+说得再顺口，也不如跑一次。还是第一节那颗按钮，给那段脚本加一行计时，跑出来是这样：
 
 ```text
 点击完成，用时 858 毫秒
@@ -395,7 +400,7 @@ ARIA 快照里的那一项            →  - text: 提交订单   # 降级成一
 
 所以这条路对页面是有要求的：**你的界面得先有语义。** 这听着像额外成本，其实是一鱼三吃，同一套标记同时喂饱三件事：屏幕阅读器、`getByRole`，以及 agent 读到的 ARIA 快照。我手头项目的 e2e 里就有一条断言：关键操作要有 `aria-label`，不要用 `title`。
 
-语义化之后，“可重放”才有了载体。真正让我改变判断的，是下面这段报错原文。这是我本机跑 Playwright 1.57.0（Node 24）时真抓到的，我构造了一个 20 行订单列表，然后故意用模糊定位去点它：
+语义化之后，“可重放”才有了载体。真正让我改变判断的，是下面这段报错原文。这是我本机跑 Playwright 1.57.0（Node 24）时真抓到的：我构造了一个 20 行订单列表，故意用模糊定位去点它。
 
 ```
 locator.click: Error: strict mode violation: getByRole('button', { name: '查看' }) resolved to 20 elements:
@@ -465,7 +470,7 @@ await page.waitForTimeout(1000);
 
 ## 五、把数字摆齐
 
-坦白说，设计讲完了还得看它有没有被采用。以下数据都是 2026-09-19 抓的。
+坦白说，设计讲完了还得看采用。以下数据都是 2026-09-19 抓的。
 
 [State of JS 2025](https://2025.stateofjs.com/en-US/libraries/testing/)（13,002 人，调查期 2025-09-24 到 11-11）：
 
@@ -487,7 +492,7 @@ cypress             =
 selenium-webdriver  -     （不足一格）
 ```
 
-对上 Puppeteer 是 8 倍，对 Cypress 是 14 倍，对 Selenium 的 JS 绑定是 47 倍。还有个反直觉的数字：按 star 看，playwright 96,334 颗，puppeteer 95,593 颗，几乎打平。**star 数是“多少人觉得它值得收藏”，不是“多少人在用”**，星标打平、下载量差 8 倍，这个剪刀差就是“工具定位不同”最直观的证据：Puppeteer 还是抓取和脚本的第一选择，只是那条赛道上没有测试。
+对上 Puppeteer 是 8 倍，对 Cypress 是 14 倍，对 Selenium 的 JS 绑定是 47 倍。按 star 看，playwright 96,334 颗，puppeteer 95,593 颗，几乎打平。**star 数是“多少人觉得它值得收藏”，不是“多少人在用”**，星标打平、下载量差 8 倍，这个剪刀差就是“工具定位不同”最直观的证据：Puppeteer 还是抓取和脚本的第一选择，只是那条赛道上没有测试。
 
 说“Cypress 完了”，其实既不准确也不厚道。它在下滑，但没停：2024 年[裁员 11 人](https://www.cypress.io/blog/update-on-cypresss-workforce)，2026-09-01 照常发布 [Cypress 16](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support)；这两年它一直在 AI 上押注，甚至出了一份《[Playwright → Cypress 迁移指南](https://docs.cypress.io/app/guides/migration/playwright-to-cypress)》。守势是真的，停更不是。
 

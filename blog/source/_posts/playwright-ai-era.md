@@ -185,8 +185,6 @@ describe('下单', () => {
 
 代码倒是四家里看着最舒服的，但代价在别处：它必须有真正的浏览器外壳才能跑起来。我这次装完，`node_modules/cypress` 只有 7.3 MB，真正的执行体是它下载到缓存里的 641 MB 应用：测试是被这个应用带着跑的，而不是被一行 `require` 拉起来的库。
 
-最后这半句，是下一节的入口。
-
 ### Playwright：为「人和机器」设计
 
 同一颗按钮，Playwright 这一段最短（`npm i -D playwright && npx playwright install chromium` 之后就能跑）：

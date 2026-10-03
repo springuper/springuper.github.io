@@ -69,11 +69,13 @@ await page.getByRole('button', { name: '提交' }).click();
 
 ### Selenium：为「企业的测试生态」设计
 
-Selenium 是这一行的老前辈，核心遗产是协议：WebDriver。2018 年它成了 W3C Recommendation，“用任何语言驱动任何浏览器”从此有了标准。（顺带说清一个容易被夸大的说法：升级成标准的只有 Level 1，现行的 [Level 2](https://www.w3.org/TR/webdriver2/) 和 [WebDriver BiDi](https://www.w3.org/TR/webdriver-bidi/) 到 2026 年 9 月都还是 Working Draft，BiDi 最近一版发在 9 月 30 日。）
+要说清 Selenium 是什么，得先看它一开始卡在哪。它 2004 年出生在芝加哥的 ThoughtWorks，最早就是一段跑在浏览器里的 JavaScript，出不了同源策略那道墙：浏览器不许一段脚本去操作另一个域名的页面，跨域和跨窗口就动不了。为了绕开这道墙，ThoughtWorks 的 Paul Hammant 提了一个“driven 模式”：把浏览器当成远端，用你熟悉的语言从外面发指令，中间再放一台 server 当代理。那台 server 就是 Selenium RC（这一段沿革来自官方的 [Selenium History](https://www.selenium.dev/history/)）。
 
-说它“面向企业”，其实是很具体的四件事：六种语言绑定（Java、Python、C#、Ruby、JavaScript、Kotlin），让后端用 Java、数据用 Python 的团队不必为了统一测试工具去统一技术栈；Grid 负责把测试分发到几十台机器上并行跑，这部分别的工具基本不碰，Puppeteer 官方 FAQ 就明说 Grid 超出它范围；[云厂商按协议供货](https://www.selenium.dev/sponsor/)，BrowserStack、TestMu AI 都是官方列的 Development Partner，基建不用自己搭；再加上中立治理，它自 [2011 年](https://sfconservancy.org/news/2011/feb/02/selenium-joins/)起就挂在 Software Freedom Conservancy 名下，不属于任何一家浏览器厂商。
+这一步定下了它往后二十年的形状：它在你的代码和浏览器之间留了一层协议。所以 Selenium 今天其实不是一款软件，而是一份契约加一群实现，一边是 WebDriver 协议（[Level 1 在 2018 年成了 W3C Recommendation](https://www.w3.org/TR/webdriver1/)），另一边是各家浏览器厂商提供的 driver，加上六种语言绑定（Java、Python、C#、Ruby、JavaScript、Kotlin）。
 
-这套协议换来了跨语言与跨厂商的自由，代价是把等待和会话留给了使用者。[官方文档](https://www.selenium.dev/documentation/webdriver/waits/)写得很直白：显式等待是“loops added to the code that poll the application for a specific condition to evaluate as true before it exits the loop”，说白了就是一段写在代码里、反复轮询到条件成立的循环。所以就有了第一代前端测试工程师的必修课：`sleep` 多久才够，这门课的挂科率，的确就是后来所有人嘴里的 flake。
+契约式设计的好处是覆盖面，而且这份覆盖面不由任何一家供给。六种语言绑定让后端用 Java、数据用 Python 的团队不必为了统一测试工具去统一技术栈。Grid 把测试分发到几十台机器上并行跑，这部分别的工具基本不碰，Puppeteer 官方 FAQ 就明说 Grid 超出它范围；不想自己搭基建的，云厂商会[按协议供货](https://www.selenium.dev/sponsor/)，BrowserStack、TestMu AI 都是官方列的 Development Partner。它自 [2011 年](https://sfconservancy.org/news/2011/feb/02/selenium-joins/)起还挂在 Software Freedom Conservancy 名下，不属于任何一家浏览器厂商。**所谓“面向企业的测试生态”，说的就是这些：那些能力不是它的功能，是它的生态。**
+
+代价也在同一句话里：契约不替你管会话和等待，那些就落在使用者手上。[官方文档](https://www.selenium.dev/documentation/webdriver/waits/)写得很直白：显式等待是“loops added to the code that poll the application for a specific condition to evaluate as true before it exits the loop”，说白了就是一段写在代码里、反复轮询到条件成立的循环。
 
 拿那颗按钮写一遍，是一份完整的 Java 文件（Selenium 4 的写法，import 那一堆先略掉）：
 
@@ -96,6 +98,8 @@ public class OrderTest {
 ```
 
 要看的只有一行：`wait.until(...)`。“按钮什么时候可点”这件事，是你**显式写出来**的。换成 Python、C# 或 Kotlin，这段逻辑只是换个绑定，协议还是同一个。顺便说一句，Selenium 官方“等待”那一页自己就摆了一个叫 `sleep()` 的例子，里面写的是 `Thread.sleep(1000)`：文档自个儿把这件事认了。
+
+所以就有了第一代前端测试工程师的必修课：`sleep` 多久才够。这门课的挂科率，的确就是后来所有人嘴里的 flake。
 
 ### Puppeteer：为「脚本作者」设计
 
@@ -490,7 +494,7 @@ selenium-webdriver  -     （不足一格）
 |---|---|
 | “Puppeteer 只支持 Chrome” | v23.0.0（2024-08）起同时支持 Chrome 与 Firefox（Firefox 走 BiDi） |
 | “Selenium 近年移交给了 SFC” | 自 2011-02-02 起就是 Software Freedom Conservancy 成员项目，不是“近年” |
-| “WebDriver 是 W3C 标准” | 只有 Level 1 是 2018 Recommendation；Level 2 与 BiDi 至今仍是 Working Draft |
+| “WebDriver 是 W3C 标准” | 只有 Level 1 是 2018 Recommendation；[Level 2](https://www.w3.org/TR/webdriver2/) 与 [WebDriver BiDi](https://www.w3.org/TR/webdriver-bidi/) 至今仍是 Working Draft |
 | “Browser Use / Stagehand 都是基于 Playwright 的” | 均未见直接依赖：Browser Use 用自研 `cdp-use`，发布出来的 `@browserbasehq/stagehand` 依赖 `@browserbasehq/sdk`（同一个 monorepo 里的 integrations、evals 包倒是把 playwright 列成了 devDependency）；Skyvern 才是直接依赖 `playwright` |
 | “Cypress 已经停更了” | 2026-09-01 刚发 Cypress 16，仓库持续提交 |
 | “Claude Code / Codex / Cursor 官方默认推荐 Playwright” | 未验证。能确认的只有 Playwright 侧提供了这几家的接入命令，反向的官方表态我没找到 |
@@ -533,8 +537,8 @@ selenium-webdriver  -     （不足一格）
 - [Cypress - Module API（只有 run / open / parseRunArguments）](https://docs.cypress.io/app/references/module-api) / [Why Cypress（同一事件循环）](https://docs.cypress.io/app/get-started/why-cypress)
 - [Cypress - Retry-ability（查询重试 vs 命令不重试）](https://docs.cypress.io/app/core-concepts/retry-ability) / [Interacting with elements（七项检查）](https://docs.cypress.io/app/core-concepts/interacting-with-elements)
 - [Cypress Cloud - Parallelization](https://docs.cypress.io/cloud/features/smart-orchestration/parallelization) / [Cypress 16 发布](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support) / [Update on Cypress's Workforce](https://www.cypress.io/blog/update-on-cypresss-workforce)
-- [Selenium - Waits（显式等待即轮询循环）](https://www.selenium.dev/documentation/webdriver/waits/)
-- [W3C WebDriver Level 2（状态：Working Draft）](https://www.w3.org/TR/webdriver2/) / [WebDriver BiDi](https://www.w3.org/TR/webdriver-bidi/)
+- [Selenium - History（同源策略与 driven 模式）](https://www.selenium.dev/history/) / [Waits（显式等待即轮询循环）](https://www.selenium.dev/documentation/webdriver/waits/)
+- [W3C WebDriver Level 1（2018 Recommendation）](https://www.w3.org/TR/webdriver1/) / [Level 2（Working Draft）](https://www.w3.org/TR/webdriver2/) / [WebDriver BiDi（Working Draft）](https://www.w3.org/TR/webdriver-bidi/)
 
 数据与观点来源：
 

@@ -13,7 +13,14 @@ tags:
   - Agent
 ---
 
-先看三行代码。它们点的是同一颗按钮。
+先交代被测的页面：一颗按钮，默认禁用，600 毫秒之后才可点。
+
+```html
+<button id="submit" disabled>提交订单</button>
+<p id="result"></p>
+```
+
+下面三行代码也在点它，结果却各不相同：
 
 ```js
 await page.mouse.click(320, 210);                             // ① 按坐标点
@@ -23,7 +30,7 @@ await page.getByRole('button', { name: '提交订单' }).click();   // ③ 正�
 
 只有 ③ 会等。① 什么也没发生：按钮还禁用着，浏览器把那次鼠标事件吞了。② 结果栏变绿了，可那其实是假的，按钮当时根本点不动。
 
-老实说，写这篇文章是因为我一直觉得 Playwright 用起来“顺手”，却说不出这份顺手是哪来的。所以这里不比功能表，只做一件事：把那一行 `click()` 拆开，看它在真的落下之前检查了什么、为什么你不需要写等待，以及这套检查为什么偏偏在这两年变得重要。
+老实说，写这篇文章是因为我一直觉得 Playwright 用起来“顺手”，却说不出这份顺手是哪来的；也因为这两年它在行业调查里第一次超过了 Cypress。所以这里不比功能表，只做一件事：把那一行 `click()` 拆开，看它在真的落下之前检查了什么、为什么你不需要写等待，以及这套检查为什么偏偏在这两年变得重要。
 
 拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。
 
@@ -64,7 +71,9 @@ await page.getByRole('button', { name: '提交订单' }).click();   // ③ 正�
 
 解析出来之后其实还有一道更严的检查：必须恰好命中一个。这就是“找到”在这套实现里的定义。一句描述如果同时匹配到 20 个元素，它不会随便挑一个，而是停下来告诉你匹配到了 20 个。（这个决定的好处，第四关会看到。）
 
-那“角色是 button、名字是提交订单”这些词从哪儿来？它读的是浏览器的可访问性树。原生标签自带隐式的 role，自定义组件就得自己补上。我拿一个只用 `<div onclick>` 拼的按钮试过：`getByRole('button').count()` 是 0，它在快照里降级成了一行普通文本；补上 `role="button"` 之后才是 1。
+那“角色是 button、名字是提交订单”这些词从哪儿来？来自浏览器的可访问性树：浏览器会把页面另外解析成一棵树，每个节点带三样东西，角色（role）、名字（name）和状态（state）。屏幕阅读器读的就是它，`getByRole` 读的也是它，第六节那个 ARIA 快照还是它。
+
+原生标签自带隐式的 role（`<button>`、`<a href>`、`<input type="checkbox">` 都有），自定义组件就得自己补上：`aria-label`、`aria-labelledby`，或者 `<label for>`。我拿一个只用 `<div onclick>` 拼的按钮试过：`getByRole('button').count()` 是 0，它在快照里降级成了一行普通文本；补上 `role="button"` 之后才是 1。
 
 所以第一关交出来的东西，其实是一句“此刻唯一命中的描述”。反过来，那种“真的抓到一个元素”的用法（`ElementHandle`）被官方[标上了 Discouraged](https://playwright.dev/docs/handles)。
 
@@ -118,23 +127,56 @@ await page.click('#submit');
 ![同一颗按钮的三种点法：按坐标点没反应、dispatchEvent 假成功、getByRole 等到条件成立才点](../images/three-clicks.gif)
 *录制自真实运行（Playwright 1.57 + Chromium）：① 按坐标点，按钮还在禁用态，什么也没发生；② `dispatchEvent` 把事件直接发进去，结果栏变绿，其实是假成功；③ `click()` 等到按钮可用才动手*
 
-① 按坐标发的是真实鼠标事件，被“按钮禁用”挡在门外；② 绕过了这道门，于是结果栏绿了，可按钮其实点不动。
+我把这三条路都跑了一遍。按钮还禁用时，按坐标点没反应，用 DOM 自己的 `element.click()` 也没反应，唯独 `dispatchEvent('click')` 让结果栏变成了「已提交」。
+
+原因是浏览器的“禁用”只拦两样东西：真实的指针事件，和元素自己的 `click()`。它拦不住直接用事件接口投递的那一下。所以这个“假成功”不是“什么都没发生”：监听器执行了，DOM 也变了（这个页面里没有表单，“已提交”就是结果栏那行字被改了），只不过**它走的是一条真实用户走不到的路**。真实用户那一刻点不动这颗按钮，你的用例却认为点成功了。
 
 **不做检查的自动化，最危险的地方不是失败，而是它能给你一个假成功。** 一条“禁用状态也照样点进去”的用例会在 CI 里一直绿着，直到上线被真实用户教做人。
 
 ## 四、第三关：动作怎么送进浏览器
 
-判断完了，动作得真的送进去。这一段路平时看不见，但它决定了这个工具最后能长成什么样。
+判断完了，动作得真的送出去。这一段路平时看不见，但它决定了这个工具最后能长成什么样。这里有两件事要交代：动作经由什么送出去，以及它最后落在哪个浏览器上。
 
-先看一个数字。Cypress 的 npm 包只有 7.3 MB，可真正的执行体是它下载到缓存里的 641 MB 应用：测试是被这个应用带着跑的，而不是被一行 `require` 拉起来的库。根源在它的官方文档里写着：*"Cypress is executed in the same run loop as your application."*（见 [Why Cypress](https://docs.cypress.io/app/get-started/why-cypress)）它把驱动注入浏览器，和被测应用共用同一个事件循环。
+先说 Cypress，它走的是另一条路。Cypress 的 npm 包只有 7.3 MB，可真正的执行体是它下载到缓存里的 641 MB 应用：测试是被这个应用带着跑的，而不是被一行 `require` 拉起来的库。官方文档把原因说得很清楚：*"Cypress is executed in the same run loop as your application."*（见 [Why Cypress](https://docs.cypress.io/app/get-started/why-cypress)）
 
-这个设计的确换来了很好的调试体验（后面会替它说话），代价是它只能以“一个应用”的形式存在。它的模块 API 也印证了这一点：文档里一共只有三个函数，`cypress.run()`、`cypress.open()`、`cypress.cli.parseRunArguments()`（见 [Module API](https://docs.cypress.io/app/references/module-api)）。你能用 Node 启动一次测试运行，但拿不到一个页面：没有 `page`，没有 `browser`，没有任何能在自己进程里操作的对象。
+```
+Cypress 应用（一个自带浏览器）
+├── 测试代码 + Cypress 驱动
+└── iframe：被测应用
+    （两者共用一个事件循环）
+```
+
+一个浏览器里同时住着测试代码和被测应用，两者共用一个事件循环。这个设计的确换来了很好的调试体验（后面会替它说话），代价是它只能以“一个应用”的形式存在：模块 API 文档里一共只有三个函数，`cypress.run()`、`cypress.open()`、`cypress.cli.parseRunArguments()`（见 [Module API](https://docs.cypress.io/app/references/module-api)）。你能用 Node 启动一次测试运行，但拿不到一个页面：没有 `page`，没有 `browser`，没有任何能在自己进程里操作的对象。
 
 Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 `playwright-core` 这个库上，`chromium.launch()` 在任何 Node 进程里都能跑起来：你可以在自己的脚本里开一个浏览器，做三件事，关掉，全程不进任何 runner。
 
-这件事看着像开个 flag 就行，其实翻一遍是三层叠起来的。
+```
+你的进程（测试，或任意脚本）
+   └── browser / page 对象
+        │  Playwright 自有协议
+        ▼
+   浏览器进程（三选一）
+   ├── Chromium
+   ├── Firefox
+   └── WebKit
+```
 
-第一层，语言绑定和浏览器之间隔了一个进程。你在 JS、Python、Java 里调的是同一份实现，它启动一个独立的 driver 子进程，通过 Playwright 自有协议（仓库里的 `packages/protocol/spec/*.yml`）跟它说话。所以它和“WebDriver 的又一家绑定”“CDP 的封装”都不是一回事。
+（这里画的是 JS 的情形；用 Python、Java 这类绑定，中间还会多一个 Node 写的 driver 进程。）
+
+图里“三选一”的那三个内核，可以只装一个，也可以一起用。我本机上装着的的确就是三个：
+
+```
+~/Library/Caches/ms-playwright/
+├── chromium-1200
+├── firefox-1497
+└── webkit-2227     # 真 WebKit，不是换皮
+```
+
+这里的“一视同仁”指三个内核都由同一套 API 一等公民地支持，而不是“能不能跑起来”：Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。
+
+三个内核共用一套 API 这件事，看着像开个 flag 就行，其实翻一遍是三层叠起来的。
+
+第一层，语言绑定和浏览器之间隔了一层协议。JS、Python、Java 里调的是同一份实现，通过 Playwright 自有协议（仓库里的 `packages/protocol/spec/*.yml`）跟浏览器说话。所以它和“WebDriver 的又一家绑定”“CDP 的封装”都不是一回事。
 
 第二层，三个内核走三条通道，要的东西却不一样。这张表是整件事的关键：
 

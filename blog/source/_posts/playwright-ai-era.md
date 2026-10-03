@@ -13,11 +13,13 @@ tags:
   - Agent
 ---
 
-如果你这两年留意过前端测试圈，大概会注意到一件事：新项目的端到端测试，默认都写成 Playwright 了。可这件事有点说不通：Cypress 也会自动等待，它的检查项甚至比 Playwright 还多，代码读起来也更舒服。2025 年的行业调查里，Playwright 的使用率第一次超过它（50% 对 47%），同一周的 npm 下载量是它的 14 倍。
+如果你这两年留意过前端测试圈，大概会注意到一件事：新项目的端到端测试，默认都写成 Playwright 了。可这件事有点说不通：Cypress 也会自动等待，它的检查项甚至比 Playwright 还多，代码读起来也更舒服。
 
 所以我想搞清楚一个问题：**这一轮换代，为什么是 Playwright？**
 
-功能表回答不了这个问题。得往下一层看：那一行 `click()` 在真的落下之前，究竟检查了什么。我拿一颗 600 毫秒之后才可点的按钮当尺子，把它拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。四道关看完，再回头说这两年的事。
+趋势本身很清楚：2025 年的行业调查里，它的使用率第一次超过 Cypress（50% 对 47%），同一周的 npm 下载量是它的 14 倍。但数字只能说明趋势，说明不了原因。
+
+功能表也回答不了，得往下一层看：那一行 `click()` 在真的落下之前，究竟检查了什么。我拿一颗 600 毫秒之后才可点的按钮当尺子，把它拆成四道关：怎么找到元素、怎么判断能点、怎么把动作送进浏览器、失败之后留下什么。四道关看完，再回头说这两年的事。
 
 <!--more-->
 
@@ -105,7 +107,7 @@ await page.click('#submit');
 
 把中间这三行删掉会怎样？我倒是真跑了一遍：脚本不报错，输出是空的。按钮还禁用着，浏览器把那次点击吞了。
 
-所以第一关和第二关合起来说的是一件事：**“什么时候能动”这件判断，从使用者的代码里搬进了工具里。** 这也是为什么 846 和 858 毫秒几乎一样，差别不在“等不等”，而在那一行 `click()` 里到底有没有检查。
+所以第一关和第二关合起来说的是一件事：**“什么时候能动”这件判断，从使用者的代码里搬进了工具里。** 差别不在“等不等”，而在那一行 `click()` 里到底有没有检查。
 
 ## 三、回头说开篇那个“假成功”
 
@@ -130,7 +132,7 @@ await page.click('#submit');
 
 ## 四、第三关：动作怎么送进浏览器
 
-判断完了，动作得真的送出去。这一段路平时看不见，但它决定了这个工具最后能长成什么样。这里有两件事要交代：动作经由什么送出去，以及它最后落在哪个浏览器上。
+判断完了，动作得真的送出去。这一段路平时看不见，但它决定了这个工具最后能长成什么样：动作经由什么送出去，最后又落在哪个浏览器上。
 
 先说 Cypress，它走的是另一条路。Cypress 的 npm 包只有 7.3 MB，可真正的执行体是它下载到缓存里的 641 MB 应用：测试是被这个应用带着跑的，而不是被一行 `require` 拉起来的库。官方文档把原因说得很清楚：*"Cypress is executed in the same run loop as your application."*（见 [Why Cypress](https://docs.cypress.io/app/get-started/why-cypress)）
 
@@ -141,9 +143,9 @@ Cypress 应用（一个自带浏览器）
     （两者共用一个事件循环）
 ```
 
-一个浏览器里同时住着测试代码和被测应用，两者共用一个事件循环。这个设计的确换来了很好的调试体验（后面会替它说话），代价是它只能以“一个应用”的形式存在：模块 API 文档里一共只有三个函数，`cypress.run()`、`cypress.open()`、`cypress.cli.parseRunArguments()`（见 [Module API](https://docs.cypress.io/app/references/module-api)）。你能用 Node 启动一次测试运行，但拿不到一个页面：没有 `page`，没有 `browser`，没有任何能在自己进程里操作的对象。
+一个浏览器里同时住着测试代码和被测应用，两者共用一个事件循环。这个设计的确换来了很好的调试体验（后面会替它说话），代价是它只能以“一个应用”的形式存在：模块 API 文档里一共只有三个函数，`cypress.run()`、`cypress.open()`、`cypress.cli.parseRunArguments()`（见 [Module API](https://docs.cypress.io/app/references/module-api)）。你能用 Node 启动一次运行，但拿不到一个页面：没有 `page`，也没有任何能在自己进程里操作的对象。
 
-Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 `playwright-core` 这个库上，`chromium.launch()` 在任何 Node 进程里都能跑起来：你可以在自己的脚本里开一个浏览器，做三件事，关掉，全程不进任何 runner。
+Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 `playwright-core` 这个库上，`chromium.launch()` 在任何 Node 进程里都能跑起来：你可以在自己的脚本里开一个浏览器，做完事再关掉，全程不进 runner。
 
 ```
 你的进程（测试，或任意脚本）
@@ -156,9 +158,9 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
    └── WebKit
 ```
 
-（这里画的是 JS 的情形；用 Python、Java 这类绑定，中间还会多一个 Node 写的 driver 进程。）
+（Python、Java 这类绑定中间还会多一个 driver 进程。）
 
-图里“三选一”的那三个内核，可以只装一个，也可以一起用。我本机上装着的的确就是三个：
+那三个内核可以只装一个，也可以一起用。我本机上装着的的确就是三个：
 
 ```
 ~/Library/Caches/ms-playwright/
@@ -167,11 +169,11 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 └── webkit-2227     # 真 WebKit，不是换皮
 ```
 
-这里的“一视同仁”指三个内核都由同一套 API 一等公民地支持，而不是“能不能跑起来”：Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。
+这里的“一视同仁”指三个内核都由同一套 API 支持，而不是“能不能跑起来”：Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。
 
 三个内核共用一套 API 这件事，看着像开个 flag 就行，其实翻一遍是三层叠起来的。
 
-第一层，语言绑定和浏览器之间隔了一层协议。JS、Python、Java 里调的是同一份实现，通过 Playwright 自有协议（仓库里的 `packages/protocol/spec/*.yml`）跟浏览器说话。所以它和“WebDriver 的又一家绑定”“CDP 的封装”都不是一回事。
+第一层，语言绑定和浏览器之间隔了一层协议。JS、Python、Java 里调的是同一份实现，通过 Playwright 自有协议（仓库里的 `packages/protocol/spec/*.yml`）跟浏览器说话。
 
 第二层，三个内核走三条通道，要的东西却不一样。这张表是整件事的关键：
 
@@ -187,13 +189,13 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 
 那为什么别人做不到？其实不是开不了 flag，是改不了内核。
 
-- Cypress 把驱动注入浏览器、与测试同处一个事件循环，这条路要求内核允许注入，而它无法自带打了补丁的 WebKit。反过来说，同一个原因也让它的 devtools 联动调试更顺手，断点能把测试和应用一起停住。这条是 Gleb Bahmutov 的[个人观点](https://glebbahmutov.com/blog/cy-vs-pw-browser/)，不是官方结论。
-- Puppeteer 是 CDP 的参考实现，不需要改内核，也就不会去改。这里还有段前情：Firefox 那边当年就有一条专门为 Puppeteer 做的自动化协议（[`puppeteer/juggler`](https://github.com/puppeteer/juggler)，2020 年 3 月之后就停了），Puppeteer 还据此发过一个[自带 Firefox 构建的原型包](https://github.com/puppeteer/puppeteer/blob/7f7887ed11930f96cb64bb086fad5c29086b8ef2/experimental/puppeteer-firefox/README.md)，后来标注废弃；正经的 Firefox 支持等到 2024 年的 v23，用的还是 W3C 标准的 WebDriver BiDi。能不能做是一回事，要不要长年养两个内核的分支是另一回事。
-- Selenium 走的是完全相反的路线：2004 年它从一段跑在浏览器里的 JavaScript 起家（[官方 History](https://www.selenium.dev/history/)），出不了同源策略那道墙，于是有人提出“driven 模式”，把浏览器当成远端，中间放一台代理 server，这就是 Selenium RC。它把这条路走成了公共契约（WebDriver，[Level 1 在 2018 年成了 W3C Recommendation](https://www.w3.org/TR/webdriver1/)），好处是覆盖面不由任何一家供给，代价是契约不替你管会话和等待。
+- Cypress 把驱动注入浏览器、与测试同处一个事件循环，内核不许注入它就没办法，自带不了打过补丁的 WebKit（反过来，这也是它的 devtools 联动调试更顺手的原因。Gleb Bahmutov 的[个人观点](https://glebbahmutov.com/blog/cy-vs-pw-browser/)，不是官方结论）。
+- Puppeteer 是 CDP 的参考实现，不需要改内核。不过这里还有段前情：Firefox 那边当年就有一条专门为 Puppeteer 做的自动化协议（[`puppeteer/juggler`](https://github.com/puppeteer/juggler)，2020 年 3 月之后就停了），Puppeteer 还据此发过一个[自带 Firefox 构建的原型包](https://github.com/puppeteer/puppeteer/blob/7f7887ed11930f96cb64bb086fad5c29086b8ef2/experimental/puppeteer-firefox/README.md)，后来标注废弃；正经的 Firefox 支持等到 2024 年的 v23，用的还是 W3C 标准的 WebDriver BiDi。能不能做是一回事，要不要长年养两个内核的分支是另一回事。
+- - Selenium 走的是相反的路线：它从一段跑在浏览器里的 JavaScript 起家（[官方 History](https://www.selenium.dev/history/)），因为出不了同源策略那道墙，才改成把浏览器当远端、中间放一台代理 server（Selenium RC），最后把这条路走成了公共契约（WebDriver，[Level 1 在 2018 年成了 W3C Recommendation](https://www.w3.org/TR/webdriver1/)）：覆盖面不由任何一家供给，代价是契约不替你管会话和等待。
 
-代价倒也说清楚：这套“连内核一起维护”的赌注，换来了三内核一致和额外的自动化能力，付出的是每次升级都要重下几百 MB 的自定义浏览器，外加内核补丁的长年维护。官方在 `connectOverCDP` 的文档里留下一句很能说明态度的话：直连 CDP 的保真度 *"significantly lower fidelity than the Playwright protocol connection"*。
+代价倒也说清楚：这套“连内核一起维护”的赌注，换来了三内核一致和额外的自动化能力，付出的是每次升级重下几百 MB 的自定义浏览器，外加内核补丁的长年维护。
 
-**能当零件用，还是只能当整机用，这是 Cypress 和 Playwright 的分界线。** 也是这一关最要紧的产出：动作经由一条自有通道送出去，这条通道可以被任何进程调用，所以它既是测试框架，也是一层能力。
+**能当零件用，还是只能当整机用，这是 Cypress 和 Playwright 的分界线。** 所谓“一层能力”，不是 API 多，而是它可以脱离原来的应用形态，被另一个程序直接拿起来、观察、调用、组合、复现。这一关最要紧的产出就是这个：动作经由一条自有通道送出去，而这条通道可以被任何进程调用。
 
 > 口径：架构部分来自官方文档与仓库源码。“Juggler”这个词官方文档从不使用，只出现在源码与补丁目录里，属于源码级证据，别当成官方术语引用。
 
@@ -206,7 +208,7 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 这里不妨先说人的收益，因为它跟 AI 没关系：以前 CI 挂了，你得把那台机器复现出来；现在工件跟着失败一起被存下来。至于模型也能读它，那是顺带的。
 
 ![Playwright Trace Viewer：左侧动作列表里那步失败的点击被标红选中，右侧是当时的页面快照，底部 Errors 面板里是报错正文与 Copy prompt 按钮](../images/trace-viewer.png)
-*Trace Viewer 实拍：失败的那步 Click 被标红选中，右边是它当时的页面快照，底部 Errors 面板给出报错正文（连 20 个候选都列出来了）和一个 Copy prompt 按钮。这份 trace 跑于 2026-09-19，Playwright 1.57.0*
+*Trace Viewer 实拍（Playwright 1.57.0，2026-09-19）：左边那步失败的 Click 被标红选中，右边是当时的页面快照，底部 Errors 面板给出报错正文与 Copy prompt 按钮*
 
 然后是我最喜欢的那段报错原文。我构造了一个 20 行订单列表，故意用模糊定位去点它：
 
@@ -229,7 +231,16 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 
 ## 六、为什么是这两年
 
-四道关讲完了。但这四道关其实 2020 年就修好了，那时 Playwright 已经能跑三个内核，为什么直到这两年才被推到台前？
+四道关讲完了。这四件事其实 2020 年就做完了，只不过那时它们的读者只有人。为什么会用的机器多起来之后，它们突然都变得重要？
+
+| 四道关 | 对人 | 对 Agent |
+|---|---|---|
+| 找到元素（locator 是描述） | 不用记 class 哈希 | 一句能生成、能重放的描述 |
+| 判断能点（actionability） | 不用写等待 | 动作有确定性 |
+| 送进浏览器（自有协议） | 一套 API 跑三个内核 | 能被任何进程调用 |
+| 留下现场（trace） | CI 挂了能复现 | 失败是可传递的工件 |
+
+换句话说，技术的价值常常要等另一个时代来证明。Playwright 不是为 agent 发明的，但它恰好把这四样东西都备齐了。
 
 先把官方自己的动作排一排（来源：[发布说明](https://playwright.dev/docs/release-notes)，日期取自 npm registry 的发布时间）：
 
@@ -264,7 +275,7 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 - row "SO-1001 张三 ¥1,280.00 待发货"
 ```
 
-没有 `css-1x1q7`，没有 `ant-table-cell`，没有构建产物留下的哈希。模型拿到的是词汇表（role、name、state），而不是渲染残渣，这恰好就是 `getByRole` 需要的输入：同一个抽象层，人和模型都能读。
+没有 `css-1x1q7`，没有 `ant-table-cell`，没有构建产物留下的哈希。模型拿到的是词汇表（role、name、state），而不是渲染残渣，这恰好就是 `getByRole` 需要的输入：同一个抽象层，人和模型都能读。人看的是渲染出来的界面，模型看的是同一棵树，换的是观察方式，不是那一层。
 
 ![左边是页面渲染出来的样子（像素），右边是同一个页面的 ARIA 快照（结构）](../images/aria-vs-pixels.png)
 *同一个页面、同一时刻的两种表示：左边是人看到的像素，右边是模型读到的结构（Playwright 1.57.0，2026-10-01 复现并截图；左图是 620 像素宽视口的页面顶部 8 行）*
@@ -272,6 +283,8 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 不过这里有个反转得说。同样是官方 README，在 2026 年给出了一个降温的说法：playwright-mcp 现在推荐 coding agent 改用 CLI + Skills（[microsoft/playwright-cli](https://github.com/microsoft/playwright-cli)），理由是 *"…avoid loading large tool schemas and verbose accessibility trees into the model context."*。连 accessibility tree 都会被嫌啰嗦。
 
 这句话其实反而让整篇文章的论点更稳，但得说清楚它稳在哪：前面我量出 ARIA 快照比 HTML 小 5.6 倍，官方现在又说它依然太占地方。两件事不矛盾，因为被时代选中的从来不是“小”，而是可裁剪：2,286 个字符照样塞不进上下文，但它可以被切片、按需取一部分，HTML 那 12,805 个字符不行。
+
+所以这两年真正稀缺的东西，其实是好的工具接口：能描述、能观察、能行动、能验证、能留下现场，还能被另一个程序重新消费。
 
 **当“给模型消费”这几个字开始出现在发布说明里，剩下的就不用我多说了。**
 
@@ -298,7 +311,7 @@ await page.waitForTimeout(1000);
 
 ## 八、把数字摆齐
 
-坦白说，机制讲完了还得看采用。以下数据都是 2026-09-19 抓的。
+坦白说，机制讲完了还得看采用。以下数据都是 2026-09-19 抓的。它们证明不了 Playwright 在所有测试场景都更好，只说明一件事：浏览器自动化正在往一处集中。
 
 [State of JS 2025](https://2025.stateofjs.com/en-US/libraries/testing/)（13,002 人，调查期 2025-09-24 到 11-11）：
 
@@ -315,7 +328,7 @@ await page.waitForTimeout(1000);
 
 还有一条数字倒是反过来的，得摆在这儿：按 [ecosyste.ms](https://packages.ecosyste.ms/api/v1/registries/npmjs.org/packages/playwright) 统计，cypress 被 6,559 个包反向依赖，playwright 只有 1,947 个。下载量赢了 14 倍，但“嵌进别人项目里”这件事 Cypress 仍然更多，这是存量与增量的差别，不写出来就是选择性取证。
 
-Selenium 其实也一样还在跑（4.49，2026-09-09 发布），只是它 24% 的留存率把痛点写在了脸上，而那些痛点正是“等待和会话”这两件它当年留给用户的事。
+Selenium 也还在跑（4.49，2026-09-09 发布），只是 24% 的留存率把痛点写在了脸上：正是“等待和会话”这两件它当年留给用户的事。
 
 有几条流传很广的说法，我顺手核了一遍：
 

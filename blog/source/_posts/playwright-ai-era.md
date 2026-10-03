@@ -225,7 +225,7 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 
 ### 第三样：库层面的能力可以被组合
 
-并行倒是一个例子。Playwright 自带 `--shard` 和多 worker，Cypress 的 `--parallel` 官方定义是 *"Run recorded specs in parallel across multiple machines"*，文档就挂在 [Cypress Cloud](https://docs.cypress.io/cloud/features/smart-orchestration/parallelization) 目录下。
+并行倒也是一个例子：`--shard` 和多 worker 都自带，不用另外接一套编排服务。
 
 内核是更硬的一个例子，也是这套形态的最大代价所在。Chromium、Firefox、WebKit，这次不是“分别适配”，而是同一套 API。我本机上装着的的确就是三个真内核：
 
@@ -538,7 +538,7 @@ Selenium 也一样还在跑（4.49，2026-09-09 发布），只是它 24% 的留
 - [Puppeteer - FAQ（定位与浏览器支持）](https://pptr.dev/faq)
 - [Cypress - Module API（只有 run / open / parseRunArguments）](https://docs.cypress.io/app/references/module-api) / [Why Cypress（同一事件循环）](https://docs.cypress.io/app/get-started/why-cypress)
 - [Cypress - Retry-ability（查询重试 vs 命令不重试）](https://docs.cypress.io/app/core-concepts/retry-ability) / [Interacting with elements（七项检查）](https://docs.cypress.io/app/core-concepts/interacting-with-elements)
-- [Cypress Cloud - Parallelization](https://docs.cypress.io/cloud/features/smart-orchestration/parallelization) / [Cypress 16 发布](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support) / [Update on Cypress's Workforce](https://www.cypress.io/blog/update-on-cypresss-workforce)
+- [Cypress 16 发布](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support) / [Update on Cypress's Workforce](https://www.cypress.io/blog/update-on-cypresss-workforce)
 - [Selenium - History（同源策略与 driven 模式）](https://www.selenium.dev/history/) / [Waits（显式等待即轮询循环）](https://www.selenium.dev/documentation/webdriver/waits/)
 - [W3C WebDriver Level 1（2018 Recommendation）](https://www.w3.org/TR/webdriver1/) / [Level 2（Working Draft）](https://www.w3.org/TR/webdriver2/) / [WebDriver BiDi（Working Draft）](https://www.w3.org/TR/webdriver-bidi/)
 

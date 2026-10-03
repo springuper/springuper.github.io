@@ -185,7 +185,7 @@ describe('下单', () => {
 
 代码倒是三家里看着最舒服的，但代价在别处：它必须有真正的浏览器外壳才能跑起来。我这次装完，`node_modules/cypress` 只有 7.3 MB，真正的执行体是它下载到缓存里的 641 MB 应用：测试是被这个应用带着跑的，而不是被一行 `require` 拉起来的库。
 
-**最后这半句，是下一节的入口。**
+最后这半句，是下一节的入口。
 
 ### 一张图收束
 
@@ -238,22 +238,25 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 
 这里的“一视同仁”指三个内核都由同一套 API 一等公民地支持，不是“能不能跑起来”：Cypress 的 WebKit 至今标着 experimental，Puppeteer 干脆没有 WebKit。
 
-不过这件事看着像开个 flag 就行。真翻一遍，得分三层看：
+不过这件事看着像开个 flag 就行。真翻一遍，是三层叠起来的。
 
-- 语言绑定和浏览器之间隔了一个进程。你在 JS、Python、Java 里调的是同一份实现，它启动一个独立的 driver 子进程，再通过 Playwright 自有协议（定义在仓库的 `packages/protocol/spec/*.yml`）跟它说话。所以它既不是 WebDriver 的又一家绑定，也不是 CDP 的封装。
-- 每个内核各走一条通道：
+第一层，语言绑定和浏览器之间隔了一个进程。你在 JS、Python、Java 里调的是同一份实现，它启动一个独立的 driver 子进程，通过 Playwright 自有协议（仓库里的 `packages/protocol/spec/*.yml`）跟它说话。所以它既不是 WebDriver 的又一家绑定，也不是 CDP 的封装。
 
-| 内核 | 通道 | 说明 |
+第二层，三个内核走三条通道，要的东西却不一样。这张表是整件事的关键：
+
+| 内核 | 要不要打补丁 | 依据 |
 |---|---|---|
-| Chromium | CDP | 用开源 Chromium 构建，能力直接来自上游 |
-| Firefox | 打了补丁的 `-juggler-pipe` | 官方文档原话：Playwright 依赖补丁，用不了品牌版 Firefox |
-| WebKit | `--inspector-pipe` | 仓库 `browser_patches/` 下同时维护 firefox 与 webkit 两套补丁 |
+| Chromium | 不要 | 它原生就说 CDP。Playwright 用开源 Chromium 构建，甚至领先品牌版一个大版本 |
+| Firefox | 要 | 走 `-juggler-pipe`；Juggler 就是当年 Firefox 为 Puppeteer 做的那套自动化协议，官方文档也明说用不了品牌版 Firefox |
+| WebKit | 要，而且不是 Safari | 走 `--inspector-pipe`，补丁在仓库 `browser_patches/` 下。官方原话：*"Playwright's WebKit is derived from the latest WebKit main branch sources, often before these updates are incorporated into Apple Safari"*，它测的是引擎，不是 Safari 那个 App |
 
-- 最关键的一层：它自己编译并维护内核。上面那两个 flag 不是“开关”，而是**只有打过补丁的构建里才存在的通道**。Playwright 每次发版同步更新三个内核的版本，`npx playwright install` 下载的就是这些自定义构建，我本机这份缓存已经 1.0 GB（chromium 324 MB、webkit 275 MB、firefox 253 MB，另有 headless shell 与 ffmpeg）。
+第三层，也是最关键的一层：它自己编译并维护内核。上面那两个 flag 不是“开关”，而是**只有打过补丁的构建里才存在的通道**。Playwright 每次发版同步更新三个内核的版本，`npx playwright install` 下载的就是这些自定义构建，我本机这份缓存已经 1.0 GB（chromium 324 MB、webkit 275 MB、firefox 253 MB，另有 headless shell 与 ffmpeg）。
 
-那为什么别人做不到？其实不是开不了 flag，是改不了内核。Cypress 的架构决定了它不往这个方向走：驱动注入浏览器、与被测应用同处一个事件循环，这条路要求内核允许注入，而它无法自带打了补丁的 WebKit。反过来说，同一个原因也让它的 devtools 联动调试更顺手，断点能把测试和应用一起停住。这条是 Gleb Bahmutov 的[个人观点](https://glebbahmutov.com/blog/cy-vs-pw-browser/)，不是官方结论。
+那为什么别人做不到？其实不是开不了 flag，是改不了内核。
 
-Puppeteer 的定位是 CDP 的参考实现，不需要改内核，也就不会去改。Selenium 走 W3C 协议，每个内核能做什么由厂商说了算。
+- Cypress 把驱动注入浏览器、与被测应用同处一个事件循环，这条路要求内核允许注入，而它无法自带打了补丁的 WebKit。反过来说，同一个原因也让它的 devtools 联动调试更顺手，断点能把测试和应用一起停住。这条是 Gleb Bahmutov 的[个人观点](https://glebbahmutov.com/blog/cy-vs-pw-browser/)，不是官方结论。
+- Puppeteer 是 CDP 的参考实现，不需要改内核，也就不会去改。这里还有段前情：Firefox 那边当年就有一条专门为 Puppeteer 做的自动化协议（[`puppeteer/juggler`](https://github.com/puppeteer/juggler)，2020 年 3 月之后就停了），Puppeteer 还据此发过一个[自带 Firefox 构建的原型包](https://github.com/puppeteer/puppeteer/blob/7f7887ed11930f96cb64bb086fad5c29086b8ef2/experimental/puppeteer-firefox/README.md)，后来标注废弃；正经的 Firefox 支持等到 2024 年的 v23，用的还是 W3C 标准的 WebDriver BiDi。能不能做是一回事，要不要长年养两个内核的分支是另一回事。
+- Selenium 走 W3C 协议，每个内核能做什么由厂商说了算。
 
 代价也说清楚：这套“连内核一起维护”的赌注，换来了三内核一致和额外的自动化能力，付出的是每次升级都要重下几百 MB 的自定义浏览器，外加内核补丁的长年维护。官方在 `connectOverCDP` 的文档里留下一句很能说明态度的话：直连 CDP 的保真度 *"significantly lower fidelity than the Playwright protocol connection"*。
 
@@ -402,7 +405,7 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
     ...
 ```
 
-不妨仔细看它的结构。它不只是说“你错了”：它说明了为什么错（匹配到 20 个），给出了每个候选的真实身份，最关键的是那句 `aka`，把改正后的 locator 写法一条条列给你了。这不是给人看的礼貌提示，这是一份**写好的补丁**。而且这大概不是巧合：从 1.51 起，Playwright 在 HTML 报告、Trace Viewer 和 UI Mode 的报错旁都放了一个按钮，叫 Copy prompt（见[发布说明](https://playwright.dev/docs/release-notes)）。
+不妨仔细看它的结构。它不只是说“你错了”：它说明了为什么错（匹配到 20 个），给出了每个候选的真实身份，最关键的是那句 `aka`，把改正后的 locator 写法一条条列给你了。这不是给人看的礼貌提示，这是一份写好的补丁。而且这大概不是巧合：从 1.51 起，Playwright 在 HTML 报告、Trace Viewer 和 UI Mode 的报错旁都放了一个按钮，叫 Copy prompt（见[发布说明](https://playwright.dev/docs/release-notes)）。
 
 ![Playwright HTML 报告里的同一条报错：Errors 面板列出候选，右上角是 Copy prompt 按钮](../images/report-copy-prompt.png)
 *同一个用例在 HTML 报告里的样子（Playwright 1.57.0，2026-10-01 实跑）：报错正文、候选列表和那个 Copy prompt 按钮挤在同一块面板里*
@@ -431,23 +434,23 @@ locator.click: Error: strict mode violation: getByRole('button', { name: '查看
 | 1.62 | 2026-07-24 | 把 MCP server 与 playwright-cli 打包进来（`npx playwright mcp`） |
 | 1.63 | 2026-09-04 | trace 里记录 aria 快照，Trace Viewer 新增 Display Aria 模式 |
 
-最后一行是这篇文章快定稿时才发出来的，我觉得它比表格里任何一行都贴题：**它让 trace 和 aria 快照（两份都是给机器读的东西）在同一个界面里合流了。**
+最后一行是这篇文章快定稿时才发出来的，我觉得它比表格里任何一行都贴题：它让 trace 和 aria 快照（两份都是给机器读的东西）在同一个界面里合流了。
 
 **当“给模型消费”这几个字开始出现在发布说明里，这就不是观察，而是既成事实了。**
 
 不过这里有个反转得说。同样是官方 README，在 2026 年给出了一个降温的说法：playwright-mcp 现在推荐 coding agent 改用 CLI + Skills（[microsoft/playwright-cli](https://github.com/microsoft/playwright-cli)），理由是 *"…avoid loading large tool schemas and verbose accessibility trees into the model context."*。**连 accessibility tree 都会被嫌啰嗦。**
 
-这句话反而让整篇文章的论点更稳，但得说清楚它稳在哪：前面我量出 ARIA 快照比 HTML 小 5.6 倍，官方现在又说它依然太占地方。两件事不矛盾，因为被时代选中的从来不是“小”，而是**可裁剪**：2,286 个字符照样塞不进上下文，但它可以被切片、按需取一部分，HTML 那 12,805 个字符不行。
+这句话反而让整篇文章的论点更稳，但得说清楚它稳在哪：前面我量出 ARIA 快照比 HTML 小 5.6 倍，官方现在又说它依然太占地方。两件事不矛盾，因为被时代选中的从来不是“小”，而是可裁剪：2,286 个字符照样塞不进上下文，但它可以被切片、按需取一部分，HTML 那 12,805 个字符不行。
 
 ## 四、什么情况下我不换
 
 第二、三节都在讲 Playwright 拿到了什么。“一层能力”这个说法其实有个副作用：容易被读成“应用的形态过时了”。所以这里得把边界补上，顺便回答开头那个问题。
 
-**组件测试，我仍然会先看 Cypress。** 它有官方的 mounting library 和 bundler 集成（React、Vue、Angular、Svelte 都有）。Playwright 的组件测试到 1.62 才换成 `mount()` fixture 加自建 dev server 的 stories 模型，1.63 又宣布三个 `experimental-ct-*` 包不再更新。对以组件为主的团队来说，迁移成本是实打实的。
+组件测试，我仍然会先看 Cypress。它有官方的 mounting library 和 bundler 集成（React、Vue、Angular、Svelte 都有）。Playwright 的组件测试到 1.62 才换成 `mount()` fixture 加自建 dev server 的 stories 模型，1.63 又宣布三个 `experimental-ct-*` 包不再更新。对以组件为主的团队来说，迁移成本是实打实的。
 
-**调试联动性，是 Playwright 的真实短板。** Cypress 的测试和应用跑在同一个 JS 事件循环里，在 devtools 里下一个断点，两边会一起停住；Playwright 的 runner 和应用则是两个进程，联动调试要麻烦得多。（口径：这是 Gleb Bahmutov 的[个人观点](https://glebbahmutov.com/blog/cy-vs-pw-browser/)，不是官方结论，但的确是内行话。）
+调试联动性，是 Playwright 的真实短板。Cypress 的测试和应用跑在同一个 JS 事件循环里，在 devtools 里下一个断点，两边会一起停住；Playwright 的 runner 和应用则是两个进程，联动调试要麻烦得多。（口径：这是 Gleb Bahmutov 的[个人观点](https://glebbahmutov.com/blog/cy-vs-pw-browser/)，不是官方结论，但的确是内行话。）
 
-**另外两类场景也别硬换**：Selenium 的六种语言绑定加 Grid 编排，是多语言或企业遗留团队的结构性优势；纯抓取和轻量脚本，谁也不想先装一个测试运行器，Puppeteer 在这条路上仍然稳。
+另外两类场景也别硬换：Selenium 的六种语言绑定加 Grid 编排，是多语言或企业遗留团队的结构性优势；纯抓取和轻量脚本，谁也不想先装一个测试运行器，Puppeteer 在这条路上仍然稳。
 
 还有一件得坦白说：Playwright 不会自动消灭 flaky 测试。我手头那个用 `@playwright/test` 的项目里就留着反面教材：
 
@@ -538,6 +541,7 @@ Selenium 也一样还在跑（4.49，2026-09-09 发布），只是它 24% 的留
 - [Playwright - Test Agents（planner / generator / healer）](https://playwright.dev/docs/test-agents) / [Release notes](https://playwright.dev/docs/release-notes)
 - [microsoft/playwright-mcp（README）](https://github.com/microsoft/playwright-mcp) / [microsoft/playwright-cli（CLI + Skills）](https://github.com/microsoft/playwright-cli)
 - [Puppeteer - FAQ（定位与浏览器支持）](https://pptr.dev/faq)
+- [puppeteer/juggler（已归档：Firefox 为 Puppeteer 写的自动化协议）](https://github.com/puppeteer/juggler) / [puppeteer-firefox（已废弃的原型，自带 Firefox 构建）](https://github.com/puppeteer/puppeteer/blob/7f7887ed11930f96cb64bb086fad5c29086b8ef2/experimental/puppeteer-firefox/README.md)
 - [Cypress - Module API（只有 run / open / parseRunArguments）](https://docs.cypress.io/app/references/module-api) / [Why Cypress（同一事件循环）](https://docs.cypress.io/app/get-started/why-cypress)
 - [Cypress - Retry-ability（查询重试 vs 命令不重试）](https://docs.cypress.io/app/core-concepts/retry-ability) / [Interacting with elements（七项检查）](https://docs.cypress.io/app/core-concepts/interacting-with-elements)
 - [Cypress 16 发布](https://www.cypress.io/blog/cypress-16-faster-tests-starting-with-http2-support) / [Update on Cypress's Workforce](https://www.cypress.io/blog/update-on-cypresss-workforce)

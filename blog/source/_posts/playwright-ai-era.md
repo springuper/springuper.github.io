@@ -225,9 +225,7 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 
 ### 第三样：库层面的能力可以被组合
 
-并行倒也是一个例子：`--shard` 和多 worker 都自带，不用另外接一套编排服务。
-
-内核是更硬的一个例子，也是这套形态的最大代价所在。Chromium、Firefox、WebKit，这次不是“分别适配”，而是同一套 API。我本机上装着的的确就是三个真内核：
+内核是最硬的一个例子，也是这套形态的最大代价所在。Chromium、Firefox、WebKit，这次不是“分别适配”，而是同一套 API。我本机上装着的的确就是三个真内核：
 
 ```
 ~/Library/Caches/ms-playwright/
@@ -250,7 +248,9 @@ Playwright 反过来。`@playwright/test` 是一个测试 runner，但它建在 
 | Firefox | 要 | 走 `-juggler-pipe`；Juggler 就是当年 Firefox 为 Puppeteer 做的那套自动化协议，官方文档也明说用不了品牌版 Firefox |
 | WebKit | 要，而且不是 Safari | 走 `--inspector-pipe`，补丁在仓库 `browser_patches/` 下。官方原话：*"Playwright's WebKit is derived from the latest WebKit main branch sources, often before these updates are incorporated into Apple Safari"*，它测的是引擎，不是 Safari 那个 App |
 
-第三层，也是最关键的一层：它自己编译并维护内核。上面那两个 flag 不是“开关”，而是**只有打过补丁的构建里才存在的通道**。Playwright 每次发版同步更新三个内核的版本，`npx playwright install` 下载的就是这些自定义构建，我本机这份缓存已经 1.0 GB（chromium 324 MB、webkit 275 MB、firefox 253 MB，另有 headless shell 与 ffmpeg）。
+第三层，也是最关键的一层：它自己编译并维护内核。上面那两个 flag 不是“开关”，而是**只有打过补丁的构建里才存在的通道**。Playwright 每次发版同步更新三个内核的版本，`npx playwright install` 下载的就是这些自定义构建，我本机这份缓存已经 1.0 GB：chromium 324 MB、webkit 275 MB、firefox 253 MB，另有 headless shell 与 ffmpeg。
+
+只跑一个内核不必这么重。`npx playwright install chromium` 的下载量约 250 MB，CI 上加个 `--only-shell` 能压到 90 MB；一个字节都不下也行：配上 `channel: 'chrome'`，直接用机器上现成的 Chrome。
 
 那为什么别人做不到？其实不是开不了 flag，是改不了内核。
 

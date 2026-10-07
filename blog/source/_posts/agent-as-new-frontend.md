@@ -130,7 +130,7 @@ agent 把这六条推到语义这一层之后，那批工具就全都松动了�
 
 ## 四、三条不是巧合的同构
 
-这一节引用两个公开仓库，都是教学性质的：[build-your-claude-code-from-scratch](https://github.com/woodx9/build-your-claude-code-from-scratch)（从零手写一个 Claude Code，187 stars）和 [how-pi-agent-works](https://github.com/cellinlab/how-pi-agent-works)（讲 Pi 的原理与实现，930 stars）。前一个足够小，小到能把机制看穿；后一个跟着真实 Pi 的源码走，回答"生产环境为什么更麻烦"。下面把前一个叫**手写仓库**，后一个叫 **Pi 仓库**。
+这一节引用两个公开仓库，都是教学性质的：[build-your-claude-code-from-scratch](https://github.com/woodx9/build-your-claude-code-from-scratch)（从零手写一个 Claude Code，187 stars）和 [how-pi-agent-works](https://github.com/cellinlab/how-pi-agent-works)（讲 Pi 的原理与实现，930 stars）。前一个足够小，小到能把机制看穿；后一个跟着真实 Pi 的源码走，回答"生产环境为什么更麻烦"。下面把前一个叫手写仓库，后一个叫 Pi 仓库。
 
 先交代一句：它们其实都是教学实现，定位是讲清楚原理。下面的讨论都冲着"这类结构容易犯什么错"，不是冲着作者。另外，两个仓库的答案确实不一样，所以批评是分开说的。
 

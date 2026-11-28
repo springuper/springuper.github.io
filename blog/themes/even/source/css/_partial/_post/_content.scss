@@ -68,15 +68,17 @@
     max-width: 100%;
   }
 
+  // 表格按内容宽度收窄并居中；列多、内容长的表会顶到 100%，和以前一样
   .table-responsive {
-    width: 100%;
-    margin-bottom: 20px;
-    overflow: auto;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 20px;
+    overflow-x: auto;
     border: 3px double $content-table-border-color;
   }
 
   table {
-    width: 100%;
+    width: auto;
     max-width: 100%;
     border-spacing: 0;
     box-shadow: 2px 2px 3px rgba(0,0,0,.125);

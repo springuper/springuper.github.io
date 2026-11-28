@@ -175,6 +175,61 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/event-do/">YUI事件体系之Y.Do</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2012-07-14
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>YUI团队在种种场合不断的夸耀自己的事件体系是多么强大：</p>
+<ul>
+<li>YUI 3′s Event module is one of the strengths of the library  –Eric Miraglia, <a target="_blank" rel="noopener" href="http://www.yuiblog.com/blog/2009/10/30/smith-yuiconf2009-events/">YUI Theater — Luke Smith: “Events Evolved”</a></li>
+<li>YUI 3 is not all about DOM manipulation — it also contains a robust set of class/object management tools, not to mention our powerful custom events –Tilo Mitra, <a target="_blank" rel="noopener" href="http://net.tutsplus.com/articles/general/10-things-i-learned-while-interning-at-yui/">10 Things I Learned While Interning at YUI</a></li>
+<li>One of the strengths of the YUI App Framework is that it’s integrated tightly with the rest of YUI and benefits from YUI’s fantastic event system and plugin/extension infrastructure. –Ryan Grove, <a target="_blank" rel="noopener" href="http://www.quora.com/How-can-I-decided-whether-to-choose-YUI-3s-MVC-or-Backbone-for-a-new-project#ld_xJGMd1_3012">How can I decided whether to choose YUI 3’s MVC or Backbone for a new project?</a></li>
+</ul>
+<p>事实的确如此吗？就使用YUI的开发者反馈来看，应该是不错的：</p>
+<ul>
+<li>AFAIK YUI 3’s event system is the most sophisticated of any JavaScript framework. Am I wrong in thinking that? –<a target="_blank" rel="noopener" href="https://twitter.com/wrumsby/status/113568040834174976">Walter Rumsby</a></li>
+<li>I love the event system in YUI. Pure awesomeness. –<a target="_blank" rel="noopener" href="https://twitter.com/kev_nz/statuses/180472697644515328">Kevin Isom</a></li>
+<li>I am constantly impressed by the degree of excellence I find in working with the YUI3 framework –Andrew Wooldridge, <a target="_blank" rel="noopener" href="http://andrewwooldridge.com/blog/2011/03/08/cross-yui-communication-and-custom-events/">Cross YUI Communication and Custom Events</a></li>
+</ul>
+<p>作为一名YUI用户，我对其事件体系的强大深有体会。从本篇文章起，我将对YUI事件机制做一个全面分析。</p>
+<p>本次我们介绍的是比较基础的两个对象<code>Y.EventHandle</code>和<code>Y.Do</code>。千里之行积于跬步，YUI整套事件机制也是从这两个对象开始构筑的。</p>
+    <div class="read-more">
+      <a href="/event-do/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/extend-and-augment/">Y.extend与Y.augment</a>
       
     </h1>
@@ -593,50 +648,6 @@
 <li>通过Document.createEvent创建自定义事件，并用Event.initEvent进行初始化，dispatchEvent进行调度。IE中可使用Document.createEventObject创建自定义事件，并用fireEvent进行调度。这部分可以说成为高级前端必备知识，在模块化编程等方面有较为重要的应用。</li>
 </ul>
 
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/yui-domready-after-load/">YUI onDOMReady滞后window.onload原因浅析</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2011-03-11
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <h2 id="开篇"><a href="#开篇" class="headerlink" title="开篇"></a>开篇</h2><p>我很好奇其他前端工程师在wp后台写新文章的时候是在用可视化还是html模式。反正我是一路打着标签过来的，呵呵。</p>
-<h2 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h2><p>一直以来，我都先验的认为dom ready事件肯定发生在load之前。但是，最近的一个ticket上线后发现一个很奇怪的现象：在IE下，有时会发生页面load时仍没有捕捉到dom ready的时间。通过多次观察，发现发生这种现象一般是较为简单的页面。</p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>首先，在反复检查代码后排除了自身bug的问题。然后，去找到YUI（我们团队主要以YUI2作为基础库，并准备近期升级到YUI3）的<code>onDOMReady</code>实现，希望通过分析源码找到问题的起源，将<code>onDOMReady</code>在不含frame的IE中分支拣出来，代码量并不多：</p>
-    <div class="read-more">
-      <a href="/yui-domready-after-load/" class="read-more-link">Read more..</a>
-    </div>
     
     
   </div>

@@ -175,6 +175,61 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/Svelte/">编译型框架 SvelteJS</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2023-12-31
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>2016 年，Rollup 等工具的作者 Rich Harris 推出了又一力作：Svelte。这一新兴框架独辟蹊径，旨在解决 React 等框架的一系列问题。这几年 Svelte 虽然没有大红大紫，但从 <a target="_blank" rel="noopener" href="https://2022.stateofjs.com/en-US/libraries/front-end-frameworks/">State of JS</a>  统计来看，它一直保持着持久的热度：
+<img src="../images/Svelte-01.jpg">
+<em>使用度紧跟三大框架</em>
+<img src="../images/Svelte-02.jpg">
+<em>兴趣度蝉联榜首多年</em></p>
+<p>本文尝试由浅入深的介绍 Svelte，希望更多人在适合的场景下可以考虑尝试它。</p>
+<h2 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h2><p>Rich 非常喜欢 React 等前端库和框架带来的更加声明式、低心智负担的开发方式，这让前端工程师可以更好地控制复杂度、提升开发效率和质量。然而他也敏锐地洞察到了一些不那么尽如人意之处。</p>
+<h3 id="Virtual-DOM-真的快吗？"><a href="#Virtual-DOM-真的快吗？" class="headerlink" title="Virtual DOM 真的快吗？"></a>Virtual DOM 真的快吗？</h3><p>React、Vue 都引入了 Virtual DOM 的概念，从而能够进行现有 DOM 以及期望 DOM 的对比，然后再执行相对较重的 DOM 操作使得两者一致。</p>
+<p>在 <a target="_blank" rel="noopener" href="https://svelte.dev/blog/virtual-dom-is-pure-overhead">Virtual DOM is pure overhead</a> 一文中， Rich 指出 Virtual DOM 其实更多的是一种实现声明式、状态驱动 UI 开发的一种手段，并非不可或缺。它主要的问题在于有很多没有必要的 Diff。</p>
+<p>举个例子，假设我们有如下一个 React App：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [count, setCount] = useState(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">const</span> handleClick = <span class="function">() =&gt;</span> setCount(count + <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&quot;app&quot;</span>&gt;</span></span></span><br><span class="line"><span class="xml">       <span class="tag">&lt;<span class="name">p</span>&gt;</span>Count: &#123;count&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="xml">       <span class="tag">&lt;<span class="name">button</span> <span class="attr">onClick</span>=<span class="string">&#123;handleClick&#125;</span>&gt;</span>+1<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果点击一次按钮，新旧 Virtual DOM 对比如下：
+<img src="../images/Svelte-03.jpg"></p>
+    <div class="read-more">
+      <a href="/Svelte/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/ask-with-answers/">带着“答案”去提问</a>
       
     </h1>
@@ -637,58 +692,6 @@
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> input = <span class="built_in">document</span>.querySelector(<span class="string">&quot;input&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. Bind keyup event</span></span><br><span class="line">input.addEventListener(<span class="string">&quot;keyup&quot;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> keyword = event.target.value;</span><br><span class="line">  <span class="keyword">const</span> autocomplete_results = <span class="built_in">document</span>.getElementById(<span class="string">&quot;autocomplete-results&quot;</span>);</span><br><span class="line"></span><br><span class="line">  autocomplete_results.innerHTML = <span class="string">&quot;&quot;</span>;</span><br><span class="line">  <span class="keyword">if</span> (keyword.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">// 2. Fetch autocomplete list</span></span><br><span class="line">    fetch(<span class="string">`/people?keyword=<span class="subst">$&#123;keyword&#125;</span>`</span>)</span><br><span class="line">      .then(<span class="function">(<span class="params">response</span>) =&gt;</span> response.json())</span><br><span class="line">      .then(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 3. Update UI</span></span><br><span class="line">        autocomplete_results.innerHTML = <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; data.length; i++) &#123;</span><br><span class="line">          autocomplete_results.innerHTML += <span class="string">&quot;&lt;li&gt;&quot;</span> + data[i] + <span class="string">&quot;&lt;/li&gt;&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
     <div class="read-more">
       <a href="/frontend-frp/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/recruitment-driven-organization/">招聘驱动的组织建设</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2021-11-23
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p>今天有一位候选人问我：“你作为团队负责人，最重要的工作是什么？”，坦白来说，我自己并没有很深刻地思考过这个问题。脱口而出的答案是：招人，招足够优秀的人。</p>
-<p>这时，我看到候选人深以为然地点了点头，似乎是非常认可我这由衷的答复。考虑到他也十足优秀，既然得到了肯定，那我不妨继续沿着这个思路畅想下，谈谈招聘驱动的组织建设。</p>
-<h2 id="组织建设的核心？"><a href="#组织建设的核心？" class="headerlink" title="组织建设的核心？"></a>组织建设的核心？</h2><p>在我们这个工程师行业，虽然很多人声称自己是码畜，只是外表光鲜地干着搬砖的体力活。不过纵观最近 20 多年互联网的飞速发展，诚如 Paul Graham 所言，真正意义上的工程师，或者黑客，实际上是最具有可放大性和可测量性的工种之一。当你的代码跑在成百上千台机器上为百万千万甚至以亿计的用户服务时，毫无疑问你的价值也得到了巨大程度的放大。</p>
-<p>进一步，优秀的工程师和普通的工程师的差距就像太阳和灯泡一样大，虽然都能发光发热，但是数量级不一样。</p>
-<p>基于此，我粗俗地以为，工程师组织建设的核心就是招人，招足够优秀的人：</p>
-<ul>
-<li>优秀的工程师会带来优秀的解决方案，进而提升组织效能</li>
-<li>优秀的工程师会自我迭代，填满组织成长过程中的内生间隙，保障组织可持续发展</li>
-<li>优秀的工程师会自我管理，结果驱动且不断对齐组织目标，管理者更关注中长期问题</li>
-<li>最重要的是，优秀的工程师会吸引优秀的工程师</li>
-</ul>
-    <div class="read-more">
-      <a href="/recruitment-driven-organization/" class="read-more-link">Read more..</a>
     </div>
     
     

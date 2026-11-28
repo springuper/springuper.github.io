@@ -175,6 +175,50 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/yui-domready-after-load/">YUI onDOMReady滞后window.onload原因浅析</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2011-03-11
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <h2 id="开篇"><a href="#开篇" class="headerlink" title="开篇"></a>开篇</h2><p>我很好奇其他前端工程师在wp后台写新文章的时候是在用可视化还是html模式。反正我是一路打着标签过来的，呵呵。</p>
+<h2 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h2><p>一直以来，我都先验的认为dom ready事件肯定发生在load之前。但是，最近的一个ticket上线后发现一个很奇怪的现象：在IE下，有时会发生页面load时仍没有捕捉到dom ready的时间。通过多次观察，发现发生这种现象一般是较为简单的页面。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>首先，在反复检查代码后排除了自身bug的问题。然后，去找到YUI（我们团队主要以YUI2作为基础库，并准备近期升级到YUI3）的<code>onDOMReady</code>实现，希望通过分析源码找到问题的起源，将<code>onDOMReady</code>在不含frame的IE中分支拣出来，代码量并不多：</p>
+    <div class="read-more">
+      <a href="/yui-domready-after-load/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/scope-safe-constructor/">如何保证调用构造函数也会得到一个实例</a>
       
     </h1>

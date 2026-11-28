@@ -766,13 +766,14 @@ h6 {
   max-width: 100%;
 }
 .post .post-content .table-responsive {
-  width: 100%;
-  margin-bottom: 20px;
-  overflow: auto;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 20px;
+  overflow-x: auto;
   border: 3px double rgb(243.8807692308, 239.1153846154, 224.8192307692);
 }
 .post .post-content table {
-  width: 100%;
+  width: auto;
   max-width: 100%;
   border-spacing: 0;
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.125);

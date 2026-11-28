@@ -1,9 +1,8 @@
 ---
 layout: post
 title: "静水流深：我理想中的公司"
-date: 2026-11-27 09:00:00
-status: draft
-published: false
+date: 2026-11-28 21:30:00
+status: publish
 tags:
   - Management
   - Organization

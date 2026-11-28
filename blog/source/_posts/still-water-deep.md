@@ -407,3 +407,11 @@ AI 本身会越来越普及，工具和模型也会逐渐趋同，真正拉开�
 - [年入 15.7 亿不上市，软件界「胖东来」员工持股还能「怼」老板](https://t.cj.sina.com.cn/articles/view/1193725273/4726cd5900102n062)
 - [舜宇光学科技：文化「灯塔」照亮发展之路](https://www.yynews.com.cn/yy/202601/t20260123_6601145.shtml)
 - [义乌最难干生意，单支赚不到 1 分钱，他用 32 年干成世界第一](http://adimg.ce.cn/xwzx/gnsz/gdxw/202610/t20261013_3255758.shtml)
+
+<style>
+/* 这篇里的三张表都是短标签，左对齐看着发飘，居中对齐更稳 */
+.post-content table th,
+.post-content table td {
+  text-align: center;
+}
+</style>

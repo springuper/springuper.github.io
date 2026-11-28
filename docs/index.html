@@ -175,6 +175,57 @@
   <header class="post-header">
     <h1 class="post-title">
       
+      <a class="post-link" href="/still-water-deep/">静水流深：我理想中的公司</a>
+      
+    </h1>
+
+    <div class="post-meta">
+      <span class="post-time">
+        2026-11-28
+      </span>
+      
+      
+      
+    </div>
+  </header>
+
+  
+
+  <div class="post-content">
+    
+    
+    
+    
+    
+
+    
+    <p>这些年，我有幸在两家文化和背景都很不一样的公司工作过。</p>
+<p>研究生毕业后，我加入了美团，从 2010 年底到 2016 年，经历了它从初创公司到逐渐成长为行业领先企业的过程。之后，我加入了 Tubi，在这里工作了很多年，也经历了中国工程团队从最初几个人发展到一百多人的过程。</p>
+<p>这两段经历几乎代表了两种不同的组织文化和经营环境：美团让我看到了中国互联网创业公司在激烈竞争中如何建立商业模式、打磨产品和提升经营效率，Tubi 则让我体验了硅谷公司如何通过信任、透明和授权，让不同背景的人发挥自己的创造力。</p>
+<p>当然，两家公司都远比几个关键词复杂，我也并不认为它们的经验可以被简单复制。但这些年的经历确实让我逐渐形成了一些自己的判断。</p>
+<p>最近我开始认真考虑下一阶段的职业选择，也因此反复思考一个问题：<strong>如果有一天，我有机会参与创建一家自己的公司，我希望它是一家什么样的公司？</strong> 过去十几年的两段经历，多少都在回答这个问题。</p>
+<p>我想了很久，越来越倾向于一个简单的答案：</p>
+<blockquote>
+<p>一家不靠消耗员工来获得增长，而是通过持续创造客户价值、不断提升组织效率和释放人才创造力来获得成功的公司。</p>
+</blockquote>
+<p>我把它称为：<strong>静水流深。</strong></p>
+    <div class="read-more">
+      <a href="/still-water-deep/" class="read-more-link">Read more..</a>
+    </div>
+    
+    
+  </div>
+
+  
+
+  
+
+</article>
+  
+  <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">
+      
       <a class="post-link" href="/playwright-click-anatomy/">Playwright 赢的不是测试：它赢的是“被调用的能力”</a>
       
     </h1>
@@ -588,61 +639,6 @@
 <p>写完总结后，师父很满意，同时也给了一些建议，并嘱咐我一定要抓紧落实改进措施。这时我开始有些新的认识：他是想让更多人避免类似的问题，而不仅仅是惩罚我。</p>
     <div class="read-more">
       <a href="/just-culture/" class="read-more-link">Read more..</a>
-    </div>
-    
-    
-  </div>
-
-  
-
-  
-
-</article>
-  
-  <article class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      
-      <a class="post-link" href="/Svelte/">编译型框架 SvelteJS</a>
-      
-    </h1>
-
-    <div class="post-meta">
-      <span class="post-time">
-        2023-12-31
-      </span>
-      
-      
-      
-    </div>
-  </header>
-
-  
-
-  <div class="post-content">
-    
-    
-    
-    
-    
-
-    
-    <p>2016 年，Rollup 等工具的作者 Rich Harris 推出了又一力作：Svelte。这一新兴框架独辟蹊径，旨在解决 React 等框架的一系列问题。这几年 Svelte 虽然没有大红大紫，但从 <a target="_blank" rel="noopener" href="https://2022.stateofjs.com/en-US/libraries/front-end-frameworks/">State of JS</a>  统计来看，它一直保持着持久的热度：
-<img src="../images/Svelte-01.jpg">
-<em>使用度紧跟三大框架</em>
-<img src="../images/Svelte-02.jpg">
-<em>兴趣度蝉联榜首多年</em></p>
-<p>本文尝试由浅入深的介绍 Svelte，希望更多人在适合的场景下可以考虑尝试它。</p>
-<h2 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h2><p>Rich 非常喜欢 React 等前端库和框架带来的更加声明式、低心智负担的开发方式，这让前端工程师可以更好地控制复杂度、提升开发效率和质量。然而他也敏锐地洞察到了一些不那么尽如人意之处。</p>
-<h3 id="Virtual-DOM-真的快吗？"><a href="#Virtual-DOM-真的快吗？" class="headerlink" title="Virtual DOM 真的快吗？"></a>Virtual DOM 真的快吗？</h3><p>React、Vue 都引入了 Virtual DOM 的概念，从而能够进行现有 DOM 以及期望 DOM 的对比，然后再执行相对较重的 DOM 操作使得两者一致。</p>
-<p>在 <a target="_blank" rel="noopener" href="https://svelte.dev/blog/virtual-dom-is-pure-overhead">Virtual DOM is pure overhead</a> 一文中， Rich 指出 Virtual DOM 其实更多的是一种实现声明式、状态驱动 UI 开发的一种手段，并非不可或缺。它主要的问题在于有很多没有必要的 Diff。</p>
-<p>举个例子，假设我们有如下一个 React App：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [count, setCount] = useState(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">const</span> handleClick = <span class="function">() =&gt;</span> setCount(count + <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&quot;app&quot;</span>&gt;</span></span></span><br><span class="line"><span class="xml">       <span class="tag">&lt;<span class="name">p</span>&gt;</span>Count: &#123;count&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="xml">       <span class="tag">&lt;<span class="name">button</span> <span class="attr">onClick</span>=<span class="string">&#123;handleClick&#125;</span>&gt;</span>+1<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果点击一次按钮，新旧 Virtual DOM 对比如下：
-<img src="../images/Svelte-03.jpg"></p>
-    <div class="read-more">
-      <a href="/Svelte/" class="read-more-link">Read more..</a>
     </div>
     
     
